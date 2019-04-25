@@ -6,7 +6,7 @@
  * Time: 17:46
  */
 
-namespace Zhyu\Ecpay\Invoice\Types;
+namespace Twdd\Ecpay\Invoice\Types;
 
 use ArrayAccess;
 

@@ -5,6 +5,7 @@
  * Date: 2019-04-23
  * Time: 23:19
  */
+namespace Twdd\Ecpay\Invoice;
 
 class EcpayInvoiceItem
 {

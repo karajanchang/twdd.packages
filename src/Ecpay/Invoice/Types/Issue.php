@@ -5,7 +5,7 @@
  * Date: 2019-04-24
  * Time: 06:39
  */
-namespace Zhyu\Ecpay\Invoice\Types;
+namespace Twdd\Ecpay\Invoice\Types;
 
 class Issue extends TypeAbstract implements TypeInterface
 {

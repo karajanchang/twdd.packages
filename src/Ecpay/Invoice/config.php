@@ -1,4 +1,4 @@
 <?php
 return [
-    'issue' => \Zhyu\Ecpay\Invoice\Types\Issue::class,
+    'issue' => \Twdd\Ecpay\Invoice\Types\Issue::class,
 ];

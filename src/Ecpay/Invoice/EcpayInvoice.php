@@ -5,7 +5,7 @@
  * Date: 2019-04-23
  * Time: 23:04
  */
-namespace Zhyu\Ecpay\Invoice;
+namespace Twdd\Ecpay\Invoice;
 
 use ArrayAccess;
 use Countable;

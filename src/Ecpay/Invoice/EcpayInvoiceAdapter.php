@@ -1,9 +1,9 @@
 <?php
-namespace Zhyu\Ecpay\Invoice;
+namespace Twdd\Ecpay\Invoice;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Log;
-use Zhyu\Ecpay\Invoice\Types\TypeInterface;
+use Twdd\Ecpay\Invoice\Types\TypeInterface;
 use Exception;
 
 /**

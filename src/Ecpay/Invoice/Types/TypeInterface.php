@@ -6,7 +6,7 @@
  * Time: 18:02
  */
 
-namespace Zhyu\Ecpay\Invoice\Types;
+namespace Twdd\Ecpay\Invoice\Types;
 
 
 interface TypeInterface

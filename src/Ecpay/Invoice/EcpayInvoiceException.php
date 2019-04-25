@@ -5,7 +5,7 @@
  * Date: 2019-04-25
  * Time: 11:31
  */
-namespace Zhyu\Ecpay\Invoice;
+namespace Twdd\Ecpay\Invoice;
 
 use Exception;
 
