@@ -1,0 +1,44 @@
+{
+  "name": "twdd/packages",
+  "description": "some tools",
+  "keywords": [
+    
+  ],
+  "authors": [
+    {
+      "name": "karajanchang",
+      "email": "karajanchang@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0"
+    
+  },
+  "autoload": {
+     "psr-4": {
+       "Twdd\\": "src/"
+    }
+  },
+  "autoload-dev": {
+     "psr-4": {
+       "Twdd\\Tests\\Packages\\": "tests/"
+    }
+  },
+  "extra": {
+     "branch-alias": {
+       "dev-master": "0.1-dev"
+    },
+    "laravel": {
+       "providers": [
+         "Twdd\\TwddServiceProvider"
+       ],
+      "aliases": {
+
+      }
+    }
+  },
+  "prefer-stable": true,
+  "require-dev": {
+     "phpunit/phpunit": "^8.0"
+  }
+}
