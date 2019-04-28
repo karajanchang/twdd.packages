@@ -12,6 +12,7 @@ class EcpayInvoiceItem
     private $name = '';
     private $nums = 0;
     private $price = 0;
+    private $word;
     private $remark = '';
     private $amount = 0;
 
@@ -26,9 +27,11 @@ class EcpayInvoiceItem
     /**
      * @param mixed $name
      */
-    public function setName($name): void
+    public function setName($name): EcpayInvoiceItem
     {
         $this->name = $name;
+        
+        return $this;
     }
 
     /**
@@ -42,10 +45,12 @@ class EcpayInvoiceItem
     /**
      * @param mixed $nums
      */
-    public function setNums($nums): void
+    public function setNums($nums): EcpayInvoiceItem
     {
         $this->nums = $nums;
         $this->amount();
+        
+	    return $this;
     }
 
     /**
@@ -59,10 +64,12 @@ class EcpayInvoiceItem
     /**
      * @param mixed $price
      */
-    public function setPrice($price): void
+    public function setPrice($price): EcpayInvoiceItem
     {
         $this->price = $price;
         $this->amount();
+        
+	    return $this;
     }
 
     /**
@@ -76,13 +83,41 @@ class EcpayInvoiceItem
     /**
      * @param mixed $remark
      */
-    public function setRemark($remark): void
+    public function setRemark($remark): EcpayInvoiceItem
     {
         $this->remark = $remark;
+	
+	    return $this;
     }
+	
+	/**
+	 * @return mixed
+	 */
+	public function getWord() {
+		return $this->word;
+	}
+	
+	/**
+	 * @param mixed $word
+	 */
+	public function setWord($word) {
+		$this->word = $word;
+		
+		return $this;
+	}
+    
+    
 
     private function amount(){
         $this->amount = $this->price * $this->nums;
     }
+	
+	/**
+	 * @return int
+	 */
+	public function getAmount(): int {
+		return $this->amount;
+	}
+    
 
 }

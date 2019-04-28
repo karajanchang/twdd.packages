@@ -17,7 +17,10 @@ class TwddServiceProvider extends ServiceProvider
     ];
 
     public function register(){
-
+        $this->app->bind('TwddInvoice', function()
+        {
+            return app()->make(\Twdd\Helpers\TwddInvoice::class);
+        });
         $this->registerAliases();
     }
 
@@ -52,7 +55,7 @@ class TwddServiceProvider extends ServiceProvider
     {
         if (class_exists('Illuminate\Foundation\AliasLoader')) {
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-//            $loader->alias('ZhyuUrl', \Zhyu\Facades\ZhyuUrl::class);
+            $loader->alias('TwddInvoice', \Twdd\Facades\TwddInvoice::class);
         }
     }
 

@@ -12,6 +12,5 @@ namespace Twdd\Ecpay\Invoice\Types;
 interface TypeInterface
 {
     public function testing();
-
     
 }

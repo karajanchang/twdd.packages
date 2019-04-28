@@ -1,4 +1,7 @@
 <?php
 return [
-    'issue' => \Twdd\Ecpay\Invoice\Types\Issue::class,
+    'issue' => [
+    	'type' => \Twdd\Ecpay\Invoice\Types\Issue\Issue::class,
+	    'checkmac' => \Twdd\Ecpay\Invoice\Types\Issue\IssueCheckMac::class,
+            ],
 ];

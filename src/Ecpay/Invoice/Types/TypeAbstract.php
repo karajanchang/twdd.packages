@@ -13,10 +13,7 @@ use ArrayAccess;
 abstract class TypeAbstract implements ArrayAccess
 {
     protected $attributes = [];
-    protected $Invoice_Method;
-    protected $Invoice_Url;
-
-    
+    public $Invoice_Url;
 
     public function offsetExists($offset){
 
