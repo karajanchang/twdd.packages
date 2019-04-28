@@ -24,6 +24,7 @@ class TwddInvoice
                                  .str_pad($driver->DriverID, 9, '0', STR_PAD_LEFT)
                                  .rand(10000, 99999)
                                  ;
+
         return $this->issue([
             'CustomerID' => $driver->DriverID,
             'CustomerPhone' => $driver->DriverPhone,
@@ -73,10 +74,12 @@ class TwddInvoice
 
     public function makeNo($no = null, $type = 1){
         if(!is_nul($no)){
+
             return $no;
         }
 
         if(!is_null($this->RelateNumber)){
+
            return $this->RelateNumber;
         }
 
