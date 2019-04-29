@@ -6,6 +6,8 @@
  * Time: 14:34
  */
 
+namespace Twdd\Helpers;
+
 use Twdd\Ecpay\Invoice\EcpayInvoice;
 use Twdd\Ecpay\Invoice\EcpayInvoiceItem;
 use App\Drivermoney;
@@ -39,8 +41,8 @@ class TwddInvoice
         if(!isset($params['CustomerPhone']) && !isset($params['CustomerEmail'])){
             throw new \Exception('CustomerPhone 和 CustomerEmail至少其中一個要有值');
         }
-        array_walk($params, function($row, $key) use($params){
-            $this->ecpayInvoice->$key = $params[$key];
+        array_walk($params, function($row, $key){
+            $this->ecpayInvoice->$key = $row;
         });
 
         return $this;
