@@ -22,10 +22,10 @@ class TwddInvoice
         if(!isset($driver->id)){
             throw new \Exception('沒有driver的物件');
         }
-        $this->RelateNumber = 'Twdd'.date('YmdHis').str_pad(1, 2, '0', STR_PAD_LEFT)
-                                 .str_pad($driver->DriverID, 9, '0', STR_PAD_LEFT)
-                                 .rand(10000, 99999)
-                                 ;
+        $this->RelateNumber = date('YmdHis').str_pad(1, 2, '0', STR_PAD_LEFT)
+            .str_pad($driver->DriverID, 9, '0', STR_PAD_LEFT)
+            .rand(1000, 9999)
+        ;
 
         return $this->issue([
             'CustomerID' => $driver->DriverID,
@@ -54,40 +54,50 @@ class TwddInvoice
      */
     public function addItem(array $params = [])
     {
-        if(!isset($params['name']) || !isset($params['nums']) || !isset($params['price']) || !isset($params['word'])){
-            throw new Exception('name / nums / price / word 要有值');
+        if(!isset($params['name'])){
+            throw new Exception('name 要有值');
         }
+        if(!isset($params['nums'])){
+            throw new Exception('nums 要有值');
+        }
+        if(!isset($params['price'])){
+            throw new Exception('price 要有值');
+        }
+        if(!isset($params['word'])){
+            throw new Exception('word 要有值');
+        }
+
 
         $item = new EcpayInvoiceItem();
         $item->setName($params['name'])
-             ->setNums($params['nums'])
-             ->setWord($params['word'])
-             ->setPrice($params['price']);
+            ->setNums($params['nums'])
+            ->setWord($params['word'])
+            ->setPrice($params['price']);
 
         if(isset($params['remark'])){
             $item->setRemark($params['remark']);
         }
 
         $this->ecpayInvoice->pushItem($item);
-        $this->ecpayInvoice->SalesAmount+=$item->getAmount();
+        $this->ecpayInvoice->SalesAmount=$item->getAmount();
 
         return $this;
     }
 
     public function makeNo($no = null, $type = 1){
-        if(!is_nul($no)){
+        if(!is_null($no)){
 
             return $no;
         }
 
         if(!is_null($this->RelateNumber)){
 
-           return $this->RelateNumber;
+            return $this->RelateNumber;
         }
 
-        $RelateNumber = 'Twdd' . str_pad($type, 2, '0', STR_PAD_LEFT) . date('YmdHis') . rand(1000000000, 2147483647);
+        $this->RelateNumber = str_pad($type, 2, '0', STR_PAD_LEFT) . date('YmdHis') . rand(1000000000, 2147483647);
 
-        return $RelateNumber;
+        return $this->RelateNumber;
     }
 
     /**
@@ -101,4 +111,23 @@ class TwddInvoice
 
         return $res;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getRelateNumber()
+    {
+        return $this->RelateNumber;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEcpayInvoice()
+    {
+        return $this->ecpayInvoice;
+    }
+
+
+
 }
