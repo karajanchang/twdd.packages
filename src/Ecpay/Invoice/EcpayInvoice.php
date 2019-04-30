@@ -45,7 +45,7 @@ class EcpayInvoice
 			$this->EcpayType = app()->make($config['type']);
 		}
 
-        if($this->testing===true){
+        if(env('APP_DEBUG')===true){
             $this->EcpayType->testing();
             $this->testing();
         }else{

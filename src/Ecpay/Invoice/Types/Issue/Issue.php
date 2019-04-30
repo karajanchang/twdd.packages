@@ -12,7 +12,7 @@ use Twdd\Ecpay\Invoice\Types\TypeInterface;
 
 class Issue extends TypeAbstract implements TypeInterface
 {
-    public $Invoice_Url = 'https://einvoice-stage.ecpay.com.tw/Invoice/Issue';
+    public $Invoice_Url = 'https://einvoice.ecpay.com.tw/Invoice/Issue';
 
     public function __construct()
     {
