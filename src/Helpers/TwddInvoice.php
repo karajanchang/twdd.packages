@@ -29,6 +29,7 @@ class TwddInvoice
 
         return $this->issue([
             'CustomerID' => $driver->DriverID,
+            'CustomerName' => $driver->DriverName,
             'CustomerPhone' => $driver->DriverPhone,
             'CustomerEmail' => $driver->DriverEmail,
             'CustomerAddr' => $driver->DriverAddress,
