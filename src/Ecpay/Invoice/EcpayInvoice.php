@@ -16,7 +16,6 @@ use Zhyu\Facades\ZhyuCurl;
 
 class EcpayInvoice
 {
-	private $config = [];
     private $testing = true;
     public $EcpayType = null;
     public $EcpayCheckMac = null;
@@ -49,7 +48,10 @@ class EcpayInvoice
         if($this->testing===true){
             $this->EcpayType->testing();
             $this->testing();
+        }else{
+            $this->production();
         }
+
 	    if(isset($config['checkmac'])) {
 		    $this->EcpayCheckMac = app()->make($config['checkmac'], [
 			    'HashKey' => $this->HashKey,
@@ -59,6 +61,11 @@ class EcpayInvoice
         //$this->adapter = new EcpayInvoiceAdapter($this->MerchantID, $this->HashKey, $this->HashIV);
     }
 
+    public function production(){
+        $this->MerchantID = env('ECPAY_INVOICE_MERCHANTID', '2000132');
+        $this->HashKey = env('ECPAY_INVOICE_HASHKEY', 'ejCk326UnaZWKisg');
+        $this->HashIV = env('ECPAY_INVOICE_HASHIV', 'q9jcZX8Ib9LM8wYk');
+    }
 
     public function testing(){
         $this->MerchantID = '2000132';
