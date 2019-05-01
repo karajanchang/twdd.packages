@@ -7,16 +7,13 @@
  */
 namespace Twdd\Ecpay\Invoice;
 
-use ArrayAccess;
 use Illuminate\Support\Collection;
 use Twdd\Ecpay\CheckMac;
 use Zhyu\Facades\ZhyuCurl;
-
-//include_once __DIR__.'/../sdk/Ecpay_Invoice.php';
+use Illuminate\Support\Facades\Log;
 
 class EcpayInvoice
 {
-    private $testing = true;
     public $EcpayType = null;
     public $EcpayCheckMac = null;
     public $MerchantID = '3109792';
@@ -37,6 +34,7 @@ class EcpayInvoice
         $type = strtolower($type);
         $lut = include_once __DIR__.'/config.php';
         if(!isset($lut[$type])){
+            Log::alert('This invoice type does not exists!', [$lut, $type]);
             throw new \Exception('This invoice type does not exists!');
         }
         $this->exception = new EcpayInvoiceException();;
@@ -99,7 +97,7 @@ class EcpayInvoice
 		    array_push($rparams['ItemAmount'], $item->getAmount());
 		    array_push($rparams['ItemRemark'], $item->getRemark());
 	    }
-    	$returns = [];
+
 	    foreach($rparams as $key => $paras){
 	        $params[$key] = join('|', $paras);
 	    }
@@ -122,6 +120,8 @@ class EcpayInvoice
         $res = ZhyuCurl::url($this->EcpayType->Invoice_Url)->post($params);
 
         parse_str($res, $results);
+
+        Log::info($res);
 
         return $results;
     }
