@@ -16,7 +16,7 @@
     "illuminate/support": "^5.8",
     "illuminate/database": "^5.8",
     "illuminate/redis": "^5.8",
-    "zhyu/packages": ">0.*"
+    "zhyu/packages": "0.*"
 
   },
   "autoload": {
