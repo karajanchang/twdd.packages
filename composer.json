@@ -1,5 +1,6 @@
 {
   "name": "twdd/packages",
+  "license": "",
   "description": "some tools",
   "keywords": [
     
@@ -14,8 +15,9 @@
     "php": ">=7.0",
     "illuminate/support": "^5.8",
     "illuminate/database": "^5.8",
-    "illuminate/redis": "^5.8"
-    
+    "illuminate/redis": "^5.8",
+    "zhyu/packages": ">0.*"
+
   },
   "autoload": {
      "psr-4": {
