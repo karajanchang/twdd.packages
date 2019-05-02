@@ -16,7 +16,7 @@ class GoogleMap
         $location = app()->make(LatLon::class, ['lat' => $lat, 'lon' => $lon]);
         $location->fire();
 
-        return $location;
+        return $location->toArray();
     }
 
 }

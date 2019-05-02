@@ -31,9 +31,12 @@ class GoogleMapAbstract implements ArrayAccess
     public function fire(){
         try {
             $url = $this->url();
+            //dump($url);
             $content = ZhyuCurl::url($url)->get();
 
+            //dump($content);
             $data = json_decode($content);
+
             $this->locationFromLatLon($data);
 
             return $data;
@@ -61,9 +64,9 @@ class GoogleMapAbstract implements ArrayAccess
         }
     }
 
-
-
-
+    public function toArray(){
+        return $this->attributes;
+    }
 
     public function offsetExists($offset){
 
