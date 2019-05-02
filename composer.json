@@ -13,7 +13,8 @@
   "require": {
     "php": ">=7.0",
     "illuminate/support": "^5.8",
-    "illuminate/database": "^5.8"
+    "illuminate/database": "^5.8",
+    "illuminate/redis": "^5.8"
     
   },
   "autoload": {
