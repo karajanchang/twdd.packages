@@ -32,7 +32,7 @@ class EcpayInvoice
     public function __construct($type)
     {
         $type = strtolower($type);
-        $lut = include_once __DIR__.'/config.php';
+        $lut = include __DIR__.'/config.php';
         if(!isset($lut[$type])){
             Log::alert('This invoice type does not exists!', [$lut, $type]);
             throw new \Exception('This invoice type does not exists!');
