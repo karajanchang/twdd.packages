@@ -19,7 +19,6 @@ class GoogleMapAbstract implements ArrayAccess
 {
     protected $attributes = [];
 
-
     const location_maps = [
         'country' => 'country',
         'administrative_area_level_1' => 'city',
