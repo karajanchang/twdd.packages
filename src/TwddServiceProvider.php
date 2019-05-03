@@ -26,6 +26,11 @@ class TwddServiceProvider extends ServiceProvider
         {
             return app()->make(\Twdd\Helpers\GoogleMap::class);
         });
+	
+	    $this->app->bind('Infobip', function()
+	    {
+		    return app()->make(\Twdd\Helpers\Infobip::class);
+	    });
 
         $this->registerAliases();
     }
@@ -61,8 +66,9 @@ class TwddServiceProvider extends ServiceProvider
     {
         if (class_exists('Illuminate\Foundation\AliasLoader')) {
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-            $loader->alias('TwddInvoice', \Twdd\Facades\TwddInvoice::class);
             $loader->alias('GoogleMap', \Twdd\Facades\GoogleMap::class);
+	        $loader->alias('Infobip', \Twdd\Facades\Infobip::class);
+	        $loader->alias('TwddInvoice', \Twdd\Facades\TwddInvoice::class);
         }
     }
 
