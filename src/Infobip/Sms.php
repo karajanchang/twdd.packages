@@ -12,7 +12,7 @@ class Sms {
 	public function __construct(SMSTextualRequest $SMSTextualRequest)
 	{
 		$this->SMSTextualRequest = $SMSTextualRequest;
-		$this->config = new BasicAuthConfiguration(env('INFOBIP_ACCOUNT', 'TWDD'), env('INFOBIP_PASSWORD', '42745349twdd'));
+		$this->config = new BasicAuthConfiguration(env('INFOBIP_ACCOUNT', ''), env('INFOBIP_PASSWORD', ''));
 		$this->config->baseUrl = env('INFOBIP_API_URL', 'https://api.infobip.com/');
 	}
 	

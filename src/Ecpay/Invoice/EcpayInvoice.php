@@ -16,9 +16,9 @@ class EcpayInvoice
 {
     public $EcpayType = null;
     public $EcpayCheckMac = null;
-    public $MerchantID = '3109792';
-    public $HashKey = 'tE1Wxf77Sua3tvN6';
-    public $HashIV = 'wo8z6Hht6HNEycGW';
+    public $MerchantID = '2000132';
+    public $HashKey = 'ejCk326UnaZWKisg';
+    public $HashIV = 'q9jcZX8Ib9LM8wYk';
     
     protected $adapter;
     protected $exception;
