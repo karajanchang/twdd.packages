@@ -20,7 +20,7 @@ class MemberRegister implements InterfaceSms {
 	
 	public function code($code){
 		$this->code = $code;	
-		
+		$this->body();
 		return $this;
 	}
 	public function body(){
