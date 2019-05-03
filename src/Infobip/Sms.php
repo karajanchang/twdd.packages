@@ -17,7 +17,7 @@ class Sms {
 	}
 	
 	public function send($to, $text, $from = null){
-		$rfrom = is_null($form) ? env('INFOBIP_FROM', 'TWDD') : $from;
+		$rfrom = is_null($from) ? env('INFOBIP_FROM', 'TWDD') : $from;
 		$this->SMSTextualRequest->setFrom($rfrom);
 		$this->SMSTextualRequest->setTo(MobileNumber::encode($to));
 		$this->SMSTextualRequest->setText($text);
