@@ -8,6 +8,7 @@
 
 namespace Twdd\Helpers;
 
+use Twdd\GoogleMap\Address;
 use Twdd\GoogleMap\LatLon;
 
 class GoogleMap
@@ -17,6 +18,13 @@ class GoogleMap
         $location->fire();
 
         return $location->toArray();
+    }
+
+    public function address($address){
+        $address = app()->make(Address::class, ['address' => $address ]);
+        $address->fire();
+
+        return $address->toArray();
     }
 
 }
