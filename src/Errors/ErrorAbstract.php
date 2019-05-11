@@ -78,6 +78,16 @@ class ErrorAbstract extends Error implements ArrayAccess
 
     }
 
+    /**
+     * @return null
+     */
+    public function getUnit()
+    {
+        return $this->unit;
+    }
+
+
+
 
 
 }
