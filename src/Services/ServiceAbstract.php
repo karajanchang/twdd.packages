@@ -11,8 +11,11 @@ namespace Twdd\Services;
 use Illuminate\Support\Facades\Config;
 use Validator;
 
-class ServiceAbstract
+abstract class ServiceAbstract
 {
+    protected $repository;
+    protected $error;
+
     private function messages($rules){
         $locale = Config::get('app.locale');
         $lang_path = base_path('vendor/twdd/packages/src/lang/'.$locale.'/validation.php');

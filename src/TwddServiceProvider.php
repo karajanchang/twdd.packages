@@ -37,6 +37,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\MemberService::class);
         });
 
+        $this->app->bind('TaskService', function()
+        {
+            return app()->make(\Twdd\Helpers\TaskService::class);
+        });
+
         $this->registerAliases();
     }
 
@@ -77,6 +82,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('Infobip', \Twdd\Facades\Infobip::class);
             $loader->alias('TwddInvoice', \Twdd\Facades\TwddInvoice::class);
             $loader->alias('MemberService', \Twdd\Facades\MemberService::class);
+            $loader->alias('TaskService', \Twdd\Facades\TaskService::class);
         }
     }
 
