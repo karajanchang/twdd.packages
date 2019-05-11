@@ -20,7 +20,7 @@ class Register extends ServiceAbstract
 {
     use AttributesArrayTrait;
 
-    private $repository;
+    protected $repository;
     protected $error;
 
     public function __construct(MemberRepository $repository, MemberErrors $memberErrors)
