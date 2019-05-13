@@ -32,6 +32,10 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\Infobip::class);
         });
 
+        $this->app->bind('SmsMemberRegister', function($app, $params){
+            return app()->make(\Twdd\Helpers\Sms\MemberRegister::class);
+        });
+
         $this->app->bind('MemberService', function()
         {
             return app()->make(\Twdd\Helpers\MemberService::class);
@@ -81,6 +85,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('GoogleMap', \Twdd\Facades\GoogleMap::class);
             $loader->alias('Infobip', \Twdd\Facades\Infobip::class);
             $loader->alias('TwddInvoice', \Twdd\Facades\TwddInvoice::class);
+            $loader->alias('SmsMemberRegister', \Twdd\Facades\SmsMemberRegister::class);
             $loader->alias('MemberService', \Twdd\Facades\MemberService::class);
             $loader->alias('TaskService', \Twdd\Facades\TaskService::class);
         }
