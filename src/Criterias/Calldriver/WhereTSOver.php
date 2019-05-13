@@ -16,7 +16,7 @@ class WhereTSOver extends Criteria
 {
 
     public function apply($model, RepositoryInterface $repository){
-        $model = $model->where('calldriver_task_map.TS', '>=', env('CALLDRIVER_CHECK_SECONDS', 60));
+        $model = $model->where('calldriver_task_map.TS', '>=', (time() - env('CALLDRIVER_CHECK_SECONDS', 60)) );
 
         return $model;
     }

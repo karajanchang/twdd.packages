@@ -47,7 +47,6 @@ class CalldriverService extends ServiceAbstract
             $this->error->setReplace($this->calucateLastSeconds());
             return $this->error['1005'];
         }
-
         return true;
     }
 
@@ -77,10 +76,10 @@ class CalldriverService extends ServiceAbstract
             return $error;
         }
 
-
+        /*
         if($this->checkIfDuplicate()!==true){
             return $this->error['1005'];
-        }
+        }*/
 
         $cityDistricts = $this->districtRepository->citydistrictFromZip($params['zip']);
         if(isset($cityDistricts) && count($cityDistricts)){
