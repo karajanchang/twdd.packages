@@ -34,7 +34,6 @@ class GoogleMapAbstract implements ArrayAccess
             //dump($url);
             $content = ZhyuCurl::url($url)->get();
 
-            //dump($content);
             $data = json_decode($content);
 
             $this->locationFromLatLon($data);
@@ -57,6 +56,10 @@ class GoogleMapAbstract implements ArrayAccess
                     }
                 }
             }
+        }
+        if(isset($data->results[0]->geometry->location->lat)){
+            $this->offsetSet('lat', $data->results[0]->geometry->location->lat);
+            $this->offsetSet('lon', $data->results[0]->geometry->location->lng);
         }
 
         if(isset($data->results[0]->formatted_address)) {
