@@ -10,6 +10,7 @@ namespace Twdd\Repositories;
 
 
 use Twdd\Criterias\Calldriver\JoinCalldriver;
+use Twdd\Criterias\Calldriver\WhereIsCancelOrIsMatchFail;
 use Twdd\Criterias\Calldriver\WhereMember;
 use Twdd\Criterias\Calldriver\WhereTSOver;
 use Twdd\Models\CalldriverTaskMap;
@@ -26,12 +27,16 @@ class CalldriverTaskMapRepository extends Repository
         $joinCalldriver = new JoinCalldriver();
         $whereMember = new WhereMember($member);
         $whereTSOver = new WhereTSOver();
+        $whereIsCancelOrIsMatchFail = new WhereIsCancelOrIsMatchFail();
 
-        //$this->pushCriteria($joinCalldriver);
+        $this->pushCriteria($joinCalldriver);
         $this->pushCriteria($whereMember);
         $this->pushCriteria($whereTSOver);
-        
-        return $this->count();
+        $this->pushCriteria($whereIsCancelOrIsMatchFail);
+
+        $count = $this->count();
+
+        return $count;
     }
 
 }

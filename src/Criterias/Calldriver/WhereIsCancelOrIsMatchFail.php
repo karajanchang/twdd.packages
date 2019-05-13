@@ -16,11 +16,8 @@ class WhereIsCancelOrIsMatchFail extends Criteria
 {
 
     public function apply($model, RepositoryInterface $repository){
-        $model->where(function($query){
-           $query->where('is_cancel', 0);
-           $query->where('IsMatchFail', 0);
-        });
-
+        $model->where('is_cancel', 0);
+        $model->where('IsMatchFail', 0);
         return $model;
     }
 }
