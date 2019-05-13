@@ -8,7 +8,6 @@
 
 namespace Twdd\Errors;
 
-use ArrayAccess;
 
 class TaskErrors extends ErrorAbstract
 {
@@ -26,4 +25,12 @@ class TaskErrors extends ErrorAbstract
         return trans('errors.this_district_is_not_open_yet');
     }
 
+
+    public function error1004(){
+        return trans('errors.please_provider_valid_member_id');
+    }
+
+    public function error1005(){
+        return trans('errors.duplicate_call_please_call_again_later');
+    }
 }
