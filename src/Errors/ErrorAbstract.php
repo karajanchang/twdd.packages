@@ -10,7 +10,6 @@ namespace Twdd\Errors;
 
 use Error;
 use ArrayAccess;
-use Illuminate\Support\Facades\Lang;
 use Throwable;
 use Illuminate\Support\Facades\Config;
 
