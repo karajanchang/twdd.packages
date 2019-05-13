@@ -31,7 +31,7 @@ class TaskErrors extends ErrorAbstract
     }
 
     public function error1005(){
-        $replace = $this->getReplace();
-        return trans('twdd::errors.duplicate_call_please_call_again_later', [ 'second' => $replace ]);
+        $replaces = $this->getReplaces();
+        return trans('twdd::errors.duplicate_call_please_call_again_later', $replaces );
     }
 }

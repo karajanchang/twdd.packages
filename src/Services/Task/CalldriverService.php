@@ -44,7 +44,7 @@ class CalldriverService extends ServiceAbstract
     public function checkIfDuplicate(){
         if($this->mapRepository->checkIfDuplcate($this->member)>0){
 
-            $this->error->setReplace($this->calucateLastSeconds());
+            $this->error->setReplaces('seconds', $this->calucateLastSeconds());
             return $this->error['1005'];
         }
         return true;
