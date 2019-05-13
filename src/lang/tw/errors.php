@@ -6,5 +6,5 @@ return [
     'this_location_can_not_parse' => '此位置資訊無法解析，請重新選擇或輸入其他地址',
     'this_district_is_not_open_yet' => '此地區服務尚未開通，無法呼叫',
     'please_provider_valid_member_id' => '請先指定一位有效的會員',
-    'duplicate_call_please_call_again_later' => '重覆的呼叫，請過:second秒後再重試',
+    'duplicate_call_please_call_again_later' => '重覆的呼叫，請過:seconds秒後再重試',
 ];
