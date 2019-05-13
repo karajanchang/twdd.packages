@@ -19,7 +19,7 @@ class ErrorAbstract extends Error implements ArrayAccess
     protected $message = null;
     protected $unit = null;
     protected $attributes;
-    protected $replace = null;
+    protected $replaces = [];
 
     public function __construct(string $message = "", int $code = 0, Throwable $previous = null)
     {
@@ -79,25 +79,36 @@ class ErrorAbstract extends Error implements ArrayAccess
     }
 
     /**
-     * @return null
+     * @return ErrorAbstract
      */
     public function getUnit()
     {
         return $this->unit;
     }
 
-    public function setReplace($replace){
-        $this->replace = $replace;
+    public function setReplaces($tag ,$value = null){
+        if(is_array($tag)){
+           $this->replaces = $tag;
+        }else {
+            $this->replaces[$tag] = $value;
+        }
 
         return $this;
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getReplace()
+    public function getReplaces($tag = null)
     {
-        return $this->replace;
+        if(!is_null($tag)){
+            $res = [];
+            $res[$tag] = $this->replaces[$tag];
+
+            return $res;
+        }
+
+        return $this->replaces;
     }
 
 }
