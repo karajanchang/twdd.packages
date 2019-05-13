@@ -20,6 +20,7 @@ class ErrorAbstract extends Error implements ArrayAccess
     protected $message = null;
     protected $unit = null;
     protected $attributes;
+    protected $replace = null;
 
     public function __construct(string $message = "", int $code = 0, Throwable $previous = null)
     {
@@ -86,9 +87,18 @@ class ErrorAbstract extends Error implements ArrayAccess
         return $this->unit;
     }
 
+    public function setReplace($replace){
+        $this->replace = $replace;
 
+        return $this;
+    }
 
-
+    /**
+     * @return string
+     */
+    public function getReplace()
+    {
+        return $this->replace;
+    }
 
 }
-
