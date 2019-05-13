@@ -10,6 +10,8 @@ namespace Twdd\Services\Task;
 
 
 use phpDocumentor\Reflection\Types\This;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Twdd\Errors\TaskErrors;
 use Twdd\Models\Member;
 use App\User;
@@ -25,7 +27,7 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 class CalldriverService extends ServiceAbstract
 {
     use AttributesArrayTrait;
-    
+
     private $member;
     private $mapRepository;
     private $districtRepository;
@@ -38,13 +40,28 @@ class CalldriverService extends ServiceAbstract
         $this->mapRepository = $mapRepository;
         $this->districtRepository = $districtRepository;
     }
-    
+
     public function checkIfDuplicate(){
         if($this->mapRepository->checkIfDuplcate($this->member)>0){
+
+            $this->error->setReplace($this->calucateLastSeconds());
             return $this->error['1005'];
         }
 
         return true;
+    }
+
+    private function calucateLastSeconds(){
+        $key = 'CALLDRIVER_CHECK_INITAL'.$this->member->id;
+        $seconds = env('CALLDRIVER_CHECK_SECONDS', 60);
+        if(!Cache::has($key)){
+            Cache::put($key, time(), Carbon::now()->addSeconds($seconds));
+        }else{
+            $time = Cache::get($key);
+            $seconds = $seconds - (time() - $time);
+        }
+
+        return $seconds;
     }
 
 
@@ -62,7 +79,6 @@ class CalldriverService extends ServiceAbstract
 
 
         if($this->checkIfDuplicate()!==true){
-
             return $this->error['1005'];
         }
 
@@ -87,7 +103,7 @@ class CalldriverService extends ServiceAbstract
             return $calldriver;
         }catch(\Exception $e){
             Bugsnag::notifyException($e);
-            
+
             return $this->error['500'];
         }
 
@@ -118,23 +134,23 @@ class CalldriverService extends ServiceAbstract
 
         return $params;
     }
-    
+
     private function filterMap(Calldriver $calldriver, array $params){
         $paras = [
-                'member_id' => $this->member->id,
-                'calldriver_id' => $calldriver->id,
-                'is_done' => 0,
-                'is_cancel' => 0,
-                'call_type' => $params['call_type'],
-                'TS' => time(),
-                'MatchTimes' => 0,
-                'IsMatchFail' => 0,
-                'is_push' => 0,
-            ];
+            'member_id' => $this->member->id,
+            'calldriver_id' => $calldriver->id,
+            'is_done' => 0,
+            'is_cancel' => 0,
+            'call_type' => $params['call_type'],
+            'TS' => time(),
+            'MatchTimes' => 0,
+            'IsMatchFail' => 0,
+            'is_push' => 0,
+        ];
 
         return $paras;
     }
-    
+
     /**
      * @return mixed
      */
@@ -149,7 +165,7 @@ class CalldriverService extends ServiceAbstract
     public function setMember($member): CalldriverService
     {
         $this->member = $member;
-        
+
         return $this;
     }
 
@@ -159,10 +175,6 @@ class CalldriverService extends ServiceAbstract
 
         return $this;
     }
-    
-
-    
-    
 
     public function rules(){
 
