@@ -9,11 +9,20 @@
 namespace Twdd\Helpers;
 
 
+use Twdd\Models\Member;
+
 class TaskService
 {
     public function ServiceArea(){
         $app = app()->make(\Twdd\Services\Task\ServerviceArea::class);
 
+        return $app;
+    }
+
+    public function calldriver(Member $member){
+        $app = app()->make(\Twdd\Services\Task\CalldriverService::class);
+
+        $app->setMember($member);
         return $app;
     }
 }
