@@ -11,7 +11,7 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Member extends Model
+class Member extends Model implements InterfaceModel
 {
     protected $table = 'member';
     public $timestamps = false;

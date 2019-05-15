@@ -11,7 +11,7 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Calldriver extends Model
+class Calldriver extends Model implements InterfaceModel
 {
     protected $table = 'calldriver';
     public $timestamps = false;

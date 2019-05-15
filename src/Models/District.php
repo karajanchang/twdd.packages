@@ -11,7 +11,7 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class District extends Model
+class District extends Model implements InterfaceModel
 {
     protected $table = 'district';
     public $timestamps = false;
