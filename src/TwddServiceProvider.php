@@ -51,6 +51,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\CouponFactory::class);
         });
 
+        $this->app->bind('Pusher', function()
+        {
+            return app()->make(\Twdd\Helpers\Pusher::class);
+        });
+
         $this->registerAliases();
     }
 
@@ -94,6 +99,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('MemberService', \Twdd\Facades\MemberService::class);
             $loader->alias('TaskService', \Twdd\Facades\TaskService::class);
             $loader->alias('CouponFactory', \Twdd\Facades\CouponFactory::class);
+            $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
         }
     }
 
