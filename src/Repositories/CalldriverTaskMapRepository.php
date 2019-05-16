@@ -14,7 +14,7 @@ use Twdd\Criterias\Calldriver\WhereIsCancelOrIsMatchFail;
 use Twdd\Criterias\Calldriver\WhereMember;
 use Twdd\Criterias\Calldriver\WhereTSOver;
 use Twdd\Models\CalldriverTaskMap;
-use Twdd\Models\Member;
+use Twdd\Models\InterfaceModel;
 use Zhyu\Repositories\Eloquents\Repository;
 
 class CalldriverTaskMapRepository extends Repository
@@ -23,7 +23,7 @@ class CalldriverTaskMapRepository extends Repository
         return CalldriverTaskMap::class;
     }
 
-    public function checkIfDuplcate(Member $member){
+    public function checkIfDuplcate(InterfaceModel $member){
         $joinCalldriver = new JoinCalldriver();
         $whereMember = new WhereMember($member);
         $whereTSOver = new WhereTSOver();
@@ -37,6 +37,16 @@ class CalldriverTaskMapRepository extends Repository
         $count = $this->count();
 
         return $count;
+    }
+
+    public function currentCall(int $calldriver_id){
+        $joinCalldriver = new JoinCalldriver();
+
+        $this->pushCriteria($joinCalldriver);
+
+        $call = $this->findBy('calldriver_id', $calldriver_id);
+
+        return $call;
     }
 
 }

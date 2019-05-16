@@ -23,5 +23,9 @@ class CalldriverTaskMap extends Model implements InterfaceModel
         return $this->belongsTo(Calldriver::class);
     }
 
+    public function driver(){
+        return $this->belongsTo(Driver::class);
+    }
+
 
 }

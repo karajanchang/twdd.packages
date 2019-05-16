@@ -2,33 +2,32 @@
 /**
  * Created by PhpStorm.
  * User: david
- * Date: 2019-05-09
- * Time: 14:23
+ * Date: 2019-05-15
+ * Time: 16:54
  */
 
-namespace Twdd\Helpers;
+namespace Twdd\Services;
 
+use Pusher\Pusher;
 
-use Twdd\Services\PusherService;
-
-class Pusher
+class PusherService
 {
-    /**
-     * @var PusherService
-     */
-    private $pusherService;
+    private $pusher;
 
-    public function __construct(PusherService $pusherService){
-        $this->pusherService = $pusherService;
+    public function __construct()
+    {
+        $options = array(
+            'cluster' => env('PUSHER_APP_CLUSTER'),
+            'useTLS' => true
+        );
+        $this->pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'), $options);
+
+        return $this;
     }
 
-    public function webcallNotify(int $calldriver_id, array $data = []){
-        if(!isset($calldriver_id) && $calldriver_id<=0){
+    public function send($channel, $event, array $msg){
 
-            return null;
-        }
-        $channel = env('PUSHER_NOTIFY_WEBCALL_CHANNEL').$calldriver_id;
-
-        return $this->pusherService->send($channel, env('PUSHER_NOTIFY_WEBCALL_EVENT'), $data);
+        return $this->pusher->trigger($channel, $event, $msg);
     }
+
 }

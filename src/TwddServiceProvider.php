@@ -100,6 +100,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('TaskService', \Twdd\Facades\TaskService::class);
             $loader->alias('CouponFactory', \Twdd\Facades\CouponFactory::class);
             $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
+            $loader->alias('TaskNo', \Twdd\Services\Task\TaskNo::class);
         }
     }
 

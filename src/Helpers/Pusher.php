@@ -10,6 +10,7 @@ namespace Twdd\Helpers;
 
 
 use Twdd\Services\PusherService;
+use Twdd\Services\Task\CalldriverService;
 
 class Pusher
 {
@@ -18,15 +19,23 @@ class Pusher
      */
     private $pusherService;
 
-    public function __construct(PusherService $pusherService){
+    /**
+     * @var CalldriverService
+     */
+    private $calldriverService;
+
+    public function __construct(PusherService $pusherService, CalldriverService $calldriverService){
         $this->pusherService = $pusherService;
+        $this->calldriverService = $calldriverService;
     }
 
-    public function webcallNotify(int $calldriver_id, array $data = []){
+    public function webcallNotify(int $calldriver_id){
         if(!isset($calldriver_id) && $calldriver_id<=0){
 
             return null;
         }
-        return $this->pusherService->send(env('PUSHER_NOTIFY_WEBCALL_CHANNEL').$calldriver_id, env('PUSHER_NOTIFY_WEBCALL_EVENT'), $data);
+        $call = $this->calldriverService->currentCall($calldriver_id);
+
+        return $this->pusherService->send(env('PUSHER_NOTIFY_WEBCALL_CHANNEL').$calldriver_id, env('PUSHER_NOTIFY_WEBCALL_EVENT'), $call);
     }
 }

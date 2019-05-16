@@ -13,6 +13,8 @@ use phpDocumentor\Reflection\Types\This;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Twdd\Errors\TaskErrors;
+use Twdd\Models\Driver;
+use Twdd\Models\InterfaceModel;
 use Twdd\Models\Member;
 use App\User;
 use Twdd\Repositories\CalldriverRepository;
@@ -48,6 +50,79 @@ class CalldriverService extends ServiceAbstract
             return $this->error['1005'];
         }
         return true;
+    }
+
+    private function parseDriverFromCall(InterfaceModel $call = null){
+        if(!isset($call->driver)){
+            $d = new Driver();
+            $d->DriverID = '';
+            $d->DriverName = '';
+            $d->DriverPhoto = '';
+            $d->DriverRating = 0;
+            $d->DriverDrivingYear = 0;
+            $d->DriverLatlon = null;
+
+            return $d;
+        }
+        $driver = $call->driver;
+
+        $dt = Carbon::now();
+        $driver->DriverDrivingYear = $dt->diffInYears(Carbon::instance(new \DateTime($driver->DriverDrivingSeniorityDate)));
+        $latlon = $driver->location;
+        if(isset($latlon->id) && $latlon->id>0) {
+            $driver->DriverLatlon = $latlon->DriverLat . ',' . $latlon->DriverLon;
+        }
+
+        return $driver;
+    }
+
+    private function parseTaskFromCall(InterfaceModel $call = null){
+        if(!isset($call->task)) {
+            $t = new \stdClass();
+            $t->id = 0;
+            $t->TaskState = null;
+
+            return $t;
+        }
+        $task = $call->task;
+
+        return $task;
+
+    }
+
+    private function parseLatLonFromCall(InterfaceModel $call = null){
+        if(isset($call->lat) && strlen($call->lat)>0 && isset($call->lat) && strlen($call->lat)>0){
+            $latlon = $call->lat.','.$call->lon;
+
+            return $latlon;
+        }
+
+        return null;
+    }
+
+    public function currentCall(int $calldriver_id){
+        $call = $this->mapRepository->currentCall($calldriver_id);
+
+        $driver = $this->parseDriverFromCall($call);
+        $task = $this->parseTaskFromCall($call);
+
+        return [
+            'DriverID' => $driver->DriverID,
+            'DriverName' => $driver->DriverName,
+            'DriverPhoto' => $driver->DriverPhoto,
+            'DriverRating' => $driver->DriverRating,
+            'DriverDrivingYear' => $driver->DriverDrivingYear,
+            'TaskNo' => TaskNo::make($task->id),
+            'TaskState' => $task->TaskState,
+            'address' => isset($call->addr) ? $call->addr : null,
+            'addressKey' => isset($call->addrKey) ? $call->addr : null,
+            'UserCreditCode' => isset($call->UserCreditCode) ? $call->UserCreditCode : null,
+            'UserCreditValue' => isset($call->UserCreditValue) ? $call->UserCreditValue : null,
+            'address_det' => isset($call->addr_det) ? $call->addr_det : null,
+            'addressKey_det' => isset($call->addrKey_det) ? $call->addrKey_det : null,
+            'UserLatlon' => $this->parseLatLonFromCall($call),
+            'DriverLatlon' => $this->parseLatLonFromCall($call),
+        ];
     }
 
     private function calucateLastSeconds(){
