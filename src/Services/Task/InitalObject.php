@@ -19,10 +19,12 @@ class InitalObject
             $d = new Driver();
             $d->DriverID = '';
             $d->DriverName = '';
+            $d->DriverPhone = '';
             $d->DriverPhoto = '';
             $d->DriverRating = 0;
             $d->DriverDrivingYear = 0;
             $d->DriverLatlon = null;
+            $d->DriverServiceTime = 0;
 
             return $d;
         }
