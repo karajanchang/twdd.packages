@@ -11,17 +11,13 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CalldriverTaskMap extends Model implements InterfaceModel
+class Task extends Model implements InterfaceModel
 {
-    protected $table = 'calldriver_task_map';
+    protected $table = 'task';
     public $timestamps = false;
 
     protected $guarded = ['id'];
 
-
-    public function calldriver(){
-        return $this->belongsTo(Calldriver::class);
-    }
 
     public function driver(){
         return $this->belongsTo(Driver::class);
@@ -31,5 +27,8 @@ class CalldriverTaskMap extends Model implements InterfaceModel
         return $this->belongsTo(Task::class);
     }
 
+    public function member(){
+        return $this->belongsTo(Member::class);
+    }
 
 }

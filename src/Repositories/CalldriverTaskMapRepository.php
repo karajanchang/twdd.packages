@@ -44,7 +44,8 @@ class CalldriverTaskMapRepository extends Repository
 
         $this->pushCriteria($joinCalldriver);
 
-        $call = $this->findBy('calldriver_id', $calldriver_id);
+        $call = $this->findBy('calldriver_id', $calldriver_id, [ 'calldriver_task_map.id as id', 'calldriver_id', 'calldriver_task_map.task_id', 'calldriver_task_map.driver_id',
+            'IsMatchFail', 'addr', 'addrKey', 'addr_det', 'addrKey_det', 'lat', 'lon', 'UserCreditCode', 'UserCreditValue' ]);
 
         return $call;
     }
