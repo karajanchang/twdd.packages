@@ -56,6 +56,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\Pusher::class);
         });
 
+        $this->app->bind('LastCall', function()
+        {
+            return app()->make(\Twdd\Helpers\LastCall::class);
+        });
+
         $this->registerAliases();
     }
 
@@ -92,6 +97,7 @@ class TwddServiceProvider extends ServiceProvider
     {
         if (class_exists('Illuminate\Foundation\AliasLoader')) {
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
+
             $loader->alias('GoogleMap', \Twdd\Facades\GoogleMap::class);
             $loader->alias('Infobip', \Twdd\Facades\Infobip::class);
             $loader->alias('TwddInvoice', \Twdd\Facades\TwddInvoice::class);
@@ -101,6 +107,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('CouponFactory', \Twdd\Facades\CouponFactory::class);
             $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
             $loader->alias('TaskNo', \Twdd\Services\Task\TaskNo::class);
+            $loader->alias('LastCall', \Twdd\Facades\LastCall::class);
         }
     }
 

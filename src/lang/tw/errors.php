@@ -12,5 +12,9 @@ return [
     'coupon_have_been_out_of_date' => '此優惠券已過期',
     'coupon_only_can_use_in_first_use' => '此優惠券僅限首用',
     'coupon_not_open_yet' => '此優惠券尚未開放',
-
+    'this_call_doesnot_exist' => '此呼叫並不存在',
+    'this_member_doesnot_exist' => '此會員並不存在',
+    'this_task_doesnot_exist' => '此會員並不存在',
+    'this_call_have_match_fail' => '此呼叫已媒合失敗，不需要取消',
+    'this_call_have_been_cancel_donot_duplicate_cancel' => '此呼叫已取消，不需要重覆取消',
 ];
