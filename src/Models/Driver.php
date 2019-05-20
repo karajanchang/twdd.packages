@@ -23,4 +23,9 @@ class Driver extends Model implements InterfaceModel
         return $this->hasOne(DriverLocation::class);
     }
 
+    public function push(){
+
+        return $this->hasOne(DriverPush::class);
+    }
+
 }
