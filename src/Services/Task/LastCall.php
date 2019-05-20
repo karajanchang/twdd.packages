@@ -108,7 +108,7 @@ class LastCall extends ServiceAbstract
             }
 
             //---取消Task event
-            event(new CancelTasl($task));
+            event(new CancelTask($task));
 
             //--司機上線
             event(new DriverOnline($task->driver));
