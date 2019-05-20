@@ -61,6 +61,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\LastCall::class);
         });
 
+        $this->app->bind('PushNotification', function()
+        {
+            return app()->make(\Twdd\Helpers\PushNotification::class);
+        });
+
         $this->registerAliases();
     }
 
@@ -108,6 +113,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
             $loader->alias('TaskNo', \Twdd\Services\Task\TaskNo::class);
             $loader->alias('LastCall', \Twdd\Facades\LastCall::class);
+            $loader->alias('PushNotification', \Twdd\Facades\PushNotification::class);
         }
     }
 
