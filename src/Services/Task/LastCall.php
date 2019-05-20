@@ -70,7 +70,7 @@ class LastCall extends ServiceAbstract
     }
 
 
-    public function info(){
+    public function cancel(){
         if(!isset($this->member->id)){
 
             return $this->memberError['2003'];

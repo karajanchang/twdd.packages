@@ -38,8 +38,8 @@ class LastCall {
         return $this;
     }
 
-    public function info(){
+    public function cancel(){
 
-        return $this->service->info();
+        return $this->service->cancel();
     }
 }
