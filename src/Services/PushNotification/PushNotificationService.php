@@ -3,91 +3,85 @@
  * Created by PhpStorm.
  * User: david
  * Date: 2019-05-20
- * Time: 16:46
+ * Time: 16:09
  */
+namespace Twdd\Services\PushNotification;
 
-namespace Twdd\Helpers;
+use Illuminate\Support\Facades\Log;
+use Twdd\Traits\AttributesArrayTrait;
+use Zhyu\Facades\ZhyuCurl;
 
-
-use Twdd\Services\PushNotification\Gorush4user2driver;
-
-class PushNotification
+class PushNotificationService extends \Twdd\Services\ServiceAbstract
 {
-    private $service;
-    private $tokens = [];
-    private $action;
-    private $obj;
+    use AttributesArrayTrait;
 
-    private function initType($type){
-        if(is_null($type)){
-            return $this;
+    protected $host = null;
+    protected $port = 0;
+    protected $alert = null;
+    protected $data = null;
+
+    public function platform(string $type = 'ios'){
+        if(strtolower($type)=='ios'){
+            $this->platform = 1;
+        }else{
+            $this->platform = 2;
         }
-        $this->service->platform($type);
-    }
-
-    public function user(string $type = 'ios'){
-        $this->service = app()->make(Gorush4user2driver::class);
-        $this->initType($type);
 
         return $this;
     }
 
-    public function driver(string $type = 'ios'){
-        $this->service = app()->make(Gorush4driver2user::class);
-        $this->initType($type);
+    public function ios(){
+
+        return $this->platform('ios');
+    }
+
+    public function android(){
+
+        return $this->platform('android');
+    }
+
+    public function tokens(array $tokens = []){
+        $this->tokens = $tokens;
 
         return $this;
     }
 
-    public function __set($col, $val){
-        $this->service->$col = $val;
-
+    public function title(string $title){
+        $this->alert->title = $title;
+        $this->title = $title;
         return $this;
     }
-    public function __get($col){
-        return $this->service->$col;
-    }
-
-    public function __call($name, $arguments)
-    {
-        call_user_func_array([$this->service, $name], $arguments);
+    public function body(string $body){
+        $this->alert->body = $body;
+        $this->body = $body;
 
         return $this;
     }
 
-    public function pushToken($token){
-        array_push($this->tokens, $token);
-    }
-
-    private function makeData(array $params = []){
-        $data = new \stdClass();
-        $data->serial = uniqid();
-        $data->code = 0;
-        $data->action = $this->action;
-
-        $service = $this->service->toArray();
-        $data->title = isset($service['title']) ? $service['title'] : '';
-        $data->msg = isset($service['body']) ? $service['body'] : '';
-        $data->obj = $this->obj;
-
-        return $data;
-    }
-
-    public function action($action){
-        $this->action = $action;
+    public function data($data){
+        $this->data = $data;
 
         return $this;
     }
 
-    public function obj($obj){
-        $this->obj = $obj;
+    private function makeNotification(){
+        $notification = $this->toArray();
+        $notification['alert'] = $this->alert;
+        $notification['data'] = $this->data;
 
-        return $this;
+        Log::info('$notification==============$notification', $notification);
+        return $notification;
     }
 
     public function send(){
-        $this->service->data = $this->makeData();
+        $send = new \stdClass();
+        $send->notifications[] = $this->makeNotification();
 
-        return $this->service->send();
+        $url = $this->host.':'.$this->port.'/api/push';
+        $res = ZhyuCurl::url($url)->json($send, true);
+
+        return $res;
     }
+
+
 }
