@@ -38,7 +38,7 @@ class NotificationDriverMatchCancelListener
         if(isset($call->driver)) {
             try {
                 $pushNotification = PushNotification::user();
-                $push = $call->driver->push;
+                $push = $call->driver->driverpush;
                 $deviceType = strtolower($push->DeviceType);
                 if ($deviceType == 'android') {
                     $pushNotification->android();
