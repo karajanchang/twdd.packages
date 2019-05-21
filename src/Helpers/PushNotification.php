@@ -86,8 +86,8 @@ class PushNotification
     }
 
     public function send(){
-        $this->service->data = $this->makeData();
-        
+        $this->service->data($this->makeData());
+
         return $this->service->send();
     }
 }
