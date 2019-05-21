@@ -66,8 +66,8 @@ class PushNotification
         $data->action = $this->action;
 
         $service = $this->service->toArray();
-        $data->title = $service['title'];
-        $data->msg = $service['body'];
+        $data->title = isset($service['title']) ? $service['title'] : '';
+        $data->msg = isset($service['body']) ? $service['body'] : '';
         $data->obj = $this->obj;
 
         return $data;
