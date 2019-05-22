@@ -70,7 +70,7 @@ class LastCall extends ServiceAbstract
     }
 
 
-    public function cancel(){
+    public function cancel(int $user_cancel_reason_id = 0){
         if(!isset($this->member->id)){
 
             return $this->memberError['2003'];
@@ -108,7 +108,7 @@ class LastCall extends ServiceAbstract
             }
 
             //---取消Task event
-            event(new CancelTask($task));
+            event(new CancelTask($task, $user_cancel_reason_id));
 
             //--司機上線
             event(new DriverOnline($task->driver));

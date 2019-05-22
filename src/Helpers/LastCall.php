@@ -38,8 +38,8 @@ class LastCall {
         return $this;
     }
 
-    public function cancel(){
+    public function cancel(int $user_cancel_reason_id = 0){
 
-        return $this->service->cancel();
+        return $this->service->cancel($user_cancel_reason_id);
     }
 }
