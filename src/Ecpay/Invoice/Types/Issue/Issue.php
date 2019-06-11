@@ -17,7 +17,7 @@ class Issue extends TypeAbstract implements TypeInterface
     public function __construct()
     {
         $this->TimeStamp = time();
-        $this->Print = '1';
+        $this->Print = '0';
         $this->Donation = '0';
         $this->TaxType = '1';
         $this->InvType = '07';
