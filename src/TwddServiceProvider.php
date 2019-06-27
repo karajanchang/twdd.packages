@@ -66,6 +66,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\PushNotification::class);
         });
 
+        $this->app->bind('MoneyAccount', function()
+        {
+            return app()->make(\Twdd\Helpers\MoneyAccount::class);
+        });
+
         $this->registerAliases();
     }
 
@@ -114,6 +119,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('TaskNo', \Twdd\Services\Task\TaskNo::class);
             $loader->alias('LastCall', \Twdd\Facades\LastCall::class);
             $loader->alias('PushNotification', \Twdd\Facades\PushNotification::class);
+            $loader->alias('MoneyAccount', \Twdd\Facades\MoneyAccount::class);
         }
     }
 

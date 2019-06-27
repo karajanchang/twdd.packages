@@ -11,6 +11,7 @@ namespace Twdd\Helpers;
 use Twdd\Ecpay\Invoice\EcpayInvoice;
 use Twdd\Ecpay\Invoice\EcpayInvoiceItem;
 use App\Drivermoney;
+use Twdd\Facades\MoneyAccount;
 
 class TwddInvoice
 {
@@ -27,8 +28,12 @@ class TwddInvoice
             .rand(1000, 9999)
         ;
 
+        $DriverID = $driver->DriverID;
+        if(time() >= 1561910400){
+            $DriverID.=MoneyAccount::init($DriverID);
+        }
         return $this->issue([
-            'CustomerID' => $driver->DriverID,
+            'CustomerID' => $DriverID,
             'CustomerName' => $driver->DriverName,
             'CustomerPhone' => $driver->DriverPhone,
             'CustomerEmail' => $driver->DriverEmail,
