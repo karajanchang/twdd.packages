@@ -13,9 +13,9 @@
   ],
   "require": {
     "php": ">=7.0",
-    "zhyu/packages": "0.*",
     "infobip/infobip-api-php-client": "^2.3",
-    "pusher/pusher-php-server": "^3.4"
+    "pusher/pusher-php-server": "^3.4",
+    "zhyu/packages": "^0.2.5"
 
   },
   "autoload": {
