@@ -33,7 +33,7 @@ class CouponwordService extends ServiceAbstract
         }
 
         $now = time();
-        if($couponword->startTS<$now || $now > $couponword->endTS){
+        if($now < $couponword->startTS || $now > $couponword->endTS){
 
             return $this->error['4003'];
         }
