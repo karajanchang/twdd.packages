@@ -10,7 +10,7 @@ namespace Twdd\Services\PushNotification;
 
 
 
-class Gorush4driver2user extends PushNotificationService
+class Gorush4User extends PushNotificationService
 {
     public function __construct()
     {

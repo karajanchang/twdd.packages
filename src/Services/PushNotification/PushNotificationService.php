@@ -19,6 +19,8 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     protected $port = 0;
     protected $alert = null;
     protected $data = null;
+    //protected $platform = 1;
+//    protected $tokens = [];
 
     public function platform(string $type = 'ios'){
         if(strtolower($type)=='ios'){
@@ -41,7 +43,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     }
 
     public function tokens(array $tokens = []){
-        $this->tokens = $tokens;
+        $this->tokens = array_unique($tokens);
 
         return $this;
     }
@@ -52,8 +54,8 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         return $this;
     }
     public function body(string $body){
-        $this->alert->body = $body;
-        $this->body = $body;
+        $this->alert->msg = $body;
+        $this->msg = $body;
 
         return $this;
     }
@@ -70,6 +72,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         $notification['data'] = $this->data;
 
         Log::info('$notification==============$notification', $notification);
+        //dump('$notification==============$notification', $notification);
         return $notification;
     }
 
@@ -77,8 +80,14 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         $send = new \stdClass();
         $send->notifications[] = $this->makeNotification();
 
+
         $url = $this->host.':'.$this->port.'/api/push';
+        //dump($url);
+        //dd('send ... send... send ...', $send);
         $res = ZhyuCurl::url($url)->json($send, true);
+        $send = null;
+
+        $this->tokens = [];
 
         return $res;
     }

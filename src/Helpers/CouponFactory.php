@@ -12,10 +12,12 @@ namespace Twdd\Helpers;
 use App\User;
 use Illuminate\Support\Collection;
 use Twdd\Models\InterfaceModel;
+use Twdd\Models\Member;
 
 class CouponFactory
 {
     private $member = null;
+    private $members = [];
     private $user = null;
     private $params = [];
     private $createClass;
@@ -34,6 +36,19 @@ class CouponFactory
 
     public function member(InterfaceModel $member){
         $this->member = $member;
+
+        return $this;
+    }
+
+    public function addMember(\stdClass $member){
+        if(!is_null($this->member)){
+            throw new \Exception('only one method to use!');
+        }
+
+        if(!($member instanceof Member) && !($member instanceof \App\Member)){
+            $member->id = $member->member_id;
+        }
+        array_push($this->members, $member);
 
         return $this;
     }
@@ -57,7 +72,11 @@ class CouponFactory
 
         $app = app()->make($this->createClass);
 
-        return $app->init($this);
+        $res = $app->init($this);
+
+        $this->member = null;
+        $this->members = [];
+        return $res;
     }
 
     public function __get($name){

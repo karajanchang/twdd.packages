@@ -9,7 +9,8 @@
 namespace Twdd\Helpers;
 
 
-use Twdd\Services\PushNotification\Gorush4user2driver;
+use Twdd\Services\PushNotification\Gorush4driver;
+use Twdd\Services\PushNotification\Gorush4user;
 
 class PushNotification
 {
@@ -18,22 +19,30 @@ class PushNotification
     private $action;
     private $obj;
 
+    private $types = [ 1 => 'ios', 2 => 'android' ];
+
     private function initType($type){
         if(is_null($type)){
             return $this;
         }
+        if(is_int($type)){
+            if(!key_exists($type, $this->types)){
+                throw new \Exception('value of type must 1 or 2');
+            }
+            $type = $this->types[$type];
+        }
         $this->service->platform($type);
     }
 
-    public function user(string $type = 'ios'){
-        $this->service = app()->make(Gorush4user2driver::class);
+    public function user($type = 'ios'){
+        $this->service = app()->make(Gorush4user::class);
         $this->initType($type);
 
         return $this;
     }
 
     public function driver(string $type = 'ios'){
-        $this->service = app()->make(Gorush4driver2user::class);
+        $this->service = app()->make(Gorush4driver::class);
         $this->initType($type);
 
         return $this;
@@ -45,6 +54,7 @@ class PushNotification
         return $this;
     }
     public function __get($col){
+
         return $this->service->$col;
     }
 
@@ -53,10 +63,6 @@ class PushNotification
         call_user_func_array([$this->service, $name], $arguments);
 
         return $this;
-    }
-
-    public function pushToken($token){
-        array_push($this->tokens, $token);
     }
 
     private function makeData(array $params = []){
@@ -86,8 +92,12 @@ class PushNotification
     }
 
     public function send(){
-        $this->service->data($this->makeData());
+        $data = $this->makeData();
+        //dump($data);
+        //$this->service->tokens($this->tokens);
+        $this->service->data($data);
 
+        $this->tokens = [];
         return $this->service->send();
     }
 }

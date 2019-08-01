@@ -9,7 +9,6 @@ namespace Twdd\Services\Coupon;
 
 use App\User;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
-use mysql_xdevapi\Exception;
 use Twdd\Errors\CouponErrors;
 use Twdd\Models\InterfaceModel;
 use Twdd\Repositories\CouponRepository;
@@ -23,11 +22,14 @@ class CouponService extends ServiceAbstract
     private $member = null;
     private $members = [];
     private $user;
+    private $couponCode;
+    private $codes = [];
 
-    public function __construct(CouponRepository $repository, CouponErrors $error)
+    public function __construct(CouponRepository $repository, CouponErrors $error, CouponCode $couponCode)
     {
         $this->repository = $repository;
         $this->error = $error;
+        $this->couponCode = $couponCode;
     }
 
     public function valid($code){
@@ -78,15 +80,34 @@ class CouponService extends ServiceAbstract
     private function createSingle($params){
         $params['member_id'] = isset($this->member->id) ? $this->member->id : null;
         $params['mobile'] = isset($this->member->UserPhone) ? $this->member->UserPhone : null;
+        if(!isset($params['code']) || strlen($params['code'])==0) {
+            $code = $this->genCode();
+            $params['code'] = $code;
+        }
         $coupon = $this->repository->create($params);
 
         return $coupon;
     }
+
+    private function genCode(){
+        $code = $this->couponCode->init();
+        if(!in_array($code, $this->codes)){
+            $this->codes[] = $code;
+
+            return $code;
+        }
+
+        return $this->genCode();
+    }
+
     private function createBatch($params){
         $chunks = array_chunk($this->members, 500);
         $nums = 0;
         foreach ($chunks as $members) {
             $params_array = array_map(function ($member) use ($params, &$nums) {
+
+                $code = $this->genCode();
+                $params['code'] = $code;
                 $params = $this->filter($params);
                 $params['member_id'] = isset($member->id) ? $member->id : null;
                 $params['mobile'] = isset($member->UserPhone) ? $member->UserPhone : null;
@@ -95,20 +116,25 @@ class CouponService extends ServiceAbstract
                 return $params;
             }, $members);
 
-            $this->repository->createMany($params_array);
+            $this->repository->insert($params_array);
         }
+
+        //---empty array
+        $this->members = [];
 
         return $nums;
     }
 
-    public function member(InterfaceModel $member){
+    public function member(InterfaceModel $member = null){
         $this->member = $member;
 
         return $this;
     }
+
+
     public function members(array $members){
         if(!is_null($this->member)){
-            throw new Exception('only one method to use!');
+            throw new \Exception('only one method to use!');
         }
         $this->members = $members;
 
@@ -117,28 +143,26 @@ class CouponService extends ServiceAbstract
 
 
 
-    public function user(User $user){
+    public function user(User $user = null){
         $this->user = $user;
 
         return $this;
     }
 
     private function filter(array $params){
-
-
         $params['user_id'] = isset($this->user->id) ? $this->user->id : null;
         $params['createtime'] = date('Y-m-d H:i:s');
         $params['isUsed'] = 0;
         $params['is_click'] = 0;
         $params['type'] = 1;
         $params['isOnlyForThisMember'] = isset($params['is_only_for_this_member']) ? $params['is_only_for_this_member'] : 0;
-
+        UNSET($params['is_only_for_this_member']);
         return $params;
     }
 
     public function rules(){
         return [
-            'code' => 'required|string',
+            //'code' => 'required|string',
             'money' => 'required|integer|max:500',
             'title' => 'required|string',
             'startTS' => 'required',
