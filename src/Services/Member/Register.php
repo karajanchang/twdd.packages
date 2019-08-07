@@ -65,7 +65,7 @@ class Register extends ServiceAbstract
             'UserPhone'             =>  $UserPhoneRule,
             'UserEmail'             =>  'nullable|email',
             'UserPassword'          =>  'nullable',
-            'from_source'           =>  'required|between:1,5',
+            'from_source'           =>  'required|between:1,7',
             'is_mobile_verify'      =>  'required|boolean'
         ];
     }
