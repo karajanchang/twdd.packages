@@ -22,6 +22,7 @@ class Register extends ServiceAbstract
 
     protected $repository;
     protected $error;
+    private $is_verify_mobile = true;
 
     public function __construct(MemberRepository $repository, MemberErrors $memberErrors)
     {
@@ -29,7 +30,8 @@ class Register extends ServiceAbstract
         $this->error = $memberErrors;
     }
 
-    public function init(array $params = []){
+    public function init(array $params = [], $is_verify_mobile = true){
+        $this->is_verify_mobile = $is_verify_mobile;
         $error = $this->validate($params);
         if($error!==true){
             return $error;
@@ -56,10 +58,11 @@ class Register extends ServiceAbstract
     }
 
     public function rules(){
+        $UserPhoneRule = $this->is_verify_mobile===false ? 'required' : 'required|regex:/^09\d{2}-?\d{3}-?\d{3}$/';
         return [
             'UserName'              =>  'nullable',
             'UserGender'            =>  'nullable|integer|between:1,2',
-            'UserPhone'             =>  'required|regex:/^09\d{2}-?\d{3}-?\d{3}$/',
+            'UserPhone'             =>  $UserPhoneRule,
             'UserEmail'             =>  'nullable|email',
             'UserPassword'          =>  'nullable',
             'from_source'           =>  'required|between:1,5',

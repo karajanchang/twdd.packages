@@ -11,9 +11,9 @@ namespace Twdd\Helpers;
 
 class MemberService
 {
-    public function register(array $params){
+    public function register(array $params, $is_verify_mobile = true){
         $register = app()->make(\Twdd\Services\Member\Register::class);
 
-        return $register->init($params);
+        return $register->init($params, $is_verify_mobile);
     }
 }
