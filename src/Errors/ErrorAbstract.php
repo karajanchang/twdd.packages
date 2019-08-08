@@ -111,4 +111,9 @@ class ErrorAbstract extends Error implements ArrayAccess
         return $this->replaces;
     }
 
+    public function error500(){
+
+        return trans('twdd::errors.operation_error');
+    }
+
 }

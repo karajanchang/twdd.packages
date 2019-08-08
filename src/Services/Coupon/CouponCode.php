@@ -31,7 +31,7 @@ class CouponCode
             $key=rand(0, $len);
             $code.=$array[$key];
         }
-        $qb = DB::table('coupon')::where('code', '=', $code);
+        $qb = DB::table('coupon')->where('code', '=', $code);
 
         $count = $qb->count();
         if($count>0){

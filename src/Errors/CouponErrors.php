@@ -13,6 +13,11 @@ class CouponErrors extends ErrorAbstract
 {
     protected $unit = 'coupon';
 
+    public function error500(){
+
+        return trans('twdd::errors.coupon_exception');
+    }
+
     public function error4001(){
 
         return trans('twdd::errors.coupon_does_not_exists');

@@ -18,6 +18,7 @@ class CouponBatch extends AbstractCouponBatch implements InterfaceCouponBatch
         
         return $this->couponService()
                     ->member($couponFactory->member)
+                    ->members($couponFactory->members)
                     ->user($couponFactory->user)
                     ->create($couponFactory->params);
     }
