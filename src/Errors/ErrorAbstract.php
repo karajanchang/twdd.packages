@@ -88,7 +88,7 @@ class ErrorAbstract extends Error implements ArrayAccess
 
     public function setReplaces($tag ,$value = null){
         if(is_array($tag)){
-           $this->replaces = $tag;
+            $this->replaces = $tag;
         }else {
             $this->replaces[$tag] = $value;
         }
@@ -116,4 +116,21 @@ class ErrorAbstract extends Error implements ArrayAccess
         return trans('twdd::errors.operation_error');
     }
 
+    public function output($code, array $params = []){
+        if(count($params)){
+            $this->setReplaces($code, $params);
+        }
+
+        $res = [];
+        $res['error'] = $this[$code];
+
+        return $res;
+    }
+
+    public function __call($name, array $arguments){
+
+        //dd($arguments);
+        return call_user_func_array([$this, 'output'], $arguments);
+        //return $this->output($arguments[0]);
+    }
 }

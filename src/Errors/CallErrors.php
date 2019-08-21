@@ -8,8 +8,6 @@
 
 namespace Twdd\Errors;
 
-use ArrayAccess;
-
 class CallErrors extends ErrorAbstract
 {
     protected $unit = 'call';

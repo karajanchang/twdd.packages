@@ -121,10 +121,14 @@ class CalldriverService extends ServiceAbstract
             $params['district'] = $cityDistricts->first()->district;
         }
 
-        $cityDistricts_det = $this->districtRepository->citydistrictFromZip($params['zip']);
-        if(isset($cityDistricts_det) && count($cityDistricts_det)){
-            $params['city_det'] = $cityDistricts_det->first()->city;
-            $params['district_det'] = $cityDistricts_det->first()->district;
+        $params['city_det'] = null;
+        $params['district_det'] = null;
+        if(isset($params['zip_det'])) {
+            $cityDistricts_det = $this->districtRepository->citydistrictFromZip($params['zip_det']);
+            if (isset($cityDistricts_det) && count($cityDistricts_det)) {
+                $params['city_det'] = $cityDistricts_det->first()->city;
+                $params['district_det'] = $cityDistricts_det->first()->district;
+            }
         }
 
         try {
