@@ -79,6 +79,13 @@ class CouponFactory
         return $res;
     }
 
+    public function createByArray(array $params_array){
+        $app = app()->make($this->createClass);
+
+        $res = $app->initByArray($this, $params_array);
+        return $res;
+    }
+
     public function __get($name){
 
         return $this->$name;

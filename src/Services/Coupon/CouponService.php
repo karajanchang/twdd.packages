@@ -77,6 +77,19 @@ class CouponService extends ServiceAbstract
         return $this->error['500'];
     }
 
+    public function createByArray(array $params_array){
+        $new_params_array = array_map(function ($params){
+            $code = $this->genCode();
+            $params['code'] = $code;
+
+            return $params;
+        }, $params_array);
+
+        $res = $this->repository->insert($new_params_array);
+
+        return $res;
+    }
+
     private function createSingle($params){
         $params['member_id'] = isset($this->member->id) ? $this->member->id : null;
         $params['mobile'] = isset($this->member->UserPhone) ? $this->member->UserPhone : null;

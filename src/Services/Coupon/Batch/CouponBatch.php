@@ -15,11 +15,20 @@ class CouponBatch extends AbstractCouponBatch implements InterfaceCouponBatch
 {
 
     public function init(CouponFactory $couponFactory){
-        
+
         return $this->couponService()
-                    ->member($couponFactory->member)
-                    ->members($couponFactory->members)
-                    ->user($couponFactory->user)
-                    ->create($couponFactory->params);
+            ->member($couponFactory->member)
+            ->members($couponFactory->members)
+            ->user($couponFactory->user)
+            ->create($couponFactory->params);
+    }
+
+    public function initByArray(CouponFactory $couponFactory, array $params_array){
+
+        return $this->couponService()
+            ->user($couponFactory->user)
+            ->createByArray($params_array)
+            ;
+
     }
 }
