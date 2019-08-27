@@ -31,10 +31,9 @@ class DistrictRepository extends Repository
         return $all;
     }
 
-    public function citydistrictFromZip(int $zip){
+    public function citydistrictFromZip($zip){
         $all = $this->allIsopen();
-
-        $districts = $all->where('zip', $zip);
+        $districts = $all->where('zip', substr($zip, 0, 3));
 
         return $districts;
     }
