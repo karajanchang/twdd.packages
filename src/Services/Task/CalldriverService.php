@@ -30,7 +30,7 @@ class CalldriverService extends ServiceAbstract
 {
     use AttributesArrayTrait;
 
-    private $members = [];
+    private $member;
     private $mapRepository;
     private $districtRepository;
     private $user = null;
@@ -44,24 +44,7 @@ class CalldriverService extends ServiceAbstract
     }
 
     public function checkIfDuplicate(){
-        $members = $this->getMembers();
-
-        if(count($members)==0){
-
-            return $this->error['100'];
-        }
-
-        foreach($members as $member_id => $member){
-            $res = $this->checkDuplicateByMember($member);
-            if($res!==true){
-                return $res;
-            }
-        }
-
-        return true;
-    }
-    private function checkDuplicateByMember($member){
-        if($this->mapRepository->checkIfDuplcate($member)>0){
+        if($this->mapRepository->checkIfDuplcate($this->member)>0){
 
             $this->error->setReplaces('seconds', $this->calucateLastSeconds());
             return $this->error['1005'];
@@ -138,10 +121,14 @@ class CalldriverService extends ServiceAbstract
             $params['district'] = $cityDistricts->first()->district;
         }
 
-        $cityDistricts_det = $this->districtRepository->citydistrictFromZip($params['zip']);
-        if(isset($cityDistricts_det) && count($cityDistricts_det)){
-            $params['city_det'] = $cityDistricts_det->first()->city;
-            $params['district_det'] = $cityDistricts_det->first()->district;
+        $params['city_det'] = null;
+        $params['district_det'] = null;
+        if(isset($params['zip_det'])) {
+            $cityDistricts_det = $this->districtRepository->citydistrictFromZip($params['zip_det']);
+            if (isset($cityDistricts_det) && count($cityDistricts_det)) {
+                $params['city_det'] = $cityDistricts_det->first()->city;
+                $params['district_det'] = $cityDistricts_det->first()->district;
+            }
         }
 
         try {
@@ -204,19 +191,18 @@ class CalldriverService extends ServiceAbstract
     /**
      * @return mixed
      */
-    public function getMembers()
+    public function getMember()
     {
-        return $this->members;
+        return $this->member;
     }
 
     /**
      * @param mixed $member
      */
-    public function addMember(Member $member): CalldriverService
+    public function setMember($member): CalldriverService
     {
-        if(!array_key_exists($member->id, $this->members)) {
-            $this->members[$member->id] = $member;
-        }
+        $this->member = $member;
+
         return $this;
     }
 
