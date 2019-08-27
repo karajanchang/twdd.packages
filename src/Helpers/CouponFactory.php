@@ -60,6 +60,9 @@ class CouponFactory
     }
 
     public function params(array $params){
+        if(!isset($params['createtime'])){
+            $params['createtime'] = date('Y-m-d H:i:s');
+        }
         $this->params = $params;
 
         return $this;
