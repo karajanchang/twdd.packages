@@ -10,6 +10,7 @@ namespace Twdd\Helpers;
 
 
 use Twdd\Models\Member;
+use Twdd\Services\Task\Task;
 
 class TaskService
 {
@@ -22,7 +23,14 @@ class TaskService
     public function calldriver(Member $member){
         $app = app()->make(\Twdd\Services\Task\CalldriverService::class);
 
-        $app->setMember($member);
+        $app->setCallMember($member);
+
+        return $app;
+    }
+
+    public function task(){
+        $app = app()->make(\Twdd\Services\Task\Task::class);
+
         return $app;
     }
 }
