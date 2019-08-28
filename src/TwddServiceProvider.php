@@ -76,6 +76,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\TokenService::class);
         });
 
+        $this->app->bind('LatLonService', function()
+        {
+            return app()->make(\Twdd\Helpers\LatLonService::class);
+        });
+
         $this->registerAliases();
     }
 
@@ -126,6 +131,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('PushNotification', \Twdd\Facades\PushNotification::class);
             $loader->alias('MoneyAccount', \Twdd\Facades\MoneyAccount::class);
             $loader->alias('TokenService', \Twdd\Facades\TokenService::class);
+            $loader->alias('LatLonService', \Twdd\Facades\LatLonService::class);
         }
     }
 

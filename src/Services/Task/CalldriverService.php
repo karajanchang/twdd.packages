@@ -9,49 +9,88 @@
 namespace Twdd\Services\Task;
 
 
-use phpDocumentor\Reflection\Types\This;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Twdd\Errors\TaskErrors;
-use Twdd\Models\Driver;
-use Twdd\Models\InterfaceModel;
+use Twdd\Facades\LatLonService;
 use Twdd\Models\Member;
 use App\User;
 use Twdd\Repositories\CalldriverRepository;
 use Twdd\Repositories\CalldriverTaskMapRepository;
-use Twdd\Repositories\DistrictRepository;
 use Twdd\Services\ServiceAbstract;
 use Twdd\Traits\AttributesArrayTrait;
 use Twdd\Models\Calldriver;
-use Zhyu\Repositories\Contracts\RepositoryInterface;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 
 class CalldriverService extends ServiceAbstract
 {
     use AttributesArrayTrait;
 
-    private $member;
+    private $call_member = null;
+    private $members = [];
     private $mapRepository;
-    private $districtRepository;
     private $user = null;
 
-    public function __construct(CalldriverRepository $repository, TaskErrors $taskErrors, CalldriverTaskMapRepository $mapRepository, DistrictRepository $districtRepository)
+    public function __construct(CalldriverRepository $repository, TaskErrors $taskErrors, CalldriverTaskMapRepository $mapRepository)
     {
         $this->repository = $repository;
         $this->error = $taskErrors;
         $this->mapRepository = $mapRepository;
-        $this->districtRepository = $districtRepository;
     }
 
     public function checkIfDuplicate(){
-        if($this->mapRepository->checkIfDuplcate($this->member)>0){
+        $res = $this->checkIfHaveCallMember();
+        if($res!==true){
 
+            return $res;
+        }
+
+        $call_member = $this->getCallMember();
+        $res = $this->checkDuplicateByMember($call_member);
+        if($res!==true){
+
+            return $res;
+        }
+
+        return true;
+    }
+
+    private function checkDuplicateByMember($member){
+        if($this->mapRepository->checkIfDuplcate($member)>0){
             $this->error->setReplaces('seconds', $this->calucateLastSeconds());
+
             return $this->error['1005'];
         }
         return true;
     }
 
+    private function checkIfHaveCallMember(){
+        $call_member = $this->getCallMember();
+        if(is_null($call_member)){
+
+            return $this->error['1004'];
+        }
+
+        return true;
+    }
+
+    /**
+     * @return null
+     */
+    public function getCallMember()
+    {
+        return $this->call_member;
+    }
+
+    /**
+     * @param null $call_member
+     */
+    public function setCallMember(Member $call_member): CalldriverService
+    {
+        $this->call_member = $call_member;
+
+        return $this;
+    }
 
 
     public function currentCall(int $calldriver_id){
@@ -85,7 +124,7 @@ class CalldriverService extends ServiceAbstract
     }
 
     private function calucateLastSeconds(){
-        $key = 'CALLDRIVER_CHECK_INITAL'.$this->member->id;
+        $key = 'CALLDRIVER_CHECK_INITAL'.$this->getCallMember()->id;
         $seconds = env('CALLDRIVER_CHECK_SECONDS', 60);
         if(!Cache::has($key)){
             Cache::put($key, time(), Carbon::now()->addSeconds($seconds));
@@ -99,10 +138,16 @@ class CalldriverService extends ServiceAbstract
 
 
     public function create(array $params){
-        if(!isset($this->member->id)){
+        //---檢查會員是否有效
+        $res = $this->checkIfHaveCallMember();
+        if($res!==true){
 
-            return $this->error['1004'];
+            return $res;
         }
+        /*
+        if($this->checkIfDuplicate()!==true){
+            return $this->error['1005'];
+        }*/
 
         $error = $this->validate($params);
         if($error!==true){
@@ -110,25 +155,20 @@ class CalldriverService extends ServiceAbstract
             return $error;
         }
 
-        /*
-        if($this->checkIfDuplicate()!==true){
-            return $this->error['1005'];
-        }*/
+        //---lat lon 代0時要 地址轉latlon
 
-        $cityDistricts = $this->districtRepository->citydistrictFromZip($params['zip']);
+        $this->ifMmemberIsNullThenEqalCallMember();
+
+        $cityDistricts = LatLonService::citydistrictFromZip($params['zip']);
         if(isset($cityDistricts) && count($cityDistricts)){
             $params['city'] = $cityDistricts->first()->city;
             $params['district'] = $cityDistricts->first()->district;
         }
 
-        $params['city_det'] = null;
-        $params['district_det'] = null;
-        if(isset($params['zip_det'])) {
-            $cityDistricts_det = $this->districtRepository->citydistrictFromZip($params['zip_det']);
-            if (isset($cityDistricts_det) && count($cityDistricts_det)) {
-                $params['city_det'] = $cityDistricts_det->first()->city;
-                $params['district_det'] = $cityDistricts_det->first()->district;
-            }
+        $cityDistricts_det = LatLonService::citydistrictFromZip($params['zip_det']);
+        if(isset($cityDistricts_det) && count($cityDistricts_det)){
+            $params['city_det'] = $cityDistricts_det->first()->city;
+            $params['district_det'] = $cityDistricts_det->first()->district;
         }
 
         try {
@@ -140,8 +180,9 @@ class CalldriverService extends ServiceAbstract
             return $calldriver;
         }catch(\Exception $e){
             Bugsnag::notifyException($e);
+            $msg = env('APP_DEBUG')===true ? $e->getMessage() : null;
 
-            return $this->error['500'];
+            return $this->error['500'].' '.$msg;
         }
 
         return $this->error['1005'];
@@ -150,11 +191,16 @@ class CalldriverService extends ServiceAbstract
     private function insertMap(Calldriver $calldriver, array $params){
         $paras = $this->filterMap($calldriver, $params);
 
-        return $this->mapRepository->create($paras);
+        return $this->mapRepository->insert($paras);
     }
 
+
     private function filter(array $params){
-        $params['member_id'] = $this->member->id;
+        $call_member_id = $this->determineCallMemberId();
+        if(!is_null($call_member_id)){
+            $params['call_type'] = 3;
+        }
+        $params['call_member_id'] = $call_member_id;
         $params['createtime'] = date('Y-m-d H:i:s');
         $params['IsMatch'] = 0;
         $params['IsByUserKeyin'] = 0;
@@ -173,17 +219,22 @@ class CalldriverService extends ServiceAbstract
     }
 
     private function filterMap(Calldriver $calldriver, array $params){
-        $paras = [
-            'member_id' => $this->member->id,
-            'calldriver_id' => $calldriver->id,
-            'is_done' => 0,
-            'is_cancel' => 0,
-            'call_type' => $params['call_type'],
-            'TS' => time(),
-            'MatchTimes' => 0,
-            'IsMatchFail' => 0,
-            'is_push' => 0,
-        ];
+        $paras = [];
+        $members = $this->getMembers();
+        foreach($members as $member) {
+            $pp = [
+                'member_id' => $member->id,
+                'calldriver_id' => $calldriver->id,
+                'is_done' => 0,
+                'is_cancel' => 0,
+                'call_type' => $params['call_type'],
+                'TS' => time(),
+                'MatchTimes' => 0,
+                'IsMatchFail' => 0,
+                'is_push' => 0,
+            ];
+            array_push($paras, $pp);
+        }
 
         return $paras;
     }
@@ -191,17 +242,34 @@ class CalldriverService extends ServiceAbstract
     /**
      * @return mixed
      */
-    public function getMember()
+    public function getMembers()
     {
-        return $this->member;
+        return $this->members;
+    }
+
+    /**
+     * @param array $members
+     */
+    public function setMembers(array $members): void
+    {
+        $this->members = $members;
+    }
+
+    private function ifMmemberIsNullThenEqalCallMember():void{
+        $members = $this->getMembers();
+        if(count($members)==0){
+            $this->addMember($this->getCallMember());
+        }
     }
 
     /**
      * @param mixed $member
      */
-    public function setMember($member): CalldriverService
+    public function addMember(Member $member): CalldriverService
     {
-        $this->member = $member;
+        if(!array_key_exists($member->id, $this->members)) {
+            $this->members[$member->id] = $member;
+        }
 
         return $this;
     }
@@ -226,5 +294,23 @@ class CalldriverService extends ServiceAbstract
             'pay_type' => 'required|integer',
             'zip_det' => 'nullable|integer',
         ];
+    }
+
+    /**
+     * @return mixed
+     */
+    private function determineCallMemberId()
+    {
+        $call_member = $this->getCallMember();
+        $call_member_id = $call_member->id;
+        $members = $this->getMembers();
+        if (count($members) == 1) {
+            $member = array_pop($members);
+            if ($member->id == $call_member->id) {
+                $call_member_id = null;
+            }
+        }
+
+        return $call_member_id;
     }
 }
