@@ -221,7 +221,7 @@ class CalldriverService extends ServiceAbstract
     private function filterMap(Calldriver $calldriver, array $params){
         $paras = [];
         $members = $this->getMembers();
-        $call_member_id = isset($params['call_member_id']) ? $params['call_member_id'] : null;
+        $call_member_id = isset($params['call_member_id']) ? $params['call_member_id'] : 0;
         foreach($members as $member) {
             $pp = [
                 'member_id' => $member->id,
