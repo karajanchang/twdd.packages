@@ -146,7 +146,7 @@ class CouponService extends ServiceAbstract
 
 
     public function members(array $members){
-        if(!is_null($this->member)){
+        if(!is_null($this->member) && count($this->members)){
             throw new \Exception('only one method to use!');
         }
         $this->members = $members;
