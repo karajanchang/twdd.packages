@@ -197,6 +197,7 @@ class CalldriverService extends ServiceAbstract
 
     private function filter(array $params){
         $call_member_id = $this->determineCallMemberId();
+        $members = $this->getMembers();
         if(!is_null($call_member_id)){
             $params['call_type'] = 3;
         }
@@ -209,7 +210,7 @@ class CalldriverService extends ServiceAbstract
         $params['tmonth'] = date('n');
         $params['tday'] = date('j');
         $params['IsApi'] = 0;
-        $params['people'] = 1;
+        $params['people'] = count($members);
         $params['extra_price'] = 0;
         $params['is_push'] = 0;
         $params['is_receive_money_first'] = 0;
