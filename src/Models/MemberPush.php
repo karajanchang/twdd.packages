@@ -11,16 +11,11 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Member extends Model implements InterfaceModel
+class MemberPush extends Model implements InterfaceModel
 {
-    protected $table = 'member';
+    protected $table = 'member_push';
     public $timestamps = false;
 
     protected $guarded = ['id'];
-
-    public function memberpush(){
-
-        return $this->hasOne(MemberPush::class);
-    }
 
 }

@@ -8,6 +8,12 @@ class DriverToken extends TokenAbstract implements InterfaceToken
 {
     protected $accountField = 'DriverID';
     protected $passwordField = 'DriverPassword';
+    protected $emailColumn = 'DriverEmail';
+    protected $mobileColumn = 'DriverPhone';
+    protected $nameColumn = 'DriverName';
+    protected $pushColumn = 'driverpush';
+    protected $type = 'driver';
+
 
     public function __construct(DriverRepository $repository, DriverErrors $driverErrors)
     {
@@ -35,33 +41,33 @@ class DriverToken extends TokenAbstract implements InterfaceToken
         return true;
     }
     */
-    
-    
+
+
 
     public function login(){
         $res = $this->validate($this->params);
         if($res!==true){
-            
-            return $res; 
+
+            return $res;
         }
 
         if(is_null($this->PushToken)){
 
             return $this->error->_('1003');
         }
-
-        $identity = $this->identity(['id', 'DriverID', 'DriverName', 'remember_token', 'is_online', 'is_out', 'DriverCredit', 'DriverNew', 'is_pass_rookie', 'DriverServiceTime', 'pass_rookie_times']);
+        $identity = $this->identity(['id', 'DriverID', 'DriverName', 'DriverEmail',  'DriverPhone', 'remember_token', 'is_online', 'is_out', 'DriverCredit', 'DriverNew', 'is_pass_rookie', 'DriverServiceTime', 'pass_rookie_times']);
+        $this->setIdentity($identity);
 
         if(!isset($identity->id)){
 
             return $this->error->_('2003');
         }
 
-        if($identity->is_online==1){
+        if($identity->is_online!=1){
 
             return $this->error->_('1005');
         }
-        
+
         if($identity->is_out==1){
 
             return $this->error->_('1006');
@@ -80,14 +86,14 @@ class DriverToken extends TokenAbstract implements InterfaceToken
         if($identity->is_pass_rookie==0 && $identity->isARookie===true){
 
             return $this->error->_('1009', [
-                                            'start' => env('OLDBIRD_HOUR_START', 1),
-                                            'end' => env('OLDBIRD_HOUR_END', 5),
-                                            'nums' => ($identity->pass_rookie_times - $identity->DriverServiceTime),
+                'start' => env('OLDBIRD_HOUR_START', 1),
+                'end' => env('OLDBIRD_HOUR_END', 5),
+                'nums' => ($identity->pass_rookie_times - $identity->DriverServiceTime),
             ]);
         }
 
         if($identity->is_tmp_offline===true){
-            
+
             return $this->error->_('1010');
         }
 

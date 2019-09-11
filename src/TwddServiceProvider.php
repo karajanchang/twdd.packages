@@ -81,6 +81,13 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\LatLonService::class);
         });
 
+
+
+        $this->app->bind('PushService', function()
+        {
+            return app()->make(\Twdd\Helpers\PushService::class);
+        });
+
         $this->registerAliases();
     }
 
@@ -94,6 +101,10 @@ class TwddServiceProvider extends ServiceProvider
         }
 
         $this->loadTranslationsFrom(__DIR__ . '/lang', 'twdd');
+
+        $this->publishes([
+            __DIR__.'/resources/views' => resource_path('views'),
+        ]);
     }
 
     /**
@@ -132,6 +143,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('MoneyAccount', \Twdd\Facades\MoneyAccount::class);
             $loader->alias('TokenService', \Twdd\Facades\TokenService::class);
             $loader->alias('LatLonService', \Twdd\Facades\LatLonService::class);
+            $loader->alias('PushService', \Twdd\Facades\PushService::class);
         }
     }
 
