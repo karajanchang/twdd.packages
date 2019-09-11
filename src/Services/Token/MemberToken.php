@@ -45,11 +45,22 @@ class MemberToken extends TokenAbstract implements InterfaceToken
             return $res;
         }
 
-        $identity = $this->identity(['id', 'UserPhone', 'UserName', 'UserEmail', 'remember_token', 'is_online' ]);
+        $identity = $this->identity(['id', 'UserPhone', 'UserName', 'UserPassword', 'UserEmail', 'remember_token', 'is_online' ]);
         $this->setIdentity($identity);
         if(!isset($identity->id)){
 
             return $this->error['2003'];
+        }
+
+        //---登入失敗
+        if(md5($this->params['UserPassword'])!=$identity->UserPassword){
+
+            return $this->error->_('1011');
+        }
+
+        if($identity->is_online!=1){
+
+            return $this->error->_('1005');
         }
 
         return $identity;

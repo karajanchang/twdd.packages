@@ -62,6 +62,11 @@ class DriverErrors extends ErrorAbstract
         return trans('twdd::driver.driver_is_temp_offline');
     }
 
+    public function error1011(){
+
+        return trans('twdd::errors.login_fail');
+    }
+
     public function error2003(){
 
         return trans('twdd::driver.this_driver_doesnot_exist');

@@ -14,27 +14,37 @@ class MemberErrors extends ErrorAbstract
 
     public function error1001(){
 
-        return trans('twdd::errors.no_user_id');
+        return trans('twdd::member.no_user_id');
     }
 
     public function error1002(){
 
-        return trans('twdd::errors.no_user_password');
+        return trans('twdd::member.no_user_password');
     }
 
     public function error1003(){
 
-        return trans('twdd::errors.no_user_push_token');
+        return trans('twdd::member.no_user_push_token');
     }
 
     public function error1004(){
 
-        return trans('twdd::errors.no_user_phone');
+        return trans('twdd::member.no_user_phone');
+    }
+
+    public function error1005(){
+
+        return trans('twdd::member.member_can_not_online');
+    }
+
+    public function error1011(){
+
+        return trans('twdd::errors.login_fail');
     }
 
     public function error2003(){
 
-        return trans('twdd::errors.this_member_doesnot_exist');
+        return trans('twdd::member.this_member_doesnot_exist');
     }
 
 }

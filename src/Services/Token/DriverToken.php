@@ -55,12 +55,18 @@ class DriverToken extends TokenAbstract implements InterfaceToken
 
             return $this->error->_('1003');
         }
-        $identity = $this->identity(['id', 'DriverID', 'DriverName', 'DriverEmail',  'DriverPhone', 'remember_token', 'is_online', 'is_out', 'DriverCredit', 'DriverNew', 'is_pass_rookie', 'DriverServiceTime', 'pass_rookie_times']);
+        $identity = $this->identity(['id', 'DriverID', 'DriverName', 'DriverPassword', 'DriverEmail',  'DriverPhone', 'remember_token', 'is_online', 'is_out', 'DriverCredit', 'DriverNew', 'is_pass_rookie', 'DriverServiceTime', 'pass_rookie_times']);
         $this->setIdentity($identity);
 
         if(!isset($identity->id)){
 
             return $this->error->_('2003');
+        }
+
+        //---登入失敗
+        if(md5($this->params['DriverPassword'])!=$identity->DriverPassword){
+
+            return $this->error->_('1011');
         }
 
         if($identity->is_online!=1){
