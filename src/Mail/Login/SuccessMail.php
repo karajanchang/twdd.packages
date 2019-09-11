@@ -6,7 +6,7 @@ namespace Twdd\Mail\Login;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Twdd\Facades\Ip;
+use Zhyu\Facades\Ip;
 use Twdd\Models\LoginIdentify;
 
 class SuccessMail extends Mailable
