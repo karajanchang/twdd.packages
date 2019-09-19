@@ -15,11 +15,11 @@
     "php": ">=7.2",
     "infobip/infobip-api-php-client": "^2.3",
     "pusher/pusher-php-server": "^3.4",
-    "zhyu/packages": "^0.3",
     "jenssegers/mongodb": "^3.6",
     "illuminate/mail": "^6.0",
     "illuminate/redis": "^6.0",
-    "predis/predis": "^1.1"
+    "predis/predis": "^1.1",
+    "zhyu/packages": "^0.3.0"
 
   },
   "autoload": {

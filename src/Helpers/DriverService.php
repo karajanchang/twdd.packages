@@ -48,7 +48,7 @@ class DriverService extends ServiceAbstract
         }
 
         ///---寫入到mongodb
-        dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attributes, 2));
+        dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attrs, 2));
 
         //---更改db DriverState
         return $this->changeDriverState(0);
@@ -99,7 +99,7 @@ class DriverService extends ServiceAbstract
         dispatch(new DriverLocationJob($this->driver, $this->params));
 
         //---寫入到mongodb
-        dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attributes, 1));
+        dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attrs, 1));
 
         //---更改db DriverState
         return $this->changeDriverState(1);

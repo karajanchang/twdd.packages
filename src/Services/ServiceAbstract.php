@@ -17,7 +17,7 @@ abstract class ServiceAbstract
     protected $repository;
     protected $error;
     protected $params = [];
-    protected $attributes = [];
+    protected $attrs = [];
 
     private function messages($rules){
         $locale = Config::get('app.locale');
@@ -83,8 +83,8 @@ abstract class ServiceAbstract
 
     public function validateAttribures(){
         $request = app()->make(Request::class);
-        $this->attributes = $request->input("attributes");
-        if(!isset($this->attributes) || count($this->attributes)==0){
+        $this->attrs = $request->input("attributes");
+        if(!isset($this->attrs) || count($this->attrs)==0){
 
             abort(400);
         }
