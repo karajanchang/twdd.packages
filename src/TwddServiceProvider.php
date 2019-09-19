@@ -17,9 +17,14 @@ class TwddServiceProvider extends ServiceProvider
     ];
 
     public function register(){
-        $this->app->bind('TwddInvoice', function()
+        $this->app->bind('CouponFactory', function()
         {
-            return app()->make(\Twdd\Helpers\TwddInvoice::class);
+            return app()->make(\Twdd\Helpers\CouponFactory::class);
+        });
+
+        $this->app->bind('DriverService', function()
+        {
+            return app()->make(\Twdd\Helpers\DriverService::class);
         });
 
         $this->app->bind('GoogleMap', function()
@@ -32,48 +37,9 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\Infobip::class);
         });
 
-        $this->app->bind('SmsMemberRegister', function($app, $params){
-            return app()->make(\Twdd\Helpers\Sms\MemberRegister::class);
-        });
-
-        $this->app->bind('MemberService', function()
-        {
-            return app()->make(\Twdd\Helpers\MemberService::class);
-        });
-
-        $this->app->bind('TaskService', function()
-        {
-            return app()->make(\Twdd\Helpers\TaskService::class);
-        });
-
-        $this->app->bind('CouponFactory', function()
-        {
-            return app()->make(\Twdd\Helpers\CouponFactory::class);
-        });
-
-        $this->app->bind('Pusher', function()
-        {
-            return app()->make(\Twdd\Helpers\Pusher::class);
-        });
-
         $this->app->bind('LastCall', function()
         {
             return app()->make(\Twdd\Helpers\LastCall::class);
-        });
-
-        $this->app->bind('PushNotification', function()
-        {
-            return app()->make(\Twdd\Helpers\PushNotification::class);
-        });
-
-        $this->app->bind('MoneyAccount', function()
-        {
-            return app()->make(\Twdd\Helpers\MoneyAccount::class);
-        });
-
-        $this->app->bind('TokenService', function()
-        {
-            return app()->make(\Twdd\Helpers\TokenService::class);
         });
 
         $this->app->bind('LatLonService', function()
@@ -81,11 +47,53 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\LatLonService::class);
         });
 
+        $this->app->bind('MemberService', function()
+        {
+            return app()->make(\Twdd\Helpers\MemberService::class);
+        });
 
+        $this->app->bind('MoneyAccount', function()
+        {
+            return app()->make(\Twdd\Helpers\MoneyAccount::class);
+        });
+
+        $this->app->bind('PushNotification', function()
+        {
+            return app()->make(\Twdd\Helpers\PushNotification::class);
+        });
+
+        $this->app->bind('Pusher', function()
+        {
+            return app()->make(\Twdd\Helpers\Pusher::class);
+        });
 
         $this->app->bind('PushService', function()
         {
             return app()->make(\Twdd\Helpers\PushService::class);
+        });
+
+        $this->app->bind('SmsMemberRegister', function($app, $params){
+            return app()->make(\Twdd\Helpers\Sms\MemberRegister::class);
+        });
+
+        $this->app->bind('TaskService', function()
+        {
+            return app()->make(\Twdd\Helpers\TaskService::class);
+        });
+
+        $this->app->bind('TokenService', function()
+        {
+            return app()->make(\Twdd\Helpers\TokenService::class);
+        });
+
+        $this->app->bind('TwddCache', function()
+        {
+            return app()->make(\Twdd\Helpers\TwddCachee::class);
+        });
+
+        $this->app->bind('TwddInvoice', function()
+        {
+            return app()->make(\Twdd\Helpers\TwddInvoice::class);
         });
 
         $this->registerAliases();
@@ -129,21 +137,23 @@ class TwddServiceProvider extends ServiceProvider
         if (class_exists('Illuminate\Foundation\AliasLoader')) {
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
 
+            $loader->alias('CouponFactory', \Twdd\Facades\CouponFactory::class);
+            $loader->alias('DriverService', \Twdd\Facades\DriverService::class);
             $loader->alias('GoogleMap', \Twdd\Facades\GoogleMap::class);
             $loader->alias('Infobip', \Twdd\Facades\Infobip::class);
-            $loader->alias('TwddInvoice', \Twdd\Facades\TwddInvoice::class);
-            $loader->alias('SmsMemberRegister', \Twdd\Facades\SmsMemberRegister::class);
-            $loader->alias('MemberService', \Twdd\Facades\MemberService::class);
-            $loader->alias('TaskService', \Twdd\Facades\TaskService::class);
-            $loader->alias('CouponFactory', \Twdd\Facades\CouponFactory::class);
-            $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
-            $loader->alias('TaskNo', \Twdd\Services\Task\TaskNo::class);
             $loader->alias('LastCall', \Twdd\Facades\LastCall::class);
-            $loader->alias('PushNotification', \Twdd\Facades\PushNotification::class);
-            $loader->alias('MoneyAccount', \Twdd\Facades\MoneyAccount::class);
-            $loader->alias('TokenService', \Twdd\Facades\TokenService::class);
             $loader->alias('LatLonService', \Twdd\Facades\LatLonService::class);
+            $loader->alias('MemberService', \Twdd\Facades\MemberService::class);
+            $loader->alias('MoneyAccount', \Twdd\Facades\MoneyAccount::class);
+            $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
+            $loader->alias('PushNotification', \Twdd\Facades\PushNotification::class);
             $loader->alias('PushService', \Twdd\Facades\PushService::class);
+            $loader->alias('SmsMemberRegister', \Twdd\Facades\SmsMemberRegister::class);
+            $loader->alias('TwddCache', \Twdd\Facades\TwddCache::class);
+            $loader->alias('TwddInvoice', \Twdd\Facades\TwddInvoice::class);
+            $loader->alias('TaskNo', \Twdd\Services\Task\TaskNo::class);
+            $loader->alias('TaskService', \Twdd\Facades\TaskService::class);
+            $loader->alias('TokenService', \Twdd\Facades\TokenService::class);
         }
     }
 

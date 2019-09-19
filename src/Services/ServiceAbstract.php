@@ -8,6 +8,7 @@
 
 namespace Twdd\Services;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Validator;
 
@@ -15,6 +16,8 @@ abstract class ServiceAbstract
 {
     protected $repository;
     protected $error;
+    protected $params = [];
+    protected $attributes = [];
 
     private function messages($rules){
         $locale = Config::get('app.locale');
@@ -64,5 +67,32 @@ abstract class ServiceAbstract
         }
 
         return true;
+    }
+
+    public function validateParams(){
+        $request = app()->make(Request::class);
+        $this->params = $request->input("params");
+        if(!isset($this->params) || count($this->params)==0){
+
+            abort(400);
+        }
+        $res = $this->validate($this->params);
+
+        return $res;
+    }
+
+    public function validateAttribures(){
+        $request = app()->make(Request::class);
+        $this->attributes = $request->input("attributes");
+        if(!isset($this->attributes) || count($this->attributes)==0){
+
+            abort(400);
+        }
+    }
+
+    public function validateAttributesAndParams(){
+        $this->validateAttribures();
+
+        return $this->validateParams();
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'member_does_not_exists' => '沒有會員資料',
     'no_user_password' => '沒有輪入密碼',
     'no_user_push_token' => '沒有token',
     'no_user_phone' => '沒有輸入電話',

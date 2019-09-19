@@ -12,6 +12,11 @@ class MemberErrors extends ErrorAbstract
 {
     protected $unit = 'member';
 
+    public function error1000(){
+
+        return trans('twdd::member.member_does_not_exists');
+    }
+
     public function error1001(){
 
         return trans('twdd::member.no_user_id');

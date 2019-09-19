@@ -12,6 +12,11 @@ class DriverErrors extends ErrorAbstract
 {
     protected $unit = 'driver';
 
+    public function error1000(){
+
+        return trans('twdd::driver.driver_does_not_exists');
+    }
+
     public function error1001(){
 
         return trans('twdd::driver.no_driver_id');
@@ -67,8 +72,28 @@ class DriverErrors extends ErrorAbstract
         return trans('twdd::errors.login_fail');
     }
 
+    public function error1012(){
+
+        return trans('twdd::driver.driver_can_not_offline_because_onservice');
+    }
+
     public function error2003(){
 
         return trans('twdd::driver.this_driver_doesnot_exist');
+    }
+
+    public function error3000(){
+
+        return trans('twdd::driver.driver_offline_fail');
+    }
+
+    public function error3001(){
+
+        return trans('twdd::driver.driver_online_fail');
+    }
+
+    public function error3002(){
+
+        return trans('twdd::driver.driver_onservice_fail');
     }
 }

@@ -36,4 +36,15 @@ Trait ValidateTrait
         return true;
     }
 
+    private function validError($msgs){
+        return [
+            'code' => -1,
+            'msg' => trans('twdd::errors.validate_error'),
+            'return' => null,
+            'error' => [
+                'code' => 101,
+                'message' => $msgs,
+            ],
+        ];
+    }
 }

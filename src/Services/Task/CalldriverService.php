@@ -161,14 +161,16 @@ class CalldriverService extends ServiceAbstract
 
         $cityDistricts = LatLonService::citydistrictFromZip($params['zip']);
         if(isset($cityDistricts) && count($cityDistricts)){
-            $params['city'] = $cityDistricts->first()->city;
-            $params['district'] = $cityDistricts->first()->district;
+            $cityDistrict = $cityDistricts->first();
+            $params['city'] = $cityDistrict->city;
+            $params['district'] = $cityDistrict->district;
         }
 
         $cityDistricts_det = LatLonService::citydistrictFromZip($params['zip_det']);
         if(isset($cityDistricts_det) && count($cityDistricts_det)){
-            $params['city_det'] = $cityDistricts_det->first()->city;
-            $params['district_det'] = $cityDistricts_det->first()->district;
+            $cityDistrict_det = $cityDistricts_det->first();
+            $params['city_det'] = $cityDistrict_det->city;
+            $params['district_det'] = $cityDistrict_det->district;
         }
 
         try {

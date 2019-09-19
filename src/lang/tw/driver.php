@@ -1,5 +1,6 @@
 <?php
 return [
+    'driver_does_not_exists' => '沒有夥伴資料',
     'no_driver_id' => '沒有輸入夥伴序號',
     'no_driver_password' => '沒有輪入密碼',
     'no_driver_push_token' => '沒有token',
@@ -11,4 +12,8 @@ return [
     'driver_is_rookie' => '你的服務次數不足，:start ~ :end 時段不可上線，再努力 :nums 趙任務即可',
     'driver_is_temp_offline' => '你目前被暫時停權，無法上線',
     'this_driver_doesnot_exist' => '此帳號並不存在',
+    'driver_online_fail' => '上線失敗',
+    'driver_offline_fail' => '下線失敗',
+    'driver_onservice_fail' => '進任務失敗',
+    'driver_can_not_offline_because_onservice' => '無法下線，因為目前在上線狀態',
 ];

@@ -19,4 +19,18 @@ class DriverRepository extends Repository
         return Driver::class;
     }
 
+    public function updateDriverState(int $id, int $DriverState){
+
+        return $this->update($id, [
+            'DriverState' => $DriverState,
+        ]);
+    }
+
+    public function updateDriverPassword(int $id, string $DriverPassword){
+
+        return $this->update($id, [
+            'DriverState' => $DriverPassword,
+        ]);
+    }
+
 }

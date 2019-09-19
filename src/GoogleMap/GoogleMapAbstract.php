@@ -12,6 +12,7 @@ use ArrayAccess;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
+use Twdd\Facades\LatLonService;
 use Zhyu\Facades\ZhyuCurl;
 
 
@@ -68,6 +69,14 @@ class GoogleMapAbstract implements ArrayAccess
     }
 
     public function toArray(){
+        $cityDistricts = LatLonService::citydistrictFromZip($this->zip);
+        if(count($cityDistricts)){
+            $cityDistrict = $cityDistricts->first();
+            if (isset($cityDistrict->city_id) && isset($cityDistrict->district_id)) {
+                $this->offsetSet('city_id', $cityDistrict->city_id);
+                $this->offsetSet('district_id', $cityDistrict->district_id);
+            }
+        }
         return $this->attributes;
     }
 
