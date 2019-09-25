@@ -84,7 +84,17 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         $url = $this->host.':'.$this->port.'/api/push';
         //dump($url);
         //dd('send ... send... send ...', $send);
-        $res = ZhyuCurl::url($url)->json($send, true);
+
+        //--正式機才發推播
+        if(env('APP_ENV')=='production') {
+            $res = ZhyuCurl::url($url)->json($send, true);
+        }else{
+            $res = [
+                'counts' => 0,
+                'success' => 'ok',
+            ];
+        }
+
         $send = null;
 
         $this->tokens = [];
