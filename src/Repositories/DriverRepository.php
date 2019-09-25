@@ -33,4 +33,17 @@ class DriverRepository extends Repository
         ]);
     }
 
+    public function profile(int $id, array $columns = []){
+        $rcolumns = [
+            'driver_group_id', 'DriverName', 'DriverNameEn', 'DriverPhoto', 'idno', 'DriverEmail', 'DriverID', 'DriverPhone', 'DriverAddress', 'DriverZip', 'DriverGender', 'DriverEmergencyName', 'DriverEmergencyPhone', 'DriverEmergencyGender', 'DriverEmergencyRelation',
+            'offline_reason', 'is_online', 'is_out', 'is_used_gold', 'driver_gold_nums', 'DriverCredit', 'DriverState', 'DriverRating', 'DriverScore', 'DriverServiceTime', 'DriverNew', 'DriverDrivingSeniorityDate', 'isNotifyNoCredit', 'isFake', 'ajStar',
+            'is_accept_daytime_service', 'is_accept_longterm_service', 'is_accept_prematch_service', 'is_accept_creditcard', 'pass_rookie_times', 'is_pass_rookie'
+        ];
+        if(count($columns)){
+            $rcolumns = $columns;
+        }
+
+        return $this->find($id, $rcolumns);
+    }
+
 }
