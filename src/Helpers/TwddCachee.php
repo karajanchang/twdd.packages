@@ -1,5 +1,14 @@
 <?php
 /*
+ * 注意：tag第二層以後是多筆的才要加id
+ *
+ * 一個司機只會有一個 profile
+ * TwddCache::driver($id)->DriverProfile()->key('DriverProfile', $id)->get();
+ *
+ * 一個司機會有多筆的 News
+ * TwddCache::driver($id)->DriverNews($id)->key('DriverNewsList')->get();
+ *
+ *
  *  Put
  *  $cache = TwddCache::dirver(28)->BB()->key('DriverState', 28)->put('BBBBBBB', $seconds = null);
  *
@@ -8,10 +17,10 @@
  *
  * Get 1
  * $cache = TwddCache::driver(27)->AA()->key('DriverState', 27)->get($default = null);
- * 
+ *
  * Get 2
  * $cache = TwddCache::key('DriverState', 27)->get($default = null);
- * 
+ *
  * forget
  * $cache = TwddCache::key('DriverState', 27)->forget();
  *
@@ -38,7 +47,7 @@
  * });
  *
  */
- 
+
 
 namespace Twdd\Helpers;
 
@@ -216,7 +225,6 @@ class TwddCachee
      * @return $this
      */
     public function rememberForever($value){
-        $this->expired($seconds);
 
         if(count($this->tags)) {
             $this->setMap();
@@ -264,10 +272,9 @@ class TwddCachee
     /**
      * @return $this
      */
-    public function flush(){
-        if(count($this->tags)) {
-            Cache::tags($this->tags)->flush();
-            $this->clearTags();
+    public function flush(array $tags = []){
+        if(count($tags)) {
+            Cache::tags($tags)->flush();
 
             return $this;
         }

@@ -11,16 +11,18 @@ namespace Twdd\Helpers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Twdd\Errors\DriverErrors;
-use Twdd\Facades\GoogleMap;
 use Twdd\Facades\LatLonService;
 use Twdd\Facades\TwddCache;
 use Twdd\Jobs\Driver\DriverLocationJob;
 use Twdd\Jobs\Driver\MogoDriverLatLonJob;
 use Twdd\Repositories\DriverRepository;
 use Twdd\Services\ServiceAbstract;
+use Twdd\Traits\ModelToolTrait;
 
 class DriverService extends ServiceAbstract
 {
+    use ModelToolTrait;
+
     private $driver = null;
 
     public function __construct(DriverErrors $error)
@@ -47,7 +49,7 @@ class DriverService extends ServiceAbstract
             return $this->error_('1012');
         }
 
-        ///---寫入到mongodb
+        //---寫入到mongodb
         dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attrs, 2));
 
         //---更改db DriverState
@@ -105,13 +107,7 @@ class DriverService extends ServiceAbstract
         return $this->changeDriverState(1);
     }
 
-    public function onservice(){
 
-        //---寫入到mongodb
-
-        //---更改db DriverState
-        return $this->changeDriverState(2);
-    }
 
     private function changeDriverState(int $DriverState){
         if(!isset($this->driver->id)){
@@ -122,7 +118,7 @@ class DriverService extends ServiceAbstract
         $res = $app->changeDriverState($this->driver->id, $DriverState);
         if($res==1){
             //--寫入Cache
-            TwddCache::driver($this->driver->id)->DriverState($this->driver->id)->put($DriverState);
+            $this->profile($this->driver->id, ['*'], true);
 
             return true;
         }
@@ -137,11 +133,29 @@ class DriverService extends ServiceAbstract
         return $this->error->_($key);
     }
 
-    public function profile(int $id, array $columns = ['*']){
+    public function profile(int $id, array $columns = ['*'], $clear_cache = false){
         $repository = app()->make(DriverRepository::class);
 
-        return $repository->find($id, $columns);
+        $default_profile = TwddCache::driver($id)->DriverProfile()->key('DriverProfile', $id)->get();
+        if(!$default_profile || $clear_cache===true){
+            $default_profile = $repository->profile($id);
+            TwddCache::driver($id)->DriverProfile()->key('DriverProfile', $id)->put($default_profile);
+        }
+
+        $all_columns = ['*'];
+        if(count(array_diff($columns, $all_columns))==0){
+
+            return $default_profile;
+        }
+
+        if($this->checkColumnsIsExistsInThisModel($columns, $default_profile)===false){
+
+            return $repository->find($id, $columns);
+        }
+
+        return $default_profile;
     }
+
 
     private function getCitydistrictFromParams(){
         $zip = isset($this->params['zip']) ? $this->params['zip'] : null;
