@@ -19,6 +19,8 @@ class Driver extends Model implements InterfaceModel
 
     protected $guarded = ['id'];
 
+    protected $hidden = ['DriverPassword'];
+
     public function location(){
 
         return $this->hasOne(DriverLocation::class);
@@ -46,11 +48,17 @@ class Driver extends Model implements InterfaceModel
     public function isARookie(){
         $GG = intval(date('G'));
         if( $GG >= env('OLDBIRD_HOUR_START', 1) &&  $GG <= env('OLDBIRD_HOUR_END', 6) && $this->is_pass_rookie==false){
+
             return true;
 
         }
+
         return false;
     }
 
+    public function driverGroup(){
+
+        return $this->belongsTo(DriverGroup::class, 'driver_group_id');
+    }
 
 }

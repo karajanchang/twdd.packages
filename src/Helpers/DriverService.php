@@ -156,7 +156,6 @@ class DriverService extends ServiceAbstract
         return $default_profile;
     }
 
-
     private function getCitydistrictFromParams(){
         $zip = isset($this->params['zip']) ? $this->params['zip'] : null;
         $res = LatLonService::citydistrictFromLatlonOrZip($this->params['lat'], $this->params['lon'], $zip);

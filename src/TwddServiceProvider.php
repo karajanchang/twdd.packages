@@ -17,6 +17,11 @@ class TwddServiceProvider extends ServiceProvider
     ];
 
     public function register(){
+        $this->app->bind('Bank', function()
+        {
+            return app()->make(\Twdd\Helpers\Bank::class);
+        });
+
         $this->app->bind('CouponFactory', function()
         {
             return app()->make(\Twdd\Helpers\CouponFactory::class);
@@ -137,6 +142,7 @@ class TwddServiceProvider extends ServiceProvider
         if (class_exists('Illuminate\Foundation\AliasLoader')) {
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
 
+            $loader->alias('Bank', \Twdd\Facades\Bank::class);
             $loader->alias('CouponFactory', \Twdd\Facades\CouponFactory::class);
             $loader->alias('DriverService', \Twdd\Facades\DriverService::class);
             $loader->alias('GoogleMap', \Twdd\Facades\GoogleMap::class);
