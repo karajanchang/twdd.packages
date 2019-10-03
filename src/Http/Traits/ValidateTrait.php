@@ -8,7 +8,8 @@ Trait ValidateTrait
 {
     use ControllerOutputTrait;
 
-    public function getParams(Request $request){
+    public function getParams(){
+        $request = app(Request::class);
         $params = $request->input("params");
         $attributes = $request->input("attributes");
         $pars = $params;
@@ -17,16 +18,17 @@ Trait ValidateTrait
         }
         return $pars;
     }
-    public function valid($request, array $rules){
+
+    public function valid(array $rules, $request = null){
         if(count($rules)==0) return true;
 
-        if($request instanceof Request) {
-            $pars = $this->getParams($request);
-        }else{
+        if(is_array($request)){
             $pars = $request;
+        }else{
+            $pars = $this->getParams();
         }
-        $validate = Validator::make($pars, $rules);
 
+        $validate = Validator::make($pars, $rules);
         if($validate->fails()){
             $msgs = $validate->messages();
 
