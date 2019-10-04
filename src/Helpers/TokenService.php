@@ -5,7 +5,9 @@ namespace Twdd\Helpers;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Twdd\Errors\ErrorAbstract;
+use Twdd\Http\Traits\ValidateTrait;
 use Twdd\Jobs\Login\LoginFailNotify;
 use Twdd\Models\LoginIdentify;
 use Twdd\Services\Token\DriverToken;
@@ -15,6 +17,8 @@ use Twdd\Jobs\Login\LoginSuccessNotify;
 
 class TokenService
 {
+    use ValidateTrait;
+
     private $service;
     private $generateToken;
 
@@ -41,8 +45,9 @@ class TokenService
     }
 
 
+    public function login(){
+        $params = $this->getParams();
 
-    public function login(array $params){
         $res = $this->service->params($params)->login();
         if(isset($res['error'])) {
             if ($res['error'] instanceof ErrorAbstract) {
