@@ -14,7 +14,7 @@ class SuccessMail extends Mailable
     use Queueable, SerializesModels;
 
     private $model;
-    
+
     public function __construct(LoginIdentify $model)
     {
         $this->model = $model;
@@ -28,6 +28,8 @@ class SuccessMail extends Mailable
             ->with([
                 'name' => $this->model['name'],
                 'ip' => $ip,
+                'device' => $this->model['DeviceType'],
+                'type' => $this->model['type'],
             ]);
     }
 

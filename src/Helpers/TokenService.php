@@ -5,7 +5,9 @@ namespace Twdd\Helpers;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Twdd\Errors\ErrorAbstract;
+use Twdd\Http\Traits\ValidateTrait;
 use Twdd\Jobs\Login\LoginFailNotify;
 use Twdd\Models\LoginIdentify;
 use Twdd\Services\Token\DriverToken;
@@ -15,6 +17,8 @@ use Twdd\Jobs\Login\LoginSuccessNotify;
 
 class TokenService
 {
+    use ValidateTrait;
+
     private $service;
     private $generateToken;
 
@@ -41,16 +45,13 @@ class TokenService
     }
 
 
+    public function login(){
+        $params = $this->getParams();
 
-    public function login(array $params){
         $res = $this->service->params($params)->login();
-        if(isset($res['error'])) {
-            if ($res['error'] instanceof ErrorAbstract) {
 
-                return $res;
-            }
-        }
         $identity = $this->service->getIdentity();
+        //dd($identity);
 
         /* 1.===================================================
         if(isset($res['error'])){
@@ -67,14 +68,18 @@ class TokenService
 
         /* 3.===================================================
         */
+
         if(!isset($identity->id)) {
 
             return $res;
         }
 
         $loginIdentity = $this->loginIdentity($identity);
+
         if(isset($res['error'])){
             dispatch(new LoginFailNotify($loginIdentity));
+
+            return $res;
         }else{
             dispatch(new LoginSuccessNotify($loginIdentity));
             $res = $this->generateToken->generate($loginIdentity);
@@ -103,6 +108,8 @@ class TokenService
         $loginIdentity->type = $this->service->getType();
         $loginIdentity->PushToken = $this->service->getPushToken();
         $loginIdentity->DeviceType = $this->service->getDeviceType();
+        $loginIdentity->device = $this->service->getDevice();
+
         $pushColumn = $this->service->getPushColumn();
         if(isset($identity->{$pushColumn})) {
             $loginIdentity->push = $identity->{$pushColumn};

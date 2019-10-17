@@ -19,6 +19,7 @@ class TokenAbstract extends ServiceAbstract
 
     protected $PushToken = null;
     protected $DeviceType = null;
+    protected $device = null;
     protected $account = null;
     protected $password = null;
     protected $error = null;
@@ -53,6 +54,24 @@ class TokenAbstract extends ServiceAbstract
     {
         $this->DeviceType = $DeviceType;
     }
+
+    /**
+     * @return null
+     */
+    public function getDevice()
+    {
+        return $this->device;
+    }
+
+    /**
+     * @param null $device
+     */
+    public function setDevice($device): void
+    {
+        $this->device = $device;
+    }
+
+
 
     public function setPushToken($PushToken){
         $this->PushToken = $PushToken;
@@ -98,6 +117,10 @@ class TokenAbstract extends ServiceAbstract
 
         if(isset($params['DeviceType'])) {
             $this->setDeviceType($params['DeviceType']);
+        }
+
+        if(isset($params['DeviceModel'])) {
+            $this->setDevice($params['DeviceModel']);
         }
 
         $this->params = $params;

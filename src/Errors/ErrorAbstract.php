@@ -10,6 +10,7 @@ namespace Twdd\Errors;
 
 use Error;
 use ArrayAccess;
+use Exception;
 use Throwable;
 use Illuminate\Support\Facades\Config;
 
@@ -25,14 +26,30 @@ class ErrorAbstract extends Error implements ArrayAccess
     {
         parent::__construct($message, $code, $previous);
 
-        $locale = Config::get('app.locale');
+        $lang_path = $this->getLangPath();
 
-        $lang_path = base_path('lang/'.$locale.'/'.$this->unit.'/validation.php');
-        if(!file_exists($lang_path)){
-            $lang_path = base_path('vendor/twdd/packages/src/lang/'.$locale.'/'.$this->unit.'/validation.php');
+        if(is_null($lang_path)){
+            throw new Exception('can not find validation.php in lang directory.');
         }
         $lang = include $lang_path;
         $this->setAttributes($lang['attributes']);
+    }
+
+    private function getLangPath(){
+        $locale = Config::get('app.locale');
+
+        $lang_path = base_path('resources/lang/' . $locale . '/' . $this->unit . '/validation.php');
+        if (file_exists($lang_path)) {
+
+            return $lang_path;
+        }
+        $lang_path = base_path('vendor/twdd/packages/src/lang/' . $locale . '/' . $this->unit . '/validation.php');
+        if (file_exists($lang_path)) {
+
+            return $lang_path;
+        }
+
+        return null;
     }
 
     public function error101(){

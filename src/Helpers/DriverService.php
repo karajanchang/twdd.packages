@@ -36,6 +36,21 @@ class DriverService extends ServiceAbstract
         return $this;
     }
 
+    public function intask(){
+        $res = $this->validateAttributesAndParams();
+        if($res!==true){
+
+            return $res;
+        }
+
+        if($this->driver->DriverState==2){
+
+            return true;
+        }
+
+        //---更改db DriverState
+        return $this->changeDriverState(2);
+    }
 
     public function offline(){
         $res = $this->validateAttributesAndParams();
