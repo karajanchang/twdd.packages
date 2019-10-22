@@ -10,8 +10,8 @@ namespace Twdd\Helpers;
 
 
 use App\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Twdd\Models\InterfaceModel;
 use Twdd\Models\Member;
 
 class CouponFactory
@@ -34,7 +34,7 @@ class CouponFactory
         return $this;
     }
 
-    public function member(InterfaceModel $member){
+    public function member(Model $member){
         $this->member = $member;
 
         return $this;

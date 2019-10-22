@@ -8,9 +8,11 @@
 namespace Twdd\Services\Coupon;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Database\Eloquent\Model;
 use Twdd\Errors\CouponErrors;
-use Twdd\Models\InterfaceModel;
 use Twdd\Repositories\CouponwordRepository;
+use Twdd\Repositories\DriverRepository;
+use Twdd\Repositories\TaskRepository;
 use Twdd\Services\ServiceAbstract;
 use Twdd\Traits\AttributesArrayTrait;
 
@@ -18,24 +20,45 @@ class CouponwordService extends ServiceAbstract
 {
     use AttributesArrayTrait;
 
-    public function __construct(CouponwordRepository $repository, CouponErrors $error)
+    private $couponRepository = null;
+    private $driverRepository = null;
+    private $taskRepository = null;
+
+    public function __construct(CouponwordRepository $repository, CouponErrors $error, DriverRepository $driverRepository, TaskRepository $taskRepository)
     {
-        $this->repository = $repository;
+        $this->driverRepository = $driverRepository;
         $this->error = $error;
+        $this->repository = $repository;
+        $this->taskRepository = $taskRepository;
     }
 
-    public function valid(InterfaceModel $member, $code){
+    public function check($code, Model $member = null){
         $couponword = $this->repository->fetch($code);
 
         if(!isset($couponword->id)){
 
-            return $this->error['4001'];
+            return $this->error->_('4001');
         }
 
         $now = time();
         if($now < $couponword->startTS || $now > $couponword->endTS){
 
-            return $this->error['4003'];
+            return $this->error->_('4003');
+        }
+
+        if(isset($member->id) && $member->id>0){
+            if($couponword->only_first_use==1 && $member->nums7>0){
+
+                return $this->error->_('4004');
+            }
+
+            $nums = $this->taskRepository->nums7ByUserCreditCodeAndMember($code, $member->id);
+            if($nums>0){
+
+                return $this->error->_('4007');
+            }
+
+
         }
 
         return $couponword;
@@ -44,8 +67,8 @@ class CouponwordService extends ServiceAbstract
     public function find($id){
         $couponword = $this->repository->find($id);
         if(!isset($couponword->id)){
-            
-            return $this->error['4001'];
+
+            return $this->error->_('4001');
         }
 
         return $couponword;
@@ -79,6 +102,7 @@ class CouponwordService extends ServiceAbstract
     }
 
     public function rules(){
+
         return [
             'code' => 'required|string',
             'money' => 'required|integer|max:500',

@@ -39,4 +39,9 @@ class TaskRepository extends Repository
         return false;
     }
 
+    public function nums7ByUserCreditCodeAndMember(string $UserCreditCode, int $member_id){
+
+        return $this->where('UserCreditCode', $UserCreditCode)->where('TaskState', 7)->where('member_id', $member_id)->count();
+    }
+
 }

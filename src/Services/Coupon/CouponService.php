@@ -9,8 +9,8 @@ namespace Twdd\Services\Coupon;
 
 use App\User;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Database\Eloquent\Model;
 use Twdd\Errors\CouponErrors;
-use Twdd\Models\InterfaceModel;
 use Twdd\Repositories\CouponRepository;
 use Twdd\Services\ServiceAbstract;
 use Twdd\Traits\AttributesArrayTrait;
@@ -25,6 +25,7 @@ class CouponService extends ServiceAbstract
     private $couponCode;
     private $codes = [];
 
+
     public function __construct(CouponRepository $repository, CouponErrors $error, CouponCode $couponCode)
     {
         $this->repository = $repository;
@@ -32,23 +33,75 @@ class CouponService extends ServiceAbstract
         $this->couponCode = $couponCode;
     }
 
-    public function valid($code){
+    public function check($code, Model $member = null){
         $coupon = $this->repository->fetch($code);
 
         if(!isset($coupon->id)){
 
-            return $this->error['4001'];
+            return $this->error->_('4001');
         }
 
         if($coupon->isUsed==1){
 
-            return $this->error['4002'];
+            return $this->error->_('4002');
         }
 
         $now = time();
         if($now < $coupon->startTS || $now > $coupon->endTS){
 
-            return $this->error['4003'];
+            return $this->error->_('4003');
+        }
+
+        if($coupon->only_first_use==1 && isset($member->id) && $member->id>0 && $member->nums7>0){
+
+            return $this->error->_('4004');
+        }
+
+        if ($coupon->isOpen == 0) {
+
+            return $this->error->_('4005');
+        }
+
+        if ($coupon->isOnlyForThisMember == 1 && isset($member->id) && $member->id!= $coupon->member_id) {
+
+            return $this->error->_('4006');
+        }
+
+        return $coupon;
+    }
+
+    public function validCouponword($code, Model $member){
+        $coupon = $this->repository->firstByCodeAndMember($code, $member->id);
+
+        if(!isset($coupon->id)){
+
+            return $this->error->_('4001');
+        }
+
+        if($coupon->isUsed==1){
+
+            return $this->error->_('4002');
+        }
+
+        $now = time();
+        if($now < $coupon->startTS || $now > $coupon->endTS){
+
+            return $this->error->_('4003');
+        }
+
+        if($coupon->only_first_use==1 && isset($member->id) && $member->id>0 && $member->nums7>0){
+
+            return $this->error->_('4004');
+        }
+
+        if ($coupon->isOpen == 0) {
+
+            return $this->error->_('4005');
+        }
+
+        if ($coupon->isOnlyForThisMember == 1 && isset($member->id) && $member->id!= $coupon->member_id) {
+
+            return $this->error->_('4006');
         }
 
         return $coupon;
@@ -126,6 +179,7 @@ class CouponService extends ServiceAbstract
                 $params['mobile'] = isset($member->UserPhone) ? $member->UserPhone : null;
 
                 $nums++;
+
                 return $params;
             }, $members);
 
@@ -138,7 +192,7 @@ class CouponService extends ServiceAbstract
         return $nums;
     }
 
-    public function member(InterfaceModel $member = null){
+    public function member(Model $member = null){
         $this->member = $member;
 
         return $this;
@@ -170,10 +224,12 @@ class CouponService extends ServiceAbstract
         $params['type'] = 1;
         $params['isOnlyForThisMember'] = isset($params['is_only_for_this_member']) ? $params['is_only_for_this_member'] : 0;
         UNSET($params['is_only_for_this_member']);
+
         return $params;
     }
 
     public function rules(){
+
         return [
             //'code' => 'required|string',
             'money' => 'required|integer|max:500',
