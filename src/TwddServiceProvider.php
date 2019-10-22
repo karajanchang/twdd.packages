@@ -27,6 +27,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\CouponFactory::class);
         });
 
+        $this->app->bind('CouponValid', function()
+        {
+            return app()->make(\Twdd\Helpers\CouponValid::class);
+        });
+
         $this->app->bind('DriverService', function()
         {
             return app()->make(\Twdd\Helpers\DriverService::class);
@@ -144,6 +149,7 @@ class TwddServiceProvider extends ServiceProvider
 
             $loader->alias('Bank', \Twdd\Facades\Bank::class);
             $loader->alias('CouponFactory', \Twdd\Facades\CouponFactory::class);
+            $loader->alias('CouponValid', \Twdd\Facades\CouponValid::class);
             $loader->alias('DriverService', \Twdd\Facades\DriverService::class);
             $loader->alias('GoogleMap', \Twdd\Facades\GoogleMap::class);
             $loader->alias('Infobip', \Twdd\Facades\Infobip::class);

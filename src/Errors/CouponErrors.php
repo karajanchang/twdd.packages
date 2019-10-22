@@ -15,32 +15,42 @@ class CouponErrors extends ErrorAbstract
 
     public function error500(){
 
-        return trans('twdd::errors.coupon_exception');
+        return trans('twdd::coupon.coupon_exception');
     }
 
     public function error4001(){
 
-        return trans('twdd::errors.coupon_does_not_exists');
+        return trans('twdd::coupon.coupon_does_not_exists');
     }
 
     public function error4002(){
 
-        return trans('twdd::errors.coupon_have_been_used');
+        return trans('twdd::coupon.coupon_have_been_used');
     }
 
     public function error4003(){
 
-        return trans('twdd::errors.coupon_have_been_out_of_date');
+        return trans('twdd::coupon.coupon_have_been_out_of_date');
     }
 
     public function error4004(){
 
-        return trans('twdd::errors.coupon_only_can_use_in_first_use');
+        return trans('twdd::coupon.coupon_only_can_use_in_first_use');
     }
 
     public function error4005(){
 
-        return trans('twdd::errors.coupon_not_open_yet');
+        return trans('twdd::coupon.coupon_not_open_yet');
+    }
+
+    public function error4006(){
+
+        return trans('twdd::coupon.coupon_only_for_custom_member');
+    }
+
+    public function error4007(){
+
+        return trans('twdd::coupon.coupon_have_been_used');
     }
 
 }

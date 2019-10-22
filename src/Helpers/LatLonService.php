@@ -22,6 +22,32 @@ class LatLonService
         return $this->repository->citydistrictFromZip($zip);
     }
 
+    public function citydistrictFromCityAndDistrict($cityName, $districtName){
+        $districts = $this->repository->allIsopen();
+        $districts = $districts->where('city', $cityName)->where('district', $districtName);
+        if(count($districts)==0){
+
+            return [
+                'city_id' => 0,
+                'city_name' => '',
+                'district_id' => 0,
+                'district_name' => '',
+                'zip' =>  0,
+            ];
+        }
+        $district = $districts->first();
+
+        return [
+            'city_id' => $district->city_id,
+            'city_name' => $district->city,
+            'district_id' => $district->district_id,
+            'district_name' => $district->district,
+            'zip' =>  $district->zip,
+        ];
+    }
+
+
+
     public function citydistrictFromLatlonOrZip($lat, $lon, $zip = null){
         $all = [
             'city_id' => null,
