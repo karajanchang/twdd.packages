@@ -37,12 +37,6 @@ class DriverService extends ServiceAbstract
     }
 
     public function intask(){
-        $res = $this->validateAttributesAndParams();
-        if($res!==true){
-
-            return $res;
-        }
-
         if($this->driver->DriverState==2){
 
             return true;
