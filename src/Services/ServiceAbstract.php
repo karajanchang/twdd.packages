@@ -10,10 +10,13 @@ namespace Twdd\Services;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Twdd\Http\Traits\ValidateTrait;
 use Validator;
 
 abstract class ServiceAbstract
 {
+    use ValidateTrait;
+
     protected $repository;
     protected $error;
     protected $params = [];
