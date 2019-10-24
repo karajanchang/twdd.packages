@@ -11,7 +11,7 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DriverLocation extends Model implements InterfaceModel
+class DriverLocation extends Model
 {
     protected $table = 'driver_location';
     public $timestamps = false;

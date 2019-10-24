@@ -11,7 +11,7 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DriverPush extends Model implements InterfaceModel
+class DriverPush extends Model
 {
     protected $table = 'driver_push';
     public $timestamps = false;

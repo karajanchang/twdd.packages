@@ -10,6 +10,7 @@ namespace Twdd\Repositories;
 
 
 use App\User;
+use Illuminate\Database\Eloquent\Model;
 use Twdd\Criterias\Calldriver\JoinCalldriver;
 use Twdd\Criterias\Calldriver\OrderByMapId;
 use Twdd\Criterias\Calldriver\WhereIsCancelOrIsMatchFail;
@@ -17,7 +18,6 @@ use Twdd\Criterias\Calldriver\WhereMember;
 use Twdd\Criterias\Calldriver\WhereTSOver;
 use Twdd\Criterias\Calldriver\WhereUser;
 use Twdd\Models\CalldriverTaskMap;
-use Twdd\Models\InterfaceModel;
 use Twdd\Models\Member;
 use Zhyu\Repositories\Eloquents\Repository;
 
@@ -27,7 +27,7 @@ class CalldriverTaskMapRepository extends Repository
         return CalldriverTaskMap::class;
     }
 
-    public function checkIfDuplcate(InterfaceModel $member){
+    public function checkIfDuplcate(Model $member){
         $joinCalldriver = new JoinCalldriver();
         $whereMember = new WhereMember($member);
         $whereTSOver = new WhereTSOver();

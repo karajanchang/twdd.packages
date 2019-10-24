@@ -11,7 +11,7 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MemberPush extends Model implements InterfaceModel
+class MemberPush extends Model
 {
     protected $table = 'member_push';
     public $timestamps = false;

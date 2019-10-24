@@ -11,7 +11,7 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Couponword extends Model implements InterfaceModel
+class Couponword extends Model
 {
     protected $table = 'couponword';
     public $timestamps = false;

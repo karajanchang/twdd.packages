@@ -10,11 +10,11 @@ namespace Twdd\Services\Task;
 
 
 use Carbon\Carbon;
-use Twdd\Models\InterfaceModel;
+use Illuminate\Database\Eloquent\Model;
 
 class InitalObject
 {
-    public static function parseDriverFromCall(InterfaceModel $call = null){
+    public static function parseDriverFromCall(Model $call = null){
         if(!isset($call->driver)){
             $d = new Driver();
             $d->DriverID = '';
@@ -47,7 +47,7 @@ class InitalObject
 
         return $t;
     }
-    public static function parseTaskFromCall(InterfaceModel $call = null){
+    public static function parseTaskFromCall(Model $call = null){
         if(!isset($call->task_id)) {
 
             return self::emptyTask();
@@ -61,7 +61,7 @@ class InitalObject
         return $task;
     }
 
-    public static function parseLatLonFromCall(InterfaceModel $call = null){
+    public static function parseLatLonFromCall(Model $call = null){
         if(isset($call->lat) && strlen($call->lat)>0 && isset($call->lat) && strlen($call->lat)>0){
             $latlon = $call->lat.','.$call->lon;
 

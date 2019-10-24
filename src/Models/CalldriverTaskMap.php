@@ -11,7 +11,7 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CalldriverTaskMap extends Model implements InterfaceModel
+class CalldriverTaskMap extends Model
 {
     protected $table = 'calldriver_task_map';
     public $timestamps = false;

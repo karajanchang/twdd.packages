@@ -12,7 +12,7 @@ namespace Twdd\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
-class Driver extends Model implements InterfaceModel
+class Driver extends Model
 {
     protected $table = 'driver';
     public $timestamps = false;

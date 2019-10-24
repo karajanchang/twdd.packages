@@ -11,7 +11,7 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DriverTmpOffline extends Model implements InterfaceModel
+class DriverTmpOffline extends Model
 {
     protected $table = 'driver_tmp_offline';
     public $timestamps = true;
