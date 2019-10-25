@@ -67,6 +67,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\MoneyAccount::class);
         });
 
+        $this->app->bind('PayService', function($app, $params){
+
+            return app()->make(\Twdd\Helpers\PayService::class);
+        });
+
         $this->app->bind('PushNotification', function()
         {
             return app()->make(\Twdd\Helpers\PushNotification::class);
@@ -83,8 +88,11 @@ class TwddServiceProvider extends ServiceProvider
         });
 
         $this->app->bind('SmsMemberRegister', function($app, $params){
+
             return app()->make(\Twdd\Helpers\Sms\MemberRegister::class);
         });
+
+
 
         $this->app->bind('TaskService', function()
         {
@@ -157,6 +165,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('LatLonService', \Twdd\Facades\LatLonService::class);
             $loader->alias('MemberService', \Twdd\Facades\MemberService::class);
             $loader->alias('MoneyAccount', \Twdd\Facades\MoneyAccount::class);
+            $loader->alias('PayService', \Twdd\Facades\PayService::class);
             $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
             $loader->alias('PushNotification', \Twdd\Facades\PushNotification::class);
             $loader->alias('PushService', \Twdd\Facades\PushService::class);

@@ -11,17 +11,12 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Task extends Model
+class TaskPayLog extends Model implements InterfaceModel
 {
-    protected $table = 'task';
+    protected $table = 'task_pay_logs';
     public $timestamps = false;
 
     protected $guarded = ['id'];
-
-
-    public function driver(){
-        return $this->belongsTo(Driver::class);
-    }
 
     public function task(){
         return $this->belongsTo(Task::class);
@@ -31,8 +26,4 @@ class Task extends Model
         return $this->belongsTo(Member::class);
     }
 
-    public function paylogs(){
-
-        return $this->hasMany(TaskPayLog::class);
-    }
 }
