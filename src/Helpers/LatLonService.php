@@ -23,17 +23,22 @@ class LatLonService
     }
 
     public function citydistrictFromCityAndDistrict($cityName, $districtName){
-        $districts = $this->repository->allIsopen();
-        $districts = $districts->where('city', $cityName)->where('district', $districtName);
+        $odistricts = $this->repository->allIsopen();
+        $districts = $odistricts->where('city', $cityName)->where('district', $districtName);
         if(count($districts)==0){
+            $zip = $this->loadFromDisk($cityName, $districtName);
+            $districts = $odistricts->where('zip', $zip);
 
-            return [
-                'city_id' => 0,
-                'city_name' => '',
-                'district_id' => 0,
-                'district_name' => '',
-                'zip' =>  0,
-            ];
+            if(count($districts)==0) {
+
+                return [
+                    'city_id' => 0,
+                    'city_name' => '',
+                    'district_id' => 0,
+                    'district_name' => '',
+                    'zip' => 0,
+                ];
+            }
         }
         $district = $districts->first();
 
@@ -44,6 +49,31 @@ class LatLonService
             'district_name' => $district->district,
             'zip' =>  $district->zip,
         ];
+    }
+
+    private function loadFromDisk(string $cityName, string $districtName){
+        $file = __DIR__.'/../Models/location.php';
+        $zip = null;
+        if(file_exists($file)){
+            $citys = include_once $file;
+            foreach($citys as $city => $districts){
+                if($city==trim($cityName)) {
+                    $key = trim($districtName);
+                    array_map(function($ds) use($key, &$zip){
+                        if(!is_null($zip)){
+
+                            return ;
+                        }
+                        if(array_key_exists($key, $ds)){
+
+                            $zip = $ds[$key];
+                        }
+                    }, $districts);
+                }
+            }
+        }
+
+        return $zip;
     }
 
 
