@@ -22,7 +22,7 @@ class ServerviceArea extends ServiceAbstract
         $this->repository = $repository;
         $this->error = $taskErrors;
     }
-    
+
     public function check(array $params){
         $error = $this->validate($params);
         if($error!==true){
@@ -30,9 +30,8 @@ class ServerviceArea extends ServiceAbstract
         }
 
         if($this->checkLatLon($params)!==true){
-            return [
-                'error' =>  $this->error['1001'],
-            ];
+
+            return $this->error->_('1001');
         }
 
         $res = $this->checkZipIsOpen($params);
@@ -61,23 +60,23 @@ class ServerviceArea extends ServiceAbstract
 
     private function checkZipIsOpen(array $params){
         if(!isset($params['zip'])){
-           $location = GoogleMap::latlon($params['lat'], $params['lon']);
-           $zip = $location['zip'];
+            $location = GoogleMap::latlon($params['lat'], $params['lon']);
+            $zip = $location['zip'];
         }else{
-           $zip = $params['zip'];
+            $zip = $params['zip'];
         }
 
         $zip = substr($zip, 0, 3);
 
         if(strlen($zip)!=3){
 
-            return $this->error['1002'];
+            return $this->error->_('1002');
         }
         $districts = $this->repository->allIsopen();
         $district = $districts->where('zip', $zip);
         if(count($district)==0){
-            
-            return $this->error['1003'];
+
+            return $this->error->_('1003');
         }
 
         return true;
