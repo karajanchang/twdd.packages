@@ -26,4 +26,8 @@ class MemberRepository extends Repository
         return $this->count();
     }
 
+    public function byInviteCode(string $OtherInviteCode){
+
+        return $this->where('InviteCode', $OtherInviteCode)->first();
+    }
 }

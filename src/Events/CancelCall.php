@@ -1,7 +1,6 @@
 <?php
 namespace Twdd\Events;
 
-use App\Events\Event;
 use Twdd\Models\CalldriverTaskMap;
 
 class CancelCall extends Event

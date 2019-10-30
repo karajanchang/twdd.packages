@@ -30,4 +30,13 @@ class CouponRepository extends Repository
 
         return $this->where('member_id', $member_id)->where('code', $code)->orderBy('id', 'desc')->first();
     }
+
+    public function setUsed(int $id){
+        $params = [
+            'isUsed' => 1,
+            'usedtime' => time(),
+        ];
+
+        return $this->update($id, $params);
+    }
 }

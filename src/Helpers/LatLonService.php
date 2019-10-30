@@ -26,7 +26,7 @@ class LatLonService
         $odistricts = $this->repository->allIsopen();
         $districts = $odistricts->where('city', $cityName)->where('district', $districtName);
         if(count($districts)==0){
-            $zip = $this->loadFromDisk($cityName, $districtName);
+            $zip = $this->zipFromDisk($cityName, $districtName);
             $districts = $odistricts->where('zip', $zip);
 
             if(count($districts)==0) {
@@ -51,7 +51,7 @@ class LatLonService
         ];
     }
 
-    private function loadFromDisk(string $cityName, string $districtName){
+    public function zipFromDisk(string $cityName, string $districtName){
         $file = __DIR__.'/../Models/location.php';
         $zip = null;
         if(file_exists($file)){

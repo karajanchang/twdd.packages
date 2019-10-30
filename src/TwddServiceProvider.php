@@ -27,6 +27,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\CouponFactory::class);
         });
 
+        $this->app->bind('CouponService', function()
+        {
+            return app()->make(\Twdd\Helpers\CouponServiceHelper::class);
+        });
+
         $this->app->bind('CouponValid', function()
         {
             return app()->make(\Twdd\Helpers\CouponValid::class);
@@ -87,12 +92,20 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\PushService::class);
         });
 
+        $this->app->bind('SettingPriceService', function($app, $params){
+
+            return app()->make(\Twdd\Helpers\SettingPriceServiceHelper::class);
+        });
+
         $this->app->bind('SmsMemberRegister', function($app, $params){
 
             return app()->make(\Twdd\Helpers\Sms\MemberRegister::class);
         });
 
-
+        $this->app->bind('TaskDone', function()
+        {
+            return app()->make(\Twdd\Helpers\TaskDoneHelper::class);
+        });
 
         $this->app->bind('TaskService', function()
         {
@@ -113,6 +126,8 @@ class TwddServiceProvider extends ServiceProvider
         {
             return app()->make(\Twdd\Helpers\TwddInvoice::class);
         });
+
+        app()->register('Twdd\Providers\EventServiceProvider');
 
         $this->registerAliases();
     }
@@ -157,6 +172,7 @@ class TwddServiceProvider extends ServiceProvider
 
             $loader->alias('Bank', \Twdd\Facades\Bank::class);
             $loader->alias('CouponFactory', \Twdd\Facades\CouponFactory::class);
+            $loader->alias('CouponService', \Twdd\Facades\CouponService::class);
             $loader->alias('CouponValid', \Twdd\Facades\CouponValid::class);
             $loader->alias('DriverService', \Twdd\Facades\DriverService::class);
             $loader->alias('GoogleMap', \Twdd\Facades\GoogleMap::class);
@@ -169,7 +185,9 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
             $loader->alias('PushNotification', \Twdd\Facades\PushNotification::class);
             $loader->alias('PushService', \Twdd\Facades\PushService::class);
+            $loader->alias('SettingPriceService', \Twdd\Facades\SettingPriceService::class);
             $loader->alias('SmsMemberRegister', \Twdd\Facades\SmsMemberRegister::class);
+            $loader->alias('TaskDone', \Twdd\Facades\TaskDone::class);
             $loader->alias('TwddCache', \Twdd\Facades\TwddCache::class);
             $loader->alias('TwddInvoice', \Twdd\Facades\TwddInvoice::class);
             $loader->alias('TaskNo', \Twdd\Services\Task\TaskNo::class);

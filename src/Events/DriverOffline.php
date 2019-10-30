@@ -1,7 +1,6 @@
 <?php
 namespace Twdd\Events;
 
-use App\Events\Event;
 use Twdd\Models\Driver;
 
 class DriverOffline extends Event

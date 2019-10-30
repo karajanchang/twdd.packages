@@ -6,21 +6,25 @@ namespace Twdd\Helpers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Twdd\Services\Payments\Cash;
-use Twdd\Services\Payments\Spgateway;
 
 class PayService
 {
-    private $lut = [
-        1 => Cash::class,
-        2 => Spgateway::class,
-    ];
     private $payment = null;
     private $task = null;
 
     public function __construct()
     {
         $this->lut = include_once __DIR__.'/../Services/Payments/config.php';
+        $this->checkDoneIsExists();
+    }
+
+    private function checkDoneIsExists(){
+        foreach($this->lut as $lut){
+            $doneFile = str_replace('Payments', 'TaskDones', $lut);
+            if(!file_exists($doneFile)){
+                throw new \Exception('Please create done class: '.$doneFile);
+            }
+        }
     }
 
     public function by(int $pay_type){

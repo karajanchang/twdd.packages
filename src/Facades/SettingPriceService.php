@@ -9,7 +9,7 @@ namespace Twdd\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class SettingPrice extends Facade
+class SettingPriceService extends Facade
 {
-    protected static function getFacadeAccessor() { return 'SettingPrice'; }
+    protected static function getFacadeAccessor() { return 'SettingPriceService'; }
 }

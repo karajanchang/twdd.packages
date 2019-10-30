@@ -46,4 +46,24 @@ class DriverRepository extends Repository
         return $this->find($id, $rcolumns);
     }
 
+    public function modDriverCredit(int $id, int $DriverCredit){
+
+        return $this->update($id, [
+            'DriverCredit' => $DriverCredit,
+        ]);
+    }
+
+    //---叩掉金牌
+    public function reduceGoldenNums(int $id, bool $autoClose = false){
+        $driver = $this->find($id);
+        $driver->driver_gold_nums = $driver->driver_gold_nums - 1;
+
+        #達成任務後關閉金牌
+        if ($autoClose === true) {
+            $driver->is_used_gold = 0;
+        }
+        $driver->save();
+
+        return $driver;
+    }
 }

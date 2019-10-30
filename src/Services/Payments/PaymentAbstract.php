@@ -50,13 +50,14 @@ class PaymentAbstract
         ];
     }
 
-    protected function returnSuccess(string $OrderNo, string $msg = null, $result = null){
+    protected function returnSuccess(string $OrderNo, string $msg = null, $result = null, int $member_creditcard_id = 0){
         $this->log(true, $msg, $result);
 
         return [
             'OrderNo' => $OrderNo,
             'msg' => $msg,
             'result' => $result,
+            'member_creditcard_id' => $member_creditcard_id,
         ];
     }
 

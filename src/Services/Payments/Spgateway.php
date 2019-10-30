@@ -27,8 +27,8 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
     public function pay(array $params = []){
         $this->preInit();
-
-        $payer_email = isset($params['payer_email']) ? $params['payer_email'] : $this->getMemberCreditCard()->CardHolder;
+        $memberCreditCard = $this->getMemberCreditCard();
+        $payer_email = isset($params['payer_email']) ? $params['payer_email'] : $memberCreditCard->CardHolder;
         $is_random_serial = isset($params['is_random_serial']) ? $params['is_random_serial'] : false;
         $OrderNo = $this->getOrderNo($is_random_serial);
 
@@ -59,9 +59,10 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             $url = env('SPGATEWAY_URL');
             $res = $this->post($url, $this->preparePostData($datas));
             if(isset($res->Status) && $res->Status=='SUCCESS') {
-                Log::info('刷卡成功 (單號：' . $this->task->id . '): ', [$res]);
+                $msg = '刷卡成功 (單號：' . $this->task->id . ')';
+                Log::info($msg.': ', [$res]);
 
-                return $this->returnSuccess($OrderNo, $msg, $res);
+                return $this->returnSuccess($OrderNo, $msg, $res, $memberCreditCard->id);
             }else{
                 $msg = '刷卡失敗 (單號：' . $this->task->id . ')';
                 Log::info($msg.': ', [$res]);
