@@ -28,19 +28,23 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
     public function pay(array $params = []){
         $this->preInit();
         $memberCreditCard = $this->getMemberCreditCard();
+        $this->setMemberCreditcardId($memberCreditCard->id);
         $payer_email = isset($params['payer_email']) ? $params['payer_email'] : $memberCreditCard->CardHolder;
         $is_random_serial = isset($params['is_random_serial']) ? $params['is_random_serial'] : false;
-        $OrderNo = $this->getOrderNo($is_random_serial);
+        $OrderNo = $this->setOrderNo($is_random_serial);
+
+
+        $money = $this->getMoney();
 
         if(strlen($payer_email)==0){
 
-            return $this->returnError($OrderNo, 2001, '驗證錯誤');
+            return $this->returnError( 2001, $money, '驗證錯誤');
         }
-        $money = $this->getMoney();
+
 
         if(strlen($money)==0){
 
-            return $this->returnError($OrderNo, 2002, '驗證錯誤');
+            return $this->returnError( 2002, $money, '驗證錯誤');
         }
 
         $datas = [
@@ -62,13 +66,13 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
                 $msg = '刷卡成功 (單號：' . $this->task->id . ')';
                 Log::info($msg.': ', [$res]);
 
-                return $this->returnSuccess($OrderNo, $msg, $res, $memberCreditCard->id);
+                return $this->returnSuccess($msg, $res);
             }else{
                 $msg = '刷卡失敗 (單號：' . $this->task->id . ')';
                 Log::info($msg.': ', [$res]);
                 $this->mail(new InfoAdminMail('［系統通知］智付通，刷卡失敗', $msg, $res));
 
-                return $this->returnError($OrderNo, 2003, $msg, $res);
+                return $this->returnError(2003, $msg, $res);
             }
         }catch(\Exception $e){
             $msg = '刷卡異常 (單號：'.$this->task->id.'): '.$e->getMessage();
@@ -76,7 +80,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             Bugsnag::notifyException($e);
             $this->mail(new InfoAdminMail('［系統通知］!!!智付通，刷卡異常!!!', $msg));
 
-            return $this->returnError($OrderNo, 500, $msg);
+            return $this->returnError( 500, $msg);
         }
     }
 

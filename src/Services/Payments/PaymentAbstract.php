@@ -14,6 +14,8 @@ class PaymentAbstract
     protected $task;
     private $taskPayLogRepository;
     protected $money = 0;
+    protected $OrderNo = null;
+    protected $member_creditcard_id = null;
 
     public function __construct(PaymentErrors $error, TaskPayLogRepository $taskPayLogRepository)
     {
@@ -23,6 +25,7 @@ class PaymentAbstract
 
     public function task(Model $task){
         $this->task = $task;
+        $this->setOrderNo();
         $this->setMoney($task->TaskFee);
 
         return $this;
@@ -39,25 +42,27 @@ class PaymentAbstract
         return $this->money;
     }
 
-    protected function returnError(string $OrderNo, int $error_code, string $msg = null, $result = null){
+    protected function returnError(int $error_code, string $msg = null, $result = null){
         $this->log(false, $msg, $result, $error_code);
 
         return [
             'error' => $this->error[$error_code],
-            'OrderNo' => $OrderNo,
+            'OrderNo' => $this->getOrderNo(),
             'msg' => $msg,
             'result' => $result,
+            'amt' => $this->getMoney(),
         ];
     }
 
-    protected function returnSuccess(string $OrderNo, string $msg = null, $result = null, int $member_creditcard_id = 0){
+    protected function returnSuccess(string $msg = null, $result = null){
         $this->log(true, $msg, $result);
 
         return [
-            'OrderNo' => $OrderNo,
+            'OrderNo' => $this->getOrderNo(),
             'msg' => $msg,
             'result' => $result,
-            'member_creditcard_id' => $member_creditcard_id,
+            'amt' => $this->getMoney(),
+            'member_creditcard_id' => $this->getMemberCreditcardId(),
         ];
     }
 
@@ -67,14 +72,45 @@ class PaymentAbstract
             'error_code' => $error_code,
             'msg'=> $msg,
             'obj' => json_encode([$obj], JSON_UNESCAPED_UNICODE),
+            'OrderNo' => $this->getOrderNo(),
+            'amt' => $this->getMoney(),
+            'member_creditcard_id' => $this->getMemberCreditcardId(),
         ];
         $this->taskPayLogRepository->insertByTask($this->task, $params);
     }
 
-    protected function getOrderNo(bool $is_random_serial = false){
+    protected function setOrderNo(bool $is_random_serial = false){
         $TaskNo = str_pad($this->task->id, 8, '0', STR_PAD_LEFT);
         $OrderNo = $is_random_serial===false    ?   $TaskNo :   $TaskNo.'_'.rand(10, 99);
+        $this->OrderNo = $OrderNo;
 
         return $OrderNo;
     }
+
+    /**
+     * @return null
+     */
+    public function getOrderNo()
+    {
+        return $this->OrderNo;
+    }
+
+    /**
+     * @return null
+     */
+    public function getMemberCreditcardId()
+    {
+        return $this->member_creditcard_id;
+    }
+
+    /**
+     * @param null $member_creditcard_id
+     */
+    public function setMemberCreditcardId($member_creditcard_id): void
+    {
+        $this->member_creditcard_id = $member_creditcard_id;
+    }
+
+
+
 }

@@ -12,6 +12,7 @@ class TaskDoneHelper
     protected $task;
     protected $member_creditcard_id = 0;
 
+
     public function __construct()
     {
         $this->lut = include_once __DIR__.'/../Services/TaskDones/config.php';
