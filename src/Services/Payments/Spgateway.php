@@ -33,7 +33,6 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
         $is_random_serial = isset($params['is_random_serial']) ? $params['is_random_serial'] : false;
         $OrderNo = $this->setOrderNo($is_random_serial);
 
-
         $money = $this->getMoney();
 
         if(strlen($payer_email)==0){
