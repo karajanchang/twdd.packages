@@ -4,9 +4,9 @@
 namespace Twdd\Services\Task;
 
 
+use Illuminate\Database\Eloquent\Model;
 use Twdd\Errors\TaskErrors;
 use Twdd\Facades\TwddCache;
-use Twdd\Models\Member;
 use Twdd\Repositories\TaskRepository;
 use Twdd\Traits\ModelToolTrait;
 
@@ -48,8 +48,8 @@ class Task
         return $default_profile;
     }
 
-    //---檢查沒有進行中 0-6 的任務
-    public function checkNotHaveInPrcessTaskStateByMember(Member $member){
+    //---檢查該會員有沒有進行中 0-6 的任務
+    public function checkNotHaveInProcessTaskStateByMember(Model $member){
         if($this->repository->checkNotHaveInProcessTaskByMemberId($member->id)===true){
 
             return $this->error['1008'];
@@ -58,5 +58,14 @@ class Task
         return true;
     }
 
+    //---檢查該司機有沒有進行中 0-6 的任務
+    public function checkNotHaveInProcessTaskStateByDriver(Model $driver){
+        if($this->repository->checkNotHaveInProcessTaskByDriverId($driver->id)===true){
+
+            return $this->error['1008'];
+        }
+
+        return true;
+    }
 
 }
