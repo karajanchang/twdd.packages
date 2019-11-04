@@ -9,8 +9,7 @@
 namespace Twdd\Helpers;
 
 
-use Twdd\Models\Member;
-use Twdd\Services\Task\Task;
+use Illuminate\Database\Eloquent\Model;
 
 class TaskService
 {
@@ -20,7 +19,7 @@ class TaskService
         return $app;
     }
 
-    public function calldriver(Member $member){
+    public function calldriver(Model $member){
         $app = app()->make(\Twdd\Services\Task\CalldriverService::class);
 
         $app->setCallMember($member);

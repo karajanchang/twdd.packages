@@ -46,6 +46,10 @@ class TaskErrors extends ErrorAbstract
         return trans('twdd::task.you_already_have_one_task_can_not_call');
     }
 
+    public function error1009(){
+        return trans('twdd::task.this_driver_already_have_one_task_can_not_call');
+    }
+
     public function error2003(){
         return trans('twdd::task.this_task_doesnot_exist');
     }

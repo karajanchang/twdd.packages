@@ -62,7 +62,7 @@ class Task
     public function checkNotHaveInProcessTaskStateByDriver(Model $driver){
         if($this->repository->checkNotHaveInProcessTaskByDriverId($driver->id)===true){
 
-            return $this->error['1008'];
+            return $this->error['1009'];
         }
 
         return true;
