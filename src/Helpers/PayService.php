@@ -20,9 +20,9 @@ class PayService
 
     private function checkDoneIsExists(){
         foreach($this->lut as $lut){
-            $doneFile = str_replace('Payments', 'TaskDones', $lut);
-            if(!file_exists($doneFile)){
-                throw new \Exception('Please create done class: '.$doneFile);
+            $doneClass = str_replace('Payments', 'TaskDones', $lut);
+            if(!class_exists($doneClass)){
+                throw new \Exception('Please create done class: '.$doneClass);
             }
         }
     }
