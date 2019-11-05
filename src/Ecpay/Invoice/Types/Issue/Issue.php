@@ -19,6 +19,7 @@ class Issue extends TypeAbstract implements TypeInterface
         $this->TimeStamp = time();
         $this->Print = '0';
         $this->Donation = '0';
+        $this->CarruerType = '1';
         $this->TaxType = '1';
         $this->InvType = '07';
     }
