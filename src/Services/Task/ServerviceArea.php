@@ -86,7 +86,7 @@ class ServerviceArea extends ServiceAbstract
         return [
             'lat'              =>  'required',
             'lon'              =>  'required',
-            'zip'              =>  'integer',
+            'zip'              =>  'nullable|integer',
         ];
     }
 }
