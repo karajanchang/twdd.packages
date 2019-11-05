@@ -28,9 +28,7 @@ class ErrorAbstract extends Error implements ArrayAccess
 
         $lang_path = $this->getLangPath();
 
-        if(is_null($lang_path)){
-            throw new Exception('can not find validation.php in lang directory.');
-        }
+
         $lang = include $lang_path;
         $this->setAttributes($lang['attributes']);
     }
@@ -38,18 +36,22 @@ class ErrorAbstract extends Error implements ArrayAccess
     private function getLangPath(){
         $locale = Config::get('app.locale');
 
+        $error_dirs = [];
         $lang_path = base_path('resources/lang/' . $locale . '/' . $this->unit . '/validation.php');
         if (file_exists($lang_path)) {
 
             return $lang_path;
         }
+        array_push($error_dirs, $lang_path);
+
         $lang_path = base_path('vendor/twdd/packages/src/lang/' . $locale . '/' . $this->unit . '/validation.php');
         if (file_exists($lang_path)) {
 
             return $lang_path;
         }
+        array_push($error_dirs, $lang_path);
 
-        return null;
+        throw new Exception('can not find validation.php in lang directorys: '.join(',', $error_dirs));
     }
 
     public function error101(){

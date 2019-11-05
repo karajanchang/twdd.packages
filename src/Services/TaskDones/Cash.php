@@ -5,7 +5,7 @@ namespace Twdd\Services\TaskDones;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use ZhyuTool;
+use Zhyu\Facades\ZhyuTool;
 
 
 class Cash extends TaskDoneAbstract implements TaskDoneInterface

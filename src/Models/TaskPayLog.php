@@ -11,7 +11,7 @@ namespace Twdd\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TaskPayLog extends Model implements InterfaceModel
+class TaskPayLog extends Model
 {
     protected $table = 'task_pay_logs';
     public $timestamps = false;

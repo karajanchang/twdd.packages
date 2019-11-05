@@ -4,6 +4,7 @@
 namespace Twdd\Services\TaskDones;
 
 
+use Illuminate\Database\Eloquent\Model;
 use Twdd\Models\DriverInsuranceBack;
 use Twdd\Models\DriverInsuranceBackLog;
 use Twdd\Repositories\DriverInsuranceBackRepository;
