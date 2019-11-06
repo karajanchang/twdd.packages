@@ -55,7 +55,7 @@ class DriverService extends ServiceAbstract
 
         if($this->driver->DriverState==2){
 
-            return $this->error_('1012');
+            return $this->error->_('1012');
         }
 
         //---寫入到mongodb
