@@ -15,5 +15,5 @@ return [
     'driver_online_fail' => '上線失敗',
     'driver_offline_fail' => '下線失敗',
     'driver_onservice_fail' => '進任務失敗',
-    'driver_can_not_offline_because_onservice' => '無法下線，因為目前在上線狀態',
+    'driver_can_not_offline_because_onservice' => '無法下線，因為目前在接單狀態',
 ];
