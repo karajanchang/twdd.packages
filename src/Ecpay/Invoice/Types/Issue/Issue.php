@@ -22,7 +22,7 @@ class Issue extends TypeAbstract implements TypeInterface
         $this->CarruerType = '1';
         $this->TaxType = '1';
         $this->InvType = '07';
-//        $this->CarruerType = '1';
+        $this->CarruerType = '1';
     }
 
     public function testing(){
