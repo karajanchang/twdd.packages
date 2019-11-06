@@ -38,6 +38,10 @@ Trait ControllerOutputTrait
         }elseif(is_array($msg)){
             if(isset($msg['error'])){
                 $errorObj = $msg['error'];
+                if(is_array($errorObj)){
+
+                    return $msg;
+                }
                 $rObj->msg = $errorObj->getMessage();
                 //$error = new \stdClass();
                 $error = [];
