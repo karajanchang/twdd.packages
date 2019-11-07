@@ -4,6 +4,7 @@
 namespace Twdd\Services\Token;
 
 
+use Twdd\Facades\PushNotification;
 use Twdd\Models\LoginIdentify;
 use Twdd\Repositories\DriverPushRepository;
 
@@ -27,5 +28,19 @@ class DriverPushService
         );
 
         return $res;
+    }
+
+    public function send(int $device_type, string $action, string $title, string $body, array $tokens){
+        if(count($tokens)==0){
+
+            return false;
+        }
+
+        return PushNotification::driver($device_type)
+                    ->action($action)
+                    ->title($title)
+                    ->body($body)
+                    ->tokens($tokens);
+
     }
 }

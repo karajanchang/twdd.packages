@@ -93,6 +93,9 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
                 'counts' => 0,
                 'success' => 'ok',
             ];
+            if(count($this->tokens)==1){
+                $res = ZhyuCurl::url($url)->json($send, true);
+            }
         }
 
         $send = null;
