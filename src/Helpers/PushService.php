@@ -29,10 +29,12 @@ class PushService
     private $body;
     private $device_type;
     private $push_tokens = [];
+    private $taskRepository = null;
 
-    public function __construct()
+    public function __construct(TaskRepository $taskRepository)
     {
         $this->collection = new Collection($this->lut);
+        $this->taskRepository = $taskRepository;
 
         return $this;
     }
@@ -67,7 +69,7 @@ class PushService
     /*以下給一般任務推播用*/
     public function task(Model $task){
         if(!$task instanceof Task){
-            $task = app(TaskRepository::class)->find($task->id);
+            $task = $this->taskRepository->find($task->id);
         }
         $this->task = $task;
 
@@ -156,7 +158,7 @@ class PushService
         return $this->body;
     }
 
-    public function send2Driver(string $action = null, string $title = null, string $body = null){
+    public function send2driver(string $action = null, string $title = null, string $body = null){
         $driver = $this->task->driver;
 
         if(!is_null($action)){
@@ -172,18 +174,43 @@ class PushService
         $this->setDeviceType($driver->driverpush->DeviceType);
         array_push($this->push_tokens, $driver->driverpush->PushToken);
 
-        return $this->send('driver');
+        $task = $this->taskRepository->view4push2driver($this->task->id);
+
+        return $this->send('driver', $task);
     }
 
-    private function send($type='driver'){
+    public function send2member(string $action = null, string $title = null, string $body = null){
+        $member = $this->task->member;
+
+        if(!is_null($action)){
+            $this->action($action);
+        }
+        if(!is_null($title)){
+            $this->title($title);
+        }
+        if(!is_null($body)) {
+            $this->body($body);
+        }
+
+        $this->setDeviceType($member->memberpush->DeviceType);
+        array_push($this->push_tokens, $member->memberpush->PushToken);
+
+        $task = $this->taskRepository->view4push2member($this->task->id);
+
+        return $this->send('member', $task);
+    }
+
+    private function send($type, Task $task){
         $app = $this->app($type);
+
 
         return $app->send(
                     $this->getDeviceType(),
                     $this->getAction(),
                     $this->getTitle(),
                     $this->getBody(),
-                    $this->push_tokens
+                    $this->push_tokens,
+                    $task
                 );
 
     }

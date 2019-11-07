@@ -30,7 +30,7 @@ class DriverPushService
         return $res;
     }
 
-    public function send(int $device_type, string $action, string $title, string $body, array $tokens){
+    public function send(int $device_type, string $action, string $title, string $body, array $tokens, $obj = null){
         if(count($tokens)==0){
 
             return false;
@@ -40,7 +40,9 @@ class DriverPushService
                     ->action($action)
                     ->title($title)
                     ->body($body)
-                    ->tokens($tokens);
+                    ->obj($obj)
+                    ->tokens($tokens)
+                    ->send();
 
     }
 }

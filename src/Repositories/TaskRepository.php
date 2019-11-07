@@ -9,6 +9,7 @@
 namespace Twdd\Repositories;
 
 
+use Illuminate\Support\Facades\DB;
 use Twdd\Criterias\Task\TaskStateInProcess;
 
 
@@ -70,6 +71,99 @@ class TaskRepository extends Repository
         ];
 
         return $this->update($id, $params);
+    }
+
+    public function view4push2member($id){
+
+        $row = $this->join('driver', 'task.driver_id', '=', 'Driver.id')
+            ->join('member', 'task.member_id', '=', 'member.id')
+            ->join('driver_location', 'driver.id', '=', 'driver_location.driver_id')
+            ->leftJoin('calldriver_task_map','task.id', '=', 'calldriver_task_map.task_id')
+            ->leftJoin('member_grade', 'member.member_grade_id', '=', 'member_grade.id')
+            //---客人評價司機
+            ->leftJoin('DriverTaskExperience', 'task.id', '=', 'DriverTaskExperience.task_id')
+            //---司機評價客人
+            ->leftJoin('member_score', 'task.id', '=', 'member_score.task_id')
+            ->where('task.id', '=', $id)
+            ->select(DB::raw('calldriver_task_map.id as map_id'), DB::raw('LPAD(LTRIM(CAST(task.id AS CHAR)), 8, \'0\') as TaskNo'), 'task.id', 'task.TaskState', 'task.createtime', 'task.TaskFee', 'task.TaskDistance', 'task.TaskRideTS', 'TaskArriveTS' ,'TaskStartTS', 'TaskEndTS', 'TaskWaitInterval',
+                'UserLat', 'UserLon', 'TaskStartAddress', 'TaskEndAddress', 'TaskWaitTimeFee', 'TaskStartFee','TaskDistanceFee', 'UserCreditCode', 'UserCreditValue', 'type', 'task.pay_type', 'task.call_type', 'task.UserRemark', 'task.matchDistance',
+                'task.call_far_driver', DB::raw('driver.id as driver_id'), DB::raw('member.id as member_id'), 'DriverID', 'DriverName', 'UserCity', 'UserDistrict', 'UserAddress', 'UserAddressKey', 'driver.DriverPhoto', 'driver.DriverServiceTime',
+                'driver.DriverRating', DB::raw('CEILING((UNIX_TIMESTAMP()-UNIX_TIMESTAMP(driver.DriverDrivingSeniorityDate))/3600/24/365) as DriverDrivingSeniorityYear'), 'driver.DriverDrivingSeniorityDate', 'DriverLat', 'DriverLon', 'DestCity', 'DestDistrict', 'DestAddress', 'DestAddressKey', 'extra_price', 'calldriver_task_map.call_driver_id',
+                'calldriver_task_map.is_cancel', DB::raw('member_score.id as experience_id'), 'task.depot_user_id', 'task.is_receive_money_first', 'cash_fee_discount', 'creditcard_fee_discount', 'can_not_use_coupon', 'task.is_used_gold', 'task.is_quick_match_by_driver'
+                , 'TaskCreditCode', DB::raw('left(member.UserName, 1) as UserName'), 'member.UserGender', 'member.UserPhone', 'member.UserEmail', 'member.member_grade_id', 'calldriver_id'
+            )
+            ->first();
+
+        return $row;
+    }
+
+    public function view4push2driver($id){
+
+        $qb = $this->join('calldriver_task_map', 'calldriver_task_map.task_id', '=', 'task.id')
+            ->join('member', 'task.member_id', '=', 'member.id')
+            ->leftJoin('member_grade', 'member.member_grade_id', '=', 'member_grade.id')
+            ->leftJoin('member_push', 'task.member_id', '=', 'member_push.member_id')
+            ->Join('driver_location', 'driver.id', '=', 'driver_location.driver_id')
+            ->where('task.id', '=', $id);
+
+        $row = $qb->select(
+            DB::raw('LPAD(LTRIM(CAST(task.id AS CHAR)), 8, \'0\') as TaskNo'),
+            'task.id',
+            'task.TaskState',
+            'task.createtime',
+            'task.TaskFee',
+            'task.TaskDistance' ,
+            'TaskArriveTS',
+            'TaskStartTS',
+            'TaskEndTS',
+            'TaskWaitInterval',
+            'TaskCreditCode',
+            'TaskStartAddress',
+            'TaskEndAddress',
+            'TaskWaitTimeFee',
+            'TaskStartFee',
+            'TaskDistanceFee',
+            'UserCreditCode',
+            'UserCreditValue',
+            'type', 'task.pay_type',
+            'call_type',
+            DB::raw('left(member.UserName, 1) as UserName'),
+            'member.UserGender',
+            'task.UserRemark',
+            'task.matchDistance',
+            'task.call_far_driver',
+            'member.member_grade_id',
+            'cash_fee_discount',
+            'creditcard_fee_discount',
+            'can_not_use_coupon',
+            'member.UserPhone',
+            'member.UserEmail',
+            DB::raw('driver.id as driver_id'),
+            DB::raw('member.id as member_id'),
+            'DriverID',
+            'DriverName',
+            'DriverGender',
+            'DriverPhoto',
+            'driver.DriverServiceTime',
+            'driver.DriverRating',
+            'DriverDrivingSeniorityDate',
+            'UserLat',
+            'UserLon',
+            'UserCity',
+            'UserDistrict',
+            'UserAddress',
+            'UserAddressKey',
+            'DestAddress',
+            'DestAddressKey',
+            'extra_price', 'over_price', 'DestCity', 'DestDistrict', 'DestAddress', 'DriverLat', 'DriverLon', DB::raw('CEILING((UNIX_TIMESTAMP()-UNIX_TIMESTAMP(Driver.DriverDrivingSeniorityDate))/3600/24/365) as DriverDrivingSeniorityYear'),
+            'member_push.DeviceType', 'task.depot_user_id', 'task.is_receive_money_first', 'task.callback_url', 'call_member_id'
+        )
+            ->first();
+
+        $H = DB::table('calldriver_history_map')->where('task_id', '=', $id)->select('TS')->first();
+        $row->TSsend = isset($H->TS) ?  $H->TS  :   time();
+
+        return $row;
     }
 
 }
