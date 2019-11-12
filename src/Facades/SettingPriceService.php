@@ -13,3 +13,10 @@ class SettingPriceService extends Facade
 {
     protected static function getFacadeAccessor() { return 'SettingPriceService'; }
 }
+
+/*
+ * $rows = SettingPriceService::common($city_id);
+ * $rows = SettingPriceService::longterm($city_id);
+ * $settingPrice = SettingPriceService::callType(1)->fetchByHour($city_id);
+ * SettingPriceService::latlonzip($lat, $lon, $zip);
+ */
