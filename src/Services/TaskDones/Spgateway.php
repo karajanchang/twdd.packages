@@ -18,7 +18,7 @@ class Spgateway extends TaskDoneAbstract implements TaskDoneInterface
             $this->doCreditChange(1, $credit);
 
             //---保險費
-            $this->doCreditChange(1, -15);
+            $this->doCreditChange(2, -15);
 
             //---優惠回補
             $this->calucateBackUserCreditValue();

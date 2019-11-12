@@ -58,6 +58,10 @@ class TaskDoneAbstract
         //----保險出險退回
         $this->doDriverInsuranceBack();
 
+        //--短程費用調為300的補貼
+        $this->doShortDistanceBack();
+
+
         //---更新夥伴的DriverCredit
         $this->driverRepository->modDriverCredit($this->task->driver_id, $this->DriverCredit);
 
@@ -73,6 +77,14 @@ class TaskDoneAbstract
         $res = $driverInsuranceBackService->cost();
         if(isset($res['InsuranceBack']) && $res['InsuranceBack'] < 0){
             $this->doCreditChange(13, $res['InsuranceBack'], '司機保險出險費');
+        }
+    }
+
+    //--短程費用調為300的補貼
+    private function doShortDistanceBack(){
+        $task = $this->getTask();
+        if(time() >= env('SHORT_FEE_CHANGE_START_TIMESTAMP', 1573444800) && time() <= env('SHORT_FEE_CHANGE_END_TIMESTAMP', 1893427200) && (int)$task->TaskDistance<=3000){
+            $this->doCreditChange(15, round($task->TaskFee * 0.1), '短程津貼');
         }
     }
 
