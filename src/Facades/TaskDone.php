@@ -15,3 +15,6 @@ class TaskDone extends Facade {
     protected static function getFacadeAccessor() { return 'TaskDone'; }
 }
 
+/*
+ * TaskDone::task($task, ['member_creditcard_id' => $member_creditcard_id])->done();
+ */

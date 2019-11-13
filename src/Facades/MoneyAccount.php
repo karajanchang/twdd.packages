@@ -10,3 +10,8 @@ class MoneyAccount extends Facade
         return 'MoneyAccount';
     }
 }
+
+/*
+ * 和 Bank::account($DriverID); 一樣
+ * MoneyAccount::init('123456789');
+ */

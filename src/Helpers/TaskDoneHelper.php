@@ -38,5 +38,5 @@ class TaskDoneHelper
 
 //---
 /*
- * TaskDone::task($task, $member_creditcard_id)->done();
+ * TaskDone::task($task, ['member_creditcard_id' => $member_creditcard_id])->done();
  */

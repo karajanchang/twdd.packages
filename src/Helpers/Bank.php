@@ -11,7 +11,7 @@ class Bank extends ServiceAbstract
     public function account(string $DriverID){
         $DriverID = trim($DriverID);
 
-        return $DriverID.$this->verify($DriverID);
+        return $DriverID.$this->vcode($DriverID);
     }
 
     public function vcode($DriverID){

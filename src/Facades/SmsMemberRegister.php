@@ -13,3 +13,11 @@ class SmsMemberRegister extends Facade
 {
 	protected static function getFacadeAccessor() { return 'SmsMemberRegister'; }
 }
+
+
+/*
+ *
+ * ##1.會員註冊傳送認證簡訊
+    $res = SmsMemberRegister::to($mobile)->code($code)->send();
+ *
+ */

@@ -13,3 +13,9 @@ class Pusher extends Facade
 {
     protected static function getFacadeAccessor() { return 'Pusher'; }
 }
+
+/*
+ *
+ * ##1.web call 透過pusher.com通知
+    Pusher::webcallNotify($calldriver_id);
+ */

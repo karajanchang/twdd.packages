@@ -14,3 +14,7 @@ class Bank extends Facade
 {
     protected static function getFacadeAccessor() { return 'Bank'; }
 }
+
+/*
+ * Bank::account($DriverID);
+ */

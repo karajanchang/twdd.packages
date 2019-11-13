@@ -41,7 +41,7 @@ class PushNotification
         return $this;
     }
 
-    public function driver(string $type = 'ios'){
+    public function driver($type = 'ios'){
         $this->service = app()->make(Gorush4driver::class);
         $this->initType($type);
 
