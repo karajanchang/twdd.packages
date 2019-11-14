@@ -33,9 +33,9 @@ class LatLonService
 
                 return [
                     'city_id' => 0,
-                    'city_name' => '',
+                    'city' => '',
                     'district_id' => 0,
-                    'district_name' => '',
+                    'district' => '',
                     'zip' => 0,
                 ];
             }
@@ -44,9 +44,9 @@ class LatLonService
 
         return [
             'city_id' => $district->city_id,
-            'city_name' => $district->city,
+            'city' => $district->city,
             'district_id' => $district->district_id,
-            'district_name' => $district->district,
+            'district' => $district->district,
             'zip' =>  $district->zip,
         ];
     }
