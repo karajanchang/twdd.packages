@@ -15,9 +15,16 @@ class EventServiceProvider extends ServiceProvider
 //            'Twdd\Listeners\DriverGoldenReduceListener', //--叩掉使用金牌
 //            'Twdd\Listeners\TaskDoneGiveShareCouponListener', //--分享送優惠
             'Twdd\Listeners\CouponSetUsedListener', //--coupon設為已使用
-
-            //---發出推播
-
+        ],
+        //--刷卡失敗
+        'Twdd\Events\SpgatewayFailEvent' => [
+            'Twdd\Listeners\SpgatewayErrorMailListener',
+            'Twdd\Listeners\SpgatewayFailSmsListener',
+        ],
+        //--刷卡異常
+        'Twdd\Events\SpgatewayErrorEvent' => [
+            'Twdd\Listeners\SpgatewayFailMailListener',
+            'Twdd\Listeners\SpgatewayErrorSmsListener',
         ],
     ];
 }
