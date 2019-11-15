@@ -6,10 +6,10 @@ namespace Twdd\Services\Payments;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use Twdd\Mail\System\InfoAdminMail;
+use Twdd\Events\SpgatewayErrorEvent;
+use Twdd\Events\SpgatewayFailEvent;
 use Twdd\Repositories\DriverMerchantRepository;
-use Twdd\Repositories\MemberCreditCardRepository;
+use Twdd\Repositories\MemberCreditcardRepository;
 use Zhyu\Facades\ZhyuCurl;
 
 class Spgateway extends PaymentAbstract implements PaymentInterface
@@ -69,7 +69,9 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             }else{
                 $msg = '刷卡失敗 (單號：' . $this->task->id . ')';
                 Log::info($msg.': ', [$res]);
-                $this->mail(new InfoAdminMail('［系統通知］智付通，刷卡失敗', $msg, $res));
+                //$this->mail(new InfoAdminMail('［系統通知］智付通，刷卡失敗', $msg, $res));
+
+                event(new SpgatewayFailEvent($this->task, $res));
 
                 return $this->returnError(2003, $msg, $res);
             }
@@ -77,18 +79,22 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             $msg = '刷卡異常 (單號：'.$this->task->id.'): '.$e->getMessage();
             Log::info($msg);
             Bugsnag::notifyException($e);
-            $this->mail(new InfoAdminMail('［系統通知］!!!智付通，刷卡異常!!!', $msg));
+            //$this->mail(new InfoAdminMail('［系統通知］!!!智付通，刷卡異常!!!', $msg));
+
+            event(new SpgatewayErrorEvent($this->task));
 
             return $this->returnError( 500, $msg);
         }
     }
 
+    /*
     private function mail(InfoAdminMail $infoAdminMail){
         $emails = explode(',', env('ADMIN_NOTIFY_EMAilS', 'service@twdd.com.tw'));
         if(count($emails)) {
             Mail::to($emails)->queue($infoAdminMail);
         }
     }
+    */
 
     public function query(){
 
@@ -107,7 +113,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
     private function preInit(){
         $this->driverMerchant = app(DriverMerchantRepository::class)->findByTaskId($this->task);
-        $this->memberCreditCard = app(MemberCreditCardRepository::class)->findByTaskId($this->task);
+        $this->memberCreditCard = app(MemberCreditcardRepository::class)->findByTaskId($this->task);
     }
 
 
