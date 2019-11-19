@@ -3,6 +3,7 @@ namespace Twdd\Http\Traits;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\MessageBag;
 
 Trait ValidateTrait
 {
@@ -39,14 +40,25 @@ Trait ValidateTrait
     }
 
     private function validError($msgs){
+
         return [
             'code' => -1,
             'msg' => trans('twdd::errors.validate_error'),
             'return' => null,
             'error' => [
                 'code' => 101,
-                'message' => $msgs,
+                'message' => $this->parseValidateMessage($msgs),
             ],
         ];
+    }
+
+    private function parseValidateMessage($msgs){
+        if($msgs instanceof MessageBag && env('STRIP_VALIDATE_MESSAGE', false)===true){
+
+            return $msgs->first();
+        }else{
+
+            return $msgs;
+        }
     }
 }
