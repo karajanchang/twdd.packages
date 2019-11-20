@@ -69,7 +69,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     private function makeNotification(){
         $notification = $this->toArray();
         $notification['alert'] = $this->alert;
-        $notification['data'] = $this->data;
+        $notification['data']['data'] = $this->data;
 
         Log::info('$notification==============$notification', $notification);
         //dump('$notification==============$notification', $notification);
