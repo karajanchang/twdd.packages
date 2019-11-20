@@ -137,7 +137,7 @@ class CalldriverService extends ServiceAbstract
     }
 
 
-    public function create(array $params){
+    public function create(array $params, bool $do_not_create_map = false){
         //---檢查會員是否有效
         $res = $this->checkIfHaveCallMember();
         if($res!==true){
@@ -156,9 +156,7 @@ class CalldriverService extends ServiceAbstract
         }
 
         //---lat lon 代0時要 地址轉latlon
-
         $this->ifMmemberIsNullThenEqalCallMember();
-
 
         if(isset($params['zip'])) {
             $cityDistricts = LatLonService::citydistrictFromZip($params['zip']);
@@ -182,7 +180,9 @@ class CalldriverService extends ServiceAbstract
             $params = $this->filter($params);
             $calldriver = $this->repository->create($params);
 
-            $this->insertMap($calldriver, $params);
+            if($do_not_create_map===false) {
+                $this->insertMap($calldriver, $params);
+            }
 
             return $calldriver;
         }catch(\Exception $e){
