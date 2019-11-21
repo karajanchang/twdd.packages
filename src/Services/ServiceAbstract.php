@@ -72,13 +72,19 @@ abstract class ServiceAbstract
         return true;
     }
 
-    public function validateParams(){
-        $request = app()->make(Request::class);
-        $this->params = $request->input("params");
+    public function validateParams(array $params = []){
+        if(count($params)==0) {
+            $request = app()->make(Request::class);
+            $this->params = $request->input("params");
+        }else{
+            $this->params = $params;
+        }
+
         if(!isset($this->params) || count($this->params)==0){
 
             abort(400);
         }
+
         $res = $this->validate($this->params);
 
         return $res;
@@ -93,9 +99,9 @@ abstract class ServiceAbstract
         }
     }
 
-    public function validateAttributesAndParams(){
+    public function validateAttributesAndParams(array $params = []){
         $this->validateAttribures();
 
-        return $this->validateParams();
+        return $this->validateParams($params);
     }
 }

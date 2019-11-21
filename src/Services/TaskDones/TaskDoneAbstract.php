@@ -7,6 +7,7 @@ namespace Twdd\Services\TaskDones;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Twdd\Events\TaskDoneEvent;
+use Twdd\Facades\DriverService;
 use Twdd\Facades\LatLonService;
 use Twdd\Facades\SettingPriceService;
 use Twdd\Repositories\DriverCreditChangeRepository;
@@ -68,8 +69,22 @@ class TaskDoneAbstract
         //--更新Task
         $this->updateTaskDone();
 
+        //---把司機設為上線
+        $this->onlineDriver();
+
         //--Event
         Event(new TaskDoneEvent($this->getTask()));
+    }
+
+    //---把司機設為上線
+    private function onlineDriver(){
+
+        $params = [
+            'lat' => $this->task->TaskStartLat,
+            'lon' => $this->task->TaskStartLon,
+            'zip' => $this->task->start_zip,
+        ];
+        DriverService::driver($this->task->driver)->online($params);
     }
 
     private function doDriverInsuranceBack(){

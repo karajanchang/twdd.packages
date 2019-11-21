@@ -46,8 +46,8 @@ class DriverService extends ServiceAbstract
         return $this->changeDriverState(2);
     }
 
-    public function offline(){
-        $res = $this->validateAttributesAndParams();
+    public function offline(array $params = []){
+        $res = $this->validateAttributesAndParams($params);
         if($res!==true){
 
             return $res;
@@ -65,8 +65,8 @@ class DriverService extends ServiceAbstract
         return $this->changeDriverState(0);
     }
 
-    public function online(){
-        $res = $this->validateAttributesAndParams();
+    public function online(array $params = []){
+        $res = $this->validateAttributesAndParams($params);
         if($res!==true){
 
             return $res;
