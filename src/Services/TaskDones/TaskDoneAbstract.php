@@ -99,10 +99,10 @@ class TaskDoneAbstract
             'comments' => $comments,
             'createtime' => Carbon::now()->toDateTimeString(),
         ];
+        $this->DriverCredit = $this->DriverCredit + $credit;
 
         $this->driverCreditChangeRepository->insert($params);
 
-        $this->driverCredit = $this->DriverCredit + $credit;
     }
 
     private function updateTaskDone(){
