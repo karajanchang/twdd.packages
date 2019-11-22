@@ -134,31 +134,37 @@ class LatLonService
         ];
         if(!is_null($district_id)){
 
-            $cityDistrict = $this->repository->locationFromDistrictId($district_id);
+            $cityDistricts = $this->repository->locationFromDistrictId($district_id);
+            if($cityDistricts->count()>0) {
+                $cityDistrict = $cityDistricts->first();
 
-            $all = [
-                'lat' => null,
-                'lon' => null,
-                'city_id' => $cityDistrict->city_id,
-                'city' => $cityDistrict->city,
-                'district_id' => $cityDistrict->district_id,
-                'district' => $cityDistrict->district,
-                'zip' => $cityDistrict->zip,
-            ];
+                $all = [
+                    'lat' => null,
+                    'lon' => null,
+                    'city_id' => $cityDistrict->city_id,
+                    'city' => $cityDistrict->city,
+                    'district_id' => $cityDistrict->district_id,
+                    'district' => $cityDistrict->district,
+                    'zip' => $cityDistrict->zip,
+                ];
+            }
         }
         if(!is_null($zip)){
 
-            $cityDistrict = $this->repository->locationFromZip($zip);
+            $cityDistricts = $this->repository->locationFromZip($zip);
+            if($cityDistricts->count()>0) {
+                $cityDistrict = $cityDistricts->first();
 
-            $all = [
-                'lat' => null,
-                'lon' => null,
-                'city_id' => $cityDistrict->city_id,
-                'city' => $cityDistrict->city,
-                'district_id' => $cityDistrict->district_id,
-                'district' => $cityDistrict->district,
-                'zip' => $cityDistrict->zip,
-            ];
+                $all = [
+                    'lat' => null,
+                    'lon' => null,
+                    'city_id' => $cityDistrict->city_id,
+                    'city' => $cityDistrict->city,
+                    'district_id' => $cityDistrict->district_id,
+                    'district' => $cityDistrict->district,
+                    'zip' => $cityDistrict->zip,
+                ];
+            }
         }
 
         return $all;
