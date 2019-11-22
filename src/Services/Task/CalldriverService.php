@@ -159,7 +159,7 @@ class CalldriverService extends ServiceAbstract
         $this->ifMmemberIsNullThenEqalCallMember();
 
         if(isset($params['zip'])) {
-            $cityDistricts = LatLonService::citydistrictFromZip($params['zip']);
+            $cityDistricts = LatLonService::locationFromZip($params['zip']);
             if (isset($cityDistricts) && count($cityDistricts)) {
                 $cityDistrict = $cityDistricts->first();
                 $params['city'] = $cityDistrict->city;
@@ -168,7 +168,7 @@ class CalldriverService extends ServiceAbstract
         }
 
         if(isset($params['zip_det'])) {
-            $cityDistricts_det = LatLonService::citydistrictFromZip($params['zip_det']);
+            $cityDistricts_det = LatLonService::locationFromZip($params['zip_det']);
             if (isset($cityDistricts_det) && count($cityDistricts_det)) {
                 $cityDistrict_det = $cityDistricts_det->first();
                 $params['city_det'] = $cityDistrict_det->city;

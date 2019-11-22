@@ -17,9 +17,9 @@ class LatLonService
         return $this;
     }
 
-    public function citydistrictFromZip($zip){
+    public function locationFromZip($zip){
 
-        return $this->repository->citydistrictFromZip($zip);
+        return $this->repository->locationFromZip($zip);
     }
 
     public function citydistrictFromCityAndDistrict($cityName, $districtName){
@@ -87,7 +87,7 @@ class LatLonService
             'zip' => null,
         ];
         if(isset($zip) && strlen($zip)>0){
-            $cityDistricts = $this->citydistrictFromZip($zip);
+            $cityDistricts = $this->locationFromZip($zip);
             if (count($cityDistricts)) {
                 $cityDistrict = $cityDistricts->first();
                 if (isset($cityDistrict->city_id) && isset($cityDistrict->district_id)) {
@@ -119,6 +119,26 @@ class LatLonService
                     'zip' => $location->zip,
                 ];
             }
+        }
+
+        return $all;
+    }
+
+    public function citydistrictFromDistrictIdOrZip(int $district_id = null, string $zip = null){
+        $all = [
+            'city_id' => null,
+            'city' => null,
+            'district_id' => null,
+            'district' => null,
+            'zip' => null,
+        ];
+        if(!is_null($district_id)){
+
+            return $this->repository->locationFromDistrictId($district_id);
+        }
+        if(!is_null($zip)){
+
+            return $this->repository->locationFromZip($zip);
         }
 
         return $all;
