@@ -134,11 +134,31 @@ class LatLonService
         ];
         if(!is_null($district_id)){
 
-            return $this->repository->locationFromDistrictId($district_id);
+            $cityDistrict = $this->repository->locationFromDistrictId($district_id);
+
+            $all = [
+                'lat' => null,
+                'lon' => null,
+                'city_id' => $cityDistrict->city_id,
+                'city' => $cityDistrict->city,
+                'district_id' => $cityDistrict->district_id,
+                'district' => $cityDistrict->district,
+                'zip' => $cityDistrict->zip,
+            ];
         }
         if(!is_null($zip)){
 
-            return $this->repository->locationFromZip($zip);
+            $cityDistrict = $this->repository->locationFromZip($zip);
+
+            $all = [
+                'lat' => null,
+                'lon' => null,
+                'city_id' => $cityDistrict->city_id,
+                'city' => $cityDistrict->city,
+                'district_id' => $cityDistrict->district_id,
+                'district' => $cityDistrict->district,
+                'zip' => $cityDistrict->zip,
+            ];
         }
 
         return $all;
