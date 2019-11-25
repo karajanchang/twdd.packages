@@ -69,7 +69,7 @@ class GoogleMapAbstract implements ArrayAccess
     }
 
     public function toArray(){
-        $cityDistricts = LatLonService::citydistrictFromZip($this->zip);
+        $cityDistricts = LatLonService::locationFromZip($this->zip);
         if(count($cityDistricts)){
             $cityDistrict = $cityDistricts->first();
             if (isset($cityDistrict->city_id) && isset($cityDistrict->district_id)) {

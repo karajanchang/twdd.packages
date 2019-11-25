@@ -166,4 +166,9 @@ class TaskRepository extends Repository
         return $row;
     }
 
+    public function lastTaskByDriverId(int $driver_id, array $columns = ['*']){
+
+        return $this->select($columns)->where('driver_id', $driver_id)->orderby('id', 'desc')->first();
+    }
+
 }

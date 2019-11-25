@@ -72,7 +72,7 @@ class DriverLocationRepository extends Repository
                 }
             }
         }else {
-            $cityDistricts = LatLonService::citydistrictFromZip($zip);
+            $cityDistricts = LatLonService::locationFromZip($zip);
             if (count($cityDistricts)) {
                 $cityDistrict = $cityDistricts->first();
                 if (isset($cityDistrict->city_id) && isset($cityDistrict->district_id)) {

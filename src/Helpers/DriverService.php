@@ -16,6 +16,7 @@ use Twdd\Facades\TwddCache;
 use Twdd\Jobs\Driver\DriverLocationJob;
 use Twdd\Jobs\Driver\MogoDriverLatLonJob;
 use Twdd\Repositories\DriverRepository;
+use Twdd\Repositories\TaskRepository;
 use Twdd\Services\ServiceAbstract;
 use Twdd\Traits\ModelToolTrait;
 
@@ -24,10 +25,15 @@ class DriverService extends ServiceAbstract
     use ModelToolTrait;
 
     private $driver = null;
+    /**
+     * @var TaskRepository
+     */
+    private $taskRepository;
 
-    public function __construct(DriverErrors $error)
+    public function __construct(DriverErrors $error, TaskRepository $taskRepository)
     {
         $this->error = $error;
+        $this->taskRepository = $taskRepository;
     }
 
     public function driver(Model $driver){
@@ -36,10 +42,22 @@ class DriverService extends ServiceAbstract
         return $this;
     }
 
+    public function lastTask(array $columns = ['*']){
+
+        return $this->taskRepository->lastTaskByDriverId($this->driver->id, $columns);
+    }
+
     public function intask(){
         if($this->driver->DriverState==2){
 
             return true;
+        }
+
+        //---沒有在進行中的任務，無法變任務中
+        $last_task = $this->lastTask(['id', 'TaskState']);
+        if(isset($last_task->TaskState) && ($last_task->TaskState==-1 xor $last_task->TaskState==7)){
+
+            return $this->error->_('4003');
         }
 
         //---更改db DriverState
@@ -56,6 +74,13 @@ class DriverService extends ServiceAbstract
         if($this->driver->DriverState==2){
 
             return $this->error->_('1012');
+        }
+
+        //---有在進行中的任務，無法上下線
+        $last_task = $this->lastTask(['id', 'TaskState']);
+        if(isset($last_task->TaskState) && $last_task->TaskState>=0 && $last_task<7){
+
+            return $this->error->_('4001');
         }
 
         //---寫入到mongodb
@@ -99,6 +124,13 @@ class DriverService extends ServiceAbstract
                 'end' => env('OLDBIRD_HOUR_END', 5),
                 'nums' => ($this->driver->pass_rookie_times - $this->driver->DriverServiceTime),
             ]);
+        }
+
+        //---有在進行中的任務，無法上線
+        $last_task = $this->lastTask(['id', 'TaskState']);
+        if(isset($last_task->TaskState) && $last_task->TaskState>=0 && $last_task<7){
+
+            return $this->error->_('4002');
         }
 
         //---得到city_id district_id  or zip

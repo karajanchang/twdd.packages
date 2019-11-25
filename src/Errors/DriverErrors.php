@@ -82,6 +82,8 @@ class DriverErrors extends ErrorAbstract
         return trans('twdd::driver.this_driver_doesnot_exist');
     }
 
+
+
     public function error3000(){
 
         return trans('twdd::driver.driver_offline_fail');
@@ -95,5 +97,20 @@ class DriverErrors extends ErrorAbstract
     public function error3002(){
 
         return trans('twdd::driver.driver_onservice_fail');
+    }
+
+    public function error4001(){
+
+        return trans('twdd::driver.this_driver_can_not_offline_because_have_running_task');
+    }
+
+    public function error4002(){
+
+        return trans('twdd::driver.this_driver_can_not_online_because_have_running_task');
+    }
+
+    public function error4003(){
+
+        return trans('twdd::driver.this_driver_can_not_intask_because_have_no_running_task');
     }
 }

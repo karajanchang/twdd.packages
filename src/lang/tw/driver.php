@@ -16,4 +16,7 @@ return [
     'driver_offline_fail' => '下線失敗',
     'driver_onservice_fail' => '進任務失敗',
     'driver_can_not_offline_because_onservice' => '無法下線，因為目前在接單狀態',
+    'this_driver_can_not_offline_because_have_running_task' => '有正在進行中的任務，無法下線',
+    'this_driver_can_not_online_because_have_running_task' => '有正在進行中的任務，無法上線',
+    'this_driver_can_not_intask_because_have_no_running_task' => '沒有正在進行中的任務，無法變成任務中',
 ];

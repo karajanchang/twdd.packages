@@ -8,6 +8,7 @@
 
 namespace Twdd\Repositories;
 
+use Illuminate\Support\Facades\Log;
 use Twdd\Models\Driver;
 use Zhyu\Repositories\Eloquents\Repository;
 
@@ -19,11 +20,34 @@ class DriverRepository extends Repository
         return Driver::class;
     }
 
+    private function stateText(int $DriverState){
+
+        switch($DriverState){
+            case 1:
+                $state = '上線';
+                break;
+            case 2:
+                $state = '任務中';
+                break;
+            default:
+                $state = '下線';
+        }
+
+        return $state;
+    }
+
     public function updateDriverState(int $id, int $DriverState){
 
-        return $this->update($id, [
+        $res = $this->update($id, [
             'DriverState' => $DriverState,
         ]);
+
+
+        $text = $res==1 ? '成功' : '失敗';
+
+        Log::info('司機'.$this->stateText($DriverState).'：'.$text, [$res]);
+
+        return $res;
     }
 
     public function updateDriverPassword(int $id, string $DriverPassword){
