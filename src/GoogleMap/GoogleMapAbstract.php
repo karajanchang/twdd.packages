@@ -34,17 +34,8 @@ class GoogleMapAbstract implements ArrayAccess
         try {
             $url = $this->url();
             $content = ZhyuCurl::url($url)->get();
-            //dump($content);
             $data = json_decode($content);
-//            print_R($data);
-
             $this->locationFromLatLon($data);
-
-//            dump($this->zip.'Z');
-//            dump($this->city.'C');
-//            dump($this->district.'d');
-
-
 
             return $data;
         }catch (Exception $e){
