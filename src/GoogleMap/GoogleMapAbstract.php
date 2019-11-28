@@ -29,6 +29,7 @@ class GoogleMapAbstract implements ArrayAccess
         'zip' => null,
         'address' => null,
         'route' => null,
+        'street_number' => null,
     ];
     private $serial = 0;
 
