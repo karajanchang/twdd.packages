@@ -28,6 +28,7 @@ class GoogleMapAbstract implements ArrayAccess
         'district_id' => null,
         'zip' => null,
         'address' => null,
+        'addr' => null,
         'route' => null,
         'street_number' => null,
     ];
@@ -99,6 +100,8 @@ class GoogleMapAbstract implements ArrayAccess
         if($this->serial<5 && strlen($this->zip)==0){
             $this->locationFromLatLon($data);
         }
+        $addr = $this->attributes['route'].$this->attributes['street_number'];
+        $this->attributes['addr'] = strlen($this->attributes['street_number'])>0 ? $addr.'號' : $addr;
     }
 
     public function toArray(){
