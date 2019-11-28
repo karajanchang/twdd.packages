@@ -28,6 +28,7 @@ class GoogleMapAbstract implements ArrayAccess
         'district_id' => null,
         'zip' => null,
         'address' => null,
+        'route' => null,
     ];
     private $serial = 0;
 
