@@ -19,6 +19,7 @@ use Zhyu\Facades\ZhyuCurl;
 class GoogleMapAbstract implements ArrayAccess
 {
     protected $attributes = [];
+    private $serial = 0;
 
     const location_maps = [
         'country' => 'country',
@@ -32,12 +33,18 @@ class GoogleMapAbstract implements ArrayAccess
     public function fire(){
         try {
             $url = $this->url();
-            //dump($url);
             $content = ZhyuCurl::url($url)->get();
-
+            //dump($content);
             $data = json_decode($content);
+//            print_R($data);
 
             $this->locationFromLatLon($data);
+
+//            dump($this->zip.'Z');
+//            dump($this->city.'C');
+//            dump($this->district.'d');
+
+
 
             return $data;
         }catch (Exception $e){
@@ -45,9 +52,25 @@ class GoogleMapAbstract implements ArrayAccess
         }
     }
 
-    public function locationFromLatLon($data){
-        if(isset($data->results[0]->address_components)){
-            $address_components = $data->results[0]->address_components;
+    private function paraseLocationFromAddress(){
+        if(strlen($this->city) > 0 && strlen($this->district) > 0 ) {
+            $location = app(\Twdd\Helpers\LatLonService::class)->citydistrictFromCityAndDistrict($this->city, $this->district);
+            if (isset($location['city_id'])) {
+                $this->city_id = $location['city_id'];
+            }
+            if (isset($location['district_id'])) {
+                $this->district_id = $location['district_id'];
+            }
+            if (isset($location['zip'])) {
+                $this->zip = $location['zip'];
+            }
+        }
+
+    }
+
+    private function locationFromLatLon($data){
+        if(isset($data->results[$this->serial]->address_components)){
+            $address_components = $data->results[$this->serial]->address_components;
             foreach ($address_components as $item){
                 if(isset($item->types[0])) {
                     $type = $item->types[0];
@@ -65,6 +88,13 @@ class GoogleMapAbstract implements ArrayAccess
 
         if(isset($data->results[0]->formatted_address)) {
             $this->address = $data->results[0]->formatted_address;
+        }
+        $this->paraseLocationFromAddress();
+
+        $this->serial++;
+
+        if($this->serial<5 && strlen($this->zip)==0){
+            $this->locationFromLatLon($data);
         }
     }
 
