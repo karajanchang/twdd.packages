@@ -18,7 +18,17 @@ use Zhyu\Facades\ZhyuCurl;
 
 class GoogleMapAbstract implements ArrayAccess
 {
-    protected $attributes = [];
+    protected $attributes = [
+        'lat' => null,
+        'lon' => null,
+        'country' => null,
+        'city' => null,
+        'city_id' => null,
+        'district' => null,
+        'district_id' => null,
+        'zip' => null,
+        'address' => null,
+    ];
     private $serial = 0;
 
     const location_maps = [
