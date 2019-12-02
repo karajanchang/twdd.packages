@@ -37,6 +37,7 @@ class GoogleMapAbstract implements ArrayAccess
     const location_maps = [
         'country' => 'country',
         'administrative_area_level_1' => 'city',
+        'administrative_area_level_2' => 'city',
         'administrative_area_level_3' => 'district',
         'postal_code' => 'zip',
         'route' => 'route',
@@ -85,6 +86,7 @@ class GoogleMapAbstract implements ArrayAccess
                 }
             }
         }
+
         if(isset($data->results[0]->geometry->location->lat)){
             $this->offsetSet('lat', $data->results[0]->geometry->location->lat);
             $this->offsetSet('lon', $data->results[0]->geometry->location->lng);
@@ -108,9 +110,18 @@ class GoogleMapAbstract implements ArrayAccess
         $cityDistricts = LatLonService::locationFromZip($this->zip);
         if(count($cityDistricts)){
             $cityDistrict = $cityDistricts->first();
+
             if (isset($cityDistrict->city_id) && isset($cityDistrict->district_id)) {
                 $this->offsetSet('city_id', $cityDistrict->city_id);
                 $this->offsetSet('district_id', $cityDistrict->district_id);
+            }
+
+            if (!$this->offsetGet('city') && $cityDistrict->city) {
+                $this->offsetSet('city', $cityDistrict->city);
+            }
+
+            if (!$this->offsetGet('district') && $cityDistrict->district) {
+                $this->offsetSet('', $cityDistrict->district);
             }
         }
         return $this->attributes;
