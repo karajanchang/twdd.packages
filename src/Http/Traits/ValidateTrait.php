@@ -46,7 +46,7 @@ Trait ValidateTrait
             'msg' => trans('twdd::errors.validate_error'),
             'return' => null,
             'error' => [
-                'code' => 101,
+                'code' => '101',
                 'message' => $this->parseValidateMessage($msgs),
             ],
         ];

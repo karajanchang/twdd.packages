@@ -46,6 +46,7 @@ class GenerateToken
 
         Cache::put($key, $token, $expiredAt);
         Cache::put($keyToken, $loginIdentify->id, $expiredAt);
+        Log::info('---------------token: '.$token.'--expiredAt: '.$expiredAt->toDateTimeString());
 
         return [
             "id"    =>  $loginIdentify->id,
@@ -76,6 +77,7 @@ class GenerateToken
     public function id(){
         $token = $this->request->header('token');
         $keyToken = env('APP_TYPE').'Token'.$token;
+        Log::info('---------------token: '.$token);
 
         return Cache::get($keyToken);
     }
