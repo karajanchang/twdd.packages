@@ -128,7 +128,7 @@ class DriverService extends ServiceAbstract
 
         //---有在進行中的任務，無法上線
         $last_task = $this->lastTask(['id', 'TaskState']);
-        if(isset($last_task->TaskState) && $last_task->TaskState>=0 && $last_task<7){
+        if(isset($last_task->TaskState) && $last_task->TaskState>=0 && $last_task->TaskState<7){
 
             return $this->error->_('4002');
         }
