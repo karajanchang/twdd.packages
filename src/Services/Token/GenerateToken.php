@@ -58,9 +58,25 @@ class GenerateToken
 
     }
 
+    public function reCacheTokenById(string $type, int $id){
+        $expiredAt = Carbon::now()->addDays(env('LOGIN_TOKEN_DAYS', 14));
+
+        $loginIdentify = new LoginIdentify();
+        $loginIdentify['id'] = $id;
+        $loginIdentify['type'] = $type;
+        $key = $this->getKey($loginIdentify);
+
+        $token = $this->request->header('token');
+        $keyToken = env('APP_TYPE').'Token'.$token;
+
+        Cache::put($key, $token, $expiredAt);
+        Cache::put($keyToken, $loginIdentify->id, $expiredAt);
+    }
+
     public function id(){
         $token = $this->request->header('token');
         $keyToken = env('APP_TYPE').'Token'.$token;
+
         return Cache::get($keyToken);
     }
 }

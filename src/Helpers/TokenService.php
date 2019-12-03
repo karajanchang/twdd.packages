@@ -123,4 +123,10 @@ class TokenService
 
         return $this->generateToken->id();
     }
+
+    //--重新cache id
+    public function reCacheToken(string $type, int $id){
+
+        return $this->generateToken->reCacheTokenById($type, $id);
+    }
 }
