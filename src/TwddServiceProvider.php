@@ -119,7 +119,7 @@ class TwddServiceProvider extends ServiceProvider
 
         $this->app->bind('TwddCache', function()
         {
-            return app()->make(\Twdd\Helpers\TwddCachee::class);
+            return app()->make(\Twdd\Helpers\TwddCache::class);
         });
 
         $this->app->bind('TwddInvoice', function()
