@@ -127,7 +127,6 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\TwddInvoice::class);
         });
 
-        app()->register('Twdd\Providers\EventServiceProvider');
 
         $this->registerAliases();
     }

@@ -45,8 +45,8 @@ Trait ControllerOutputTrait
                 $rObj->msg = $errorObj->getMessage();
                 //$error = new \stdClass();
                 $error = [];
-                $error['code'] = $errorObj->getCode();
-                $error['unit'] = $errorObj->getUnit();
+                $error['code'] = (string) $errorObj->getCode();
+                $error['unit'] = (string) $errorObj->getUnit();
                 $error['message'] = $errorObj->getMessage();
 
                 $rObj->error = $error;

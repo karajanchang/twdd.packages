@@ -53,8 +53,9 @@ namespace Twdd\Helpers;
 
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
-class TwddCachee
+class TwddCache
 {
     private $key = '';
     private $seconds = 1200;
@@ -185,6 +186,10 @@ class TwddCachee
 
         if(count($this->tags)) {
             $this->setMap();
+
+            Log::info('TwddCache put '.$this->key.' tags: ', $this->tags);
+            Log::info('TwddCache put '.$this->key.' value: ', [$value]);
+
             Cache::tags($this->tags)->put($this->key, $value, $this->seconds);
             $this->clearTags();
 
@@ -248,6 +253,9 @@ class TwddCachee
         $tags = $this->getTags();
         if(count($tags)){
             $this->clearTags();
+
+            Log::info('TwddCache has '.$this->key.': ', $tags);
+
             return Cache::tags($tags)->has($this->key);
         }
 
@@ -262,6 +270,8 @@ class TwddCachee
         $tags = $this->getTags();
         if(count($tags)){
             $this->clearTags();
+
+            Log::info('TwddCache foget '.$this->key.': ', $tags);
             return Cache::tags($tags)->forget($this->key);
         }
 
@@ -274,6 +284,7 @@ class TwddCachee
      */
     public function flush(array $tags = []){
         if(count($tags)) {
+            Log::info('TwddCache flush: ', $tags);
             Cache::tags($tags)->flush();
 
             return $this;

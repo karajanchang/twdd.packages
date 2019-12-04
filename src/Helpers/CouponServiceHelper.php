@@ -20,7 +20,7 @@ class CouponServiceHelper
         return $this;
     }
 
-    public function isUsed(){
+    public function setUsed(){
         if(empty($this->task->member)){
 
             return ;

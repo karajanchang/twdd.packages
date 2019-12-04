@@ -20,8 +20,8 @@ class DriverDayNumsRepository extends Repository
             return false;
         }
 
-        $nums = $this->countByDriverIdAndCdate($driver_id);
-        if($nums>0){
+        $count = $this->countByDriverIdAndCdate($driver_id);
+        if($count>0){
 
             return $this->updateByDriverIdAndCdate($driver_id, $nums, $money);
         }else{
@@ -32,7 +32,7 @@ class DriverDayNumsRepository extends Repository
 
     public function countByDriverIdAndCdate(int $driver_id){
 
-        return $this->where('driver_id', $driver_id)->where('cdate', date('Y-m-d'));
+        return $this->where('driver_id', $driver_id)->where('cdate', date('Y-m-d'))->count();
     }
 
     public function insertByDriverIdAndCdate(int $driver_id, int $nums, int $money){
@@ -49,7 +49,7 @@ class DriverDayNumsRepository extends Repository
     public function updateByDriverIdAndCdate(int $driver_id, int $nums, int $money){
 
         return
-        $this->where('driver_id', $driver_id)->where('cdate', date('Y-m-d'))->create([
+        $this->where('driver_id', $driver_id)->where('cdate', date('Y-m-d'))->update([
             'driver_id' => $driver_id,
             'nums' => $nums,
             'money' => $money,
