@@ -38,13 +38,14 @@ class TwddEventSubscriber
 
         $events->listen(
             'Twdd\Events\TaskDoneEvent',
-                'Twdd\Listeners\TaskDoneEventSubscriber@taskDone'
+            'Twdd\Listeners\TwddEventSubscriber@taskDone'
         );
-
+        /*
         $events->listen(
             'Twdd\Events\SpgatewayFailEvent',
-            'Twdd\Listeners\TaskDoneEventSubscriber@taskDone'
+            'Twdd\Listeners\TwddEventSubscriber@taskDone'
         );
+        */
     }
 
 }

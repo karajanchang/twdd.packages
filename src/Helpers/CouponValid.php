@@ -41,6 +41,10 @@ class CouponValid extends ServiceAbstract
     }
 
     public function check(string $UserCreditCode){
+        if(!$UserCreditCode || strlen($UserCreditCode)==0){
+
+            return false;
+        }
         $couponword = $this->couponwordService->check($UserCreditCode, $this->member);
 
         if(isset($couponword['error'])){

@@ -25,6 +25,12 @@ class CouponServiceHelper
 
             return ;
         }
+
+        if(empty($this->task->UserCreditCode) || strlen($this->task->UserCreditCode)==0){
+
+            return ;
+        }
+
         $coupon = CouponValid::member($this->task->member)->check($this->task->UserCreditCode);
         if($coupon instanceof Coupon){
             $app = app()->make(CouponRepository::class);
