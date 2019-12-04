@@ -171,4 +171,12 @@ class TaskRepository extends Repository
         return $this->select($columns)->where('driver_id', $driver_id)->orderby('id', 'desc')->first();
     }
 
+    public function sumAndNumsFromTaskFeeByDriverAndDate(int $driver_id, string $cdate){
+
+        return $this->select(DB::raw('count(id) as nums, sum(TaskFee) as money'))
+            ->where('TaskState', 7)
+            ->where('driver_id', $driver_id)
+            ->where('createtime', 'like', $cdate)
+            ->first();
+    }
 }
