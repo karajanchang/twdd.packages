@@ -69,9 +69,11 @@ class GoogleMapAbstract implements ArrayAccess
 
         if (isset($location['city_id']) && $location['city_id'] > 0) {
             $this->city_id = $location['city_id'];
+            $this->city = $location['city'];
         }
         if (isset($location['district_id']) && $location['district_id'] > 0) {
             $this->district_id = $location['district_id'];
+            $this->district = $location['district'];
         }
         if (isset($location['zip']) && $location['zip'] > 0) {
             $this->zip = $location['zip'];
