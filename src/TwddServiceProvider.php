@@ -92,6 +92,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\PushService::class);
         });
 
+        $this->app->bind('RedisPushService', function()
+        {
+            return app()->make(\Twdd\Services\PushNotification\RedisPushService::class);
+        });
+
         $this->app->bind('SettingPriceService', function($app, $params){
 
             return app()->make(\Twdd\Helpers\SettingPriceServiceHelper::class);
@@ -184,6 +189,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
             $loader->alias('PushNotification', \Twdd\Facades\PushNotification::class);
             $loader->alias('PushService', \Twdd\Facades\PushService::class);
+            $loader->alias('RedisPushService', \Twdd\Facades\RedisPushService::class);
             $loader->alias('SettingPriceService', \Twdd\Facades\SettingPriceService::class);
             $loader->alias('SmsMemberRegister', \Twdd\Facades\SmsMemberRegister::class);
             $loader->alias('TaskDone', \Twdd\Facades\TaskDone::class);
