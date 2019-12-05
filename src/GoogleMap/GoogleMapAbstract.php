@@ -11,7 +11,6 @@ namespace Twdd\GoogleMap;
 use ArrayAccess;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
 use Twdd\Facades\LatLonService;
 use Zhyu\Facades\ZhyuCurl;
 
@@ -48,7 +47,9 @@ class GoogleMapAbstract implements ArrayAccess
         try {
             $url = $this->url();
             $content = ZhyuCurl::url($url)->get();
+//            dump($content);
             $data = json_decode($content);
+//            dump($data);
             $this->locationFromLatLon($data);
 
             return $data;
@@ -58,19 +59,23 @@ class GoogleMapAbstract implements ArrayAccess
     }
 
     private function paraseLocationFromAddress(){
-        if(strlen($this->city) > 0 && strlen($this->district) > 0 ) {
-            $location = app(\Twdd\Helpers\LatLonService::class)->citydistrictFromCityAndDistrict($this->city, $this->district);
-            if (isset($location['city_id'])) {
-                $this->city_id = $location['city_id'];
-            }
-            if (isset($location['district_id'])) {
-                $this->district_id = $location['district_id'];
-            }
-            if (isset($location['zip'])) {
-                $this->zip = $location['zip'];
+        if((int) $this->zip > 0){
+            $location = app(\Twdd\Helpers\LatLonService::class)->locationFromZip($this->zip);
+        }else {
+            if (strlen($this->city) > 0 && strlen($this->district) > 0) {
+                $location = app(\Twdd\Helpers\LatLonService::class)->citydistrictFromCityAndDistrict($this->city, $this->district);
             }
         }
 
+        if (isset($location['city_id']) && $location['city_id'] > 0) {
+            $this->city_id = $location['city_id'];
+        }
+        if (isset($location['district_id']) && $location['district_id'] > 0) {
+            $this->district_id = $location['district_id'];
+        }
+        if (isset($location['zip']) && $location['zip'] > 0) {
+            $this->zip = $location['zip'];
+        }
     }
 
     private function locationFromLatLon($data){
