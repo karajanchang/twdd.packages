@@ -79,7 +79,7 @@ class RedisPushService extends ServiceAbstract implements \ArrayAccess
             $this->obj($obj);
         }
 
-        return Redis::publish($this->channel, $this->getContent());
+        return Redis::publish($this->channel, json_encode($this->getContent()));
     }
 
 }
