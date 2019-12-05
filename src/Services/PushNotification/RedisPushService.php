@@ -27,7 +27,7 @@ class RedisPushService extends ServiceAbstract implements \ArrayAccess
     public function action(string $action){
         $this->action = $action;
 
-        return $action;
+        return $this;
     }
 
     public function title(string $title){
