@@ -32,6 +32,10 @@ class TwddEventSubscriber
     public function taskDone($event){
         $this->couponSetUsed($event->task);
         $this->updateDriverDayNums($event->task);
+
+        //---多人送獎勵
+        $multiCallCouponListener = app(MultiCallCouponListener::class);
+        $multiCallCouponListener->handle($event->task);
     }
 
     public function subscribe($events){
