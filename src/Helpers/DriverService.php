@@ -126,6 +126,11 @@ class DriverService extends ServiceAbstract
             ]);
         }
 
+        if ($this->driver->is_pay_credit_for_accident_insurance!=1) {
+
+            return $this->error->_('4004');
+        }
+
         //---有在進行中的任務，無法上線
         $last_task = $this->lastTask(['id', 'TaskState']);
         if(isset($last_task->TaskState) && $last_task->TaskState>=0 && $last_task->TaskState<7){

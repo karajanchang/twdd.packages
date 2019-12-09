@@ -19,4 +19,5 @@ return [
     'this_driver_can_not_offline_because_have_running_task' => '有正在進行中的任務，無法下線',
     'this_driver_can_not_online_because_have_running_task' => '有正在進行中的任務，無法上線',
     'this_driver_can_not_intask_because_have_no_running_task' => '沒有正在進行中的任務，無法變成任務中',
+    'driver_credit_accident_insurance_non_pay_limit_online' => '本月尚未繳交意外險保費，請前往補繳',
 ];

@@ -113,4 +113,9 @@ class DriverErrors extends ErrorAbstract
 
         return trans('twdd::driver.this_driver_can_not_intask_because_have_no_running_task');
     }
+
+    public function error4004(){
+
+        return trans('twdd::driver.driver_credit_accident_insurance_non_pay_limit_online');
+    }
 }
