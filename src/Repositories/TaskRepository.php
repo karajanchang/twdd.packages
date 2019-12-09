@@ -173,10 +173,19 @@ class TaskRepository extends Repository
 
     public function sumAndNumsFromTaskFeeByDriverAndDate(int $driver_id, string $cdate){
 
-        return $this->select(DB::raw('count(id) as nums, sum(TaskFee) as money'))
+        $res = $this->select(DB::raw('count(id) as nums, sum(TaskFee) as money'))
             ->where('TaskState', 7)
             ->where('driver_id', $driver_id)
             ->where('createtime', 'like', $cdate)
             ->first();
+
+        if(is_null($res->nums)){
+           $res->nums = 0;
+        }
+        if(is_null($res->money)){
+            $res->money = 0;
+        }
+
+        return $res;
     }
 }
