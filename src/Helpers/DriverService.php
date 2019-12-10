@@ -126,7 +126,7 @@ class DriverService extends ServiceAbstract
             ]);
         }
 
-        if ($this->driver->is_pay_credit_for_accident_insurance!=1) {
+        if ($this->driver->isPayForAccidentInsurance($this->driver->id)!==true) {
 
             return $this->error->_('4004');
         }

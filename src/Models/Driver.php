@@ -11,6 +11,7 @@ namespace Twdd\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Driver extends Model
 {
@@ -54,6 +55,12 @@ class Driver extends Model
         }
 
         return false;
+    }
+
+    public function isPayForAccidentInsurance(int $id){
+        $res = DB::table('driver')->find($id, ['is_pay_credit_for_accident_insurance']);
+
+        return (bool) $res->is_pay_credit_for_accident_insurance;
     }
 
     public function driverGroup(){
