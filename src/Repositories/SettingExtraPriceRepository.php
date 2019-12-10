@@ -20,26 +20,16 @@ class SettingExtraPriceRepository extends Repository
         return SettingExtraPrice::class;
     }
 
-    public function allOpen(int $city_id, string $code = null){
+    public function allOpen(){
 
         $TS = Carbon::now()->timestamp;
 
-        $qb = $this->leftJoin('setting_extra_price_city', 'setting_extra_price.id', '=', 'setting_extra_price_city.setting_extra_price_id')
-                    ->where('startTS', '<=', $TS)->where('endTS', '>=', $TS);
+        $res = $this->select(['setting_extra_price.id', 'setting_extra_price.code' , 'setting_extra_price.name', 'setting_extra_price.msg', 'setting_extra_price.startTS', 'setting_extra_price.endTS', 'setting_extra_price.price', 'city_id'])
+                    ->leftJoin('setting_extra_price_city', 'setting_extra_price.id', '=', 'setting_extra_price_city.setting_extra_price_id')
+                    ->where('startTS', '<=', $TS)->where('endTS', '>=', $TS)
+                    ->get();
 
-        if($city_id > 0){
-           $qb->where(function($query) use($city_id){
-               $query->whereNull('setting_extra_price_city_id')
-                     ->orWhere('city_id', $city_id);
-           });
-        }
-
-        if(!is_null($code) && strlen($code) > 0 ){
-           $qb->where('code', $code);
-        }
-
-
-        return $qb->get();
+        return $res;
     }
 
 }

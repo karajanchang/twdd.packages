@@ -190,11 +190,13 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('LatLonService', \Twdd\Facades\LatLonService::class);
             $loader->alias('MemberService', \Twdd\Facades\MemberService::class);
             $loader->alias('MoneyAccount', \Twdd\Facades\MoneyAccount::class);
+            $loader->alias('Mqtt', \Salman\Mqtt\Facades\Mqtt::class);
             $loader->alias('PayService', \Twdd\Facades\PayService::class);
             $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
             $loader->alias('PushNotification', \Twdd\Facades\PushNotification::class);
             $loader->alias('PushService', \Twdd\Facades\PushService::class);
             $loader->alias('RedisPushService', \Twdd\Facades\RedisPushService::class);
+            $loader->alias('SettingExtraPriceService', \Twdd\Facades\SettingExtraPriceService::class);
             $loader->alias('SettingPriceService', \Twdd\Facades\SettingPriceService::class);
             $loader->alias('SmsMemberRegister', \Twdd\Facades\SmsMemberRegister::class);
             $loader->alias('TaskDone', \Twdd\Facades\TaskDone::class);

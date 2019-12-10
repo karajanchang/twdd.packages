@@ -4,24 +4,19 @@ namespace Twdd\Helpers;
 
 
 use Twdd\Facades\LatLonService;
-use Twdd\Repositories\SettingExtraPriceRepository;
+use Twdd\Facades\TwddCache;
+use Twdd\Services\SettingExtraPriceService;
 
 class SettingExtraPriceServiceHelper
 {
     /**
-     * @var SettingExtraPriceRepository
+     * @var SettingExtraPriceService
      */
-    private $repository;
+    private $service;
 
-    public function __construct(SettingExtraPriceRepository $repository)
+    public function __construct(SettingExtraPriceService $service)
     {
-
-        $this->repository = $repository;
-    }
-
-    public function getByCity(int $city_id){
-
-        return $this->repository->allOpen($city_id);
+        $this->service = $service;
     }
 
     public function getByLatLonOrZip($lat, $lon, $zip = null){
@@ -29,7 +24,12 @@ class SettingExtraPriceServiceHelper
 
         if(isset($location['city_id'])){
 
-            return $this->getByCity($location['city_id']);
+            return $this->service->getByCity($location['city_id']);
         }
+    }
+
+    public function clearCache(){
+
+        return TwddCache::key('SettingExtraPriceAll')->forget();
     }
 }
