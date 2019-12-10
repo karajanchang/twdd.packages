@@ -97,6 +97,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Services\PushNotification\RedisPushService::class);
         });
 
+        $this->app->bind('SettingExtraPriceService', function($app, $params){
+
+            return app()->make(\Twdd\Helpers\SettingExtraPriceServiceHelper::class);
+        });
+
         $this->app->bind('SettingPriceService', function($app, $params){
 
             return app()->make(\Twdd\Helpers\SettingPriceServiceHelper::class);
