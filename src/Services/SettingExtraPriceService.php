@@ -17,12 +17,12 @@ class SettingExtraPriceService extends ServiceAbstract
     public function getByCity(int $city_id){
         $all = $this->getFromCacheOrDb();
 
-        $results = $all->where('city_id', $city_id)->toArray();
-        $sum = $all->sum('price');
+        $results = $all->where('city_id', $city_id);
+        $sum = $results->sum('price');
 
         return [
             'sum' => $sum,
-            'results' => $results,
+            'results' => $results->toArray(),
         ];
     }
 
