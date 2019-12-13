@@ -3,12 +3,23 @@
 
 namespace Twdd\Helpers;
 
+use ArrayAccess;
 use Twdd\Facades\GoogleMap;
 use Twdd\Repositories\DistrictRepository;
 
-class LatLonService
+class LatLonService implements ArrayAccess
 {
     private $repository;
+
+    protected $attributes = [
+        'lat' => null,
+        'lon' => null,
+        'city' => null,
+        'city_id' => null,
+        'district' => null,
+        'district_id' => null,
+        'zip' => null,
+    ];
 
     public function __construct()
     {
@@ -31,24 +42,30 @@ class LatLonService
 
             if(count($districts)==0) {
 
-                return [
+                $all = [
                     'city_id' => 0,
                     'city' => '',
                     'district_id' => 0,
                     'district' => '',
                     'zip' => 0,
                 ];
+                $this->setAll($all);
+
+                return $this;
             }
         }
         $district = $districts->first();
 
-        return [
+        $all = [
             'city_id' => $district->city_id,
             'city' => $district->city,
             'district_id' => $district->district_id,
             'district' => $district->district,
             'zip' =>  $district->zip,
         ];
+        $this->setAll($all);
+
+        return $this;
     }
 
     public function zipFromDisk(string $cityName, string $districtName){
@@ -62,7 +79,7 @@ class LatLonService
                     array_map(function($ds) use($key, &$zip){
                         if(!is_null($zip)){
 
-                            return ;
+                            return null;
                         }
                         if(array_key_exists($key, $ds)){
 
@@ -104,11 +121,14 @@ class LatLonService
             }
         }else{
             if($lat==0 && $lon==0){
+                $this->setAll($all);
 
-                return $all;
+                return $this;
             }
+
             $location = GoogleMap::latlon($lat, $lon);
-            if(isset($location->city_id) && isset($location->district_id)) {
+
+            if((int)($location->city_id) > 0 && (int) $location->district_id >0 ){
                 $all = [
                     'lat' => $lat,
                     'lon' => $lon,
@@ -121,7 +141,9 @@ class LatLonService
             }
         }
 
-        return $all;
+        $this->setAll($all);
+
+        return $this;
     }
 
     public function citydistrictFromDistrictIdOrZip(int $district_id = null, string $zip = null){
@@ -167,8 +189,46 @@ class LatLonService
             }
         }
 
-        return $all;
+        $this->setAll($all);
+
+        return $this;
+    }
+
+    public function offsetExists($offset){
+
+        return isset($this->attributes[$offset]);
+    }
+
+    public function offsetGet($offset){
+        if(isset($this->attributes[$offset])) {
+
+            return $this->attributes[$offset];
+        }
+    }
+
+    public function offsetSet($offset, $value){
+        $this->attributes[$offset] = $value;
+    }
+
+    public function offsetUnset($offset){
+        if(isset($this->attributes[$offset])) {
+            unset($this->attributes[$offset]);
+        }
     }
 
 
+    public function __set($key, $val){
+        $this->offsetSet($key, $val);
+    }
+
+    public function __get($key){
+        return $this->offsetGet($key);
+    }
+
+
+    private function setAll(array $all = []){
+        foreach($all as $key => $val){
+            $this->$key = $val;
+        }
+    }
 }

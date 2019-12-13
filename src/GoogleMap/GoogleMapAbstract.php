@@ -115,7 +115,7 @@ class GoogleMapAbstract implements ArrayAccess
         if(count($cityDistricts)){
             $cityDistrict = $cityDistricts->first();
 
-            if (isset($cityDistrict->city_id) && isset($cityDistrict->district_id)) {
+            if ((int)($cityDistrict->city_id) > 0 && (int) ($cityDistrict->district_id) > 0) {
                 $this->offsetSet('city_id', $cityDistrict->city_id);
                 $this->offsetSet('district_id', $cityDistrict->district_id);
             }
