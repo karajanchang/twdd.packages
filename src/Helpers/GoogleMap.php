@@ -15,16 +15,14 @@ class GoogleMap
 {
     public function latlon($lat, $lon){
         $location = app()->make(LatLon::class, ['lat' => $lat, 'lon' => $lon]);
-        $location->fire();
 
-        return $location->toArray();
+        return $location->fire();
     }
 
     public function address($address){
         $address = app()->make(Address::class, ['address' => $address ]);
-        $address->fire();
 
-        return $address->toArray();
+        return $address->fire();
     }
 
 }
