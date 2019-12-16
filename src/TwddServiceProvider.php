@@ -72,6 +72,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\MoneyAccount::class);
         });
 
+        $this->app->bind('MqttPushService', function()
+        {
+            return app()->make(\Twdd\Services\PushNotification\MqttPushService::class);
+        });
+
         $this->app->bind('PayService', function($app, $params){
 
             return app()->make(\Twdd\Helpers\PayService::class);
@@ -190,7 +195,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('LatLonService', \Twdd\Facades\LatLonService::class);
             $loader->alias('MemberService', \Twdd\Facades\MemberService::class);
             $loader->alias('MoneyAccount', \Twdd\Facades\MoneyAccount::class);
-            $loader->alias('Mqtt', \Salman\Mqtt\Facades\Mqtt::class);
+            $loader->alias('MqttPushService', \Twdd\Facades\MqttPushService::class);
             $loader->alias('PayService', \Twdd\Facades\PayService::class);
             $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
             $loader->alias('PushNotification', \Twdd\Facades\PushNotification::class);
