@@ -26,6 +26,8 @@ class SettingExtraPriceServiceHelper
 
             return $this->service->getByCity($location['city_id']);
         }
+
+        return $location;
     }
 
     public function clearCache(){
