@@ -27,6 +27,7 @@ class SettingExtraPriceRepository extends Repository
         $res = $this->select(['setting_extra_price.id', 'setting_extra_price.code' , 'setting_extra_price.name', 'setting_extra_price.msg', 'setting_extra_price.startTS', 'setting_extra_price.endTS', 'setting_extra_price.price', 'city_id'])
                     ->leftJoin('setting_extra_price_city', 'setting_extra_price.id', '=', 'setting_extra_price_city.setting_extra_price_id')
                     ->where('startTS', '<=', $TS)->where('endTS', '>=', $TS)
+                    ->where('is_open', 1)
                     ->get();
 
         return $res;
