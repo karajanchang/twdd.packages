@@ -59,12 +59,14 @@ class MqttPushService extends ServiceAbstract implements \ArrayAccess
 
     private function getContent(){
 
-        return [
+        $data = [
             'action' => $this->action,
             'title' => $this->title,
             'body' => $this->body,
             'data' => $this->data,
         ];
+
+        return json_encode($data, JSON_UNESCAPED_UNICODE);
     }
 
     public function push(string $topic = null, string $action = null, string $title = null, string $body = null, array $data = []){
