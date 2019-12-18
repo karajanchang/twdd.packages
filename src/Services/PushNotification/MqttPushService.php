@@ -22,6 +22,8 @@ class MqttPushService extends ServiceAbstract implements \ArrayAccess
 
     public function client(Model $client){
         $this->client = $client;
+
+        return $this;
     }
 
     public function topic(string $topic){
@@ -50,6 +52,8 @@ class MqttPushService extends ServiceAbstract implements \ArrayAccess
 
     public function data(array $data = []){
         $this->data = $data;
+
+        return $this;
     }
 
 
@@ -86,7 +90,7 @@ class MqttPushService extends ServiceAbstract implements \ArrayAccess
         }
 
 
-        $output = Mqtt::ConnectAndPublish($this->channel, $this->getContent(), $this->client->id);
+        $output = Mqtt::ConnectAndPublish($this->topic, $this->getContent(), $this->client->id);
 
         if ($output === true)
         {
