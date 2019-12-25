@@ -216,11 +216,11 @@ class CalldriverService extends ServiceAbstract
         $params['tyear'] = date('Y');
         $params['tmonth'] = date('n');
         $params['tday'] = date('j');
-        $params['IsApi'] = 0;
+        $params['IsApi'] = isset($params['IsApi']) ? (int) $params['IsApi'] : 0;
         $params['people'] = count($members);
-        $params['extra_price'] = 0;
+        $params['extra_price'] = isset($params['extra_price']) ? (int) $params['extra_price'] : 0;
         $params['is_push'] = 0;
-        $params['is_receive_money_first'] = 0;
+        $params['is_receive_money_first'] = isset($params['is_receive_money_first']) ? (int) $params['is_receive_money_first'] : 0;
         $params['user_id'] = isset($this->user->id) ? $this->user->id : null;
 
         return $params;
