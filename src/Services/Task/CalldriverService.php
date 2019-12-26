@@ -11,6 +11,7 @@ namespace Twdd\Services\Task;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Twdd\Errors\TaskErrors;
 use Twdd\Facades\LatLonService;
 use Twdd\Models\Member;
@@ -188,11 +189,11 @@ class CalldriverService extends ServiceAbstract
         }catch(\Exception $e){
             Bugsnag::notifyException($e);
             $msg = env('APP_DEBUG')===true ? $e->getMessage() : null;
+            Log::error('twdd CalldriverService error'.$msg, [$e]);
 
-            return $this->error['500'].' '.$msg;
+            return $this->error->_('500');
         }
 
-        return $this->error['1005'];
     }
 
     private function insertMap(Calldriver $calldriver, array $params){

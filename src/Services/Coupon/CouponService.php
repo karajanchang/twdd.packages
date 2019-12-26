@@ -124,10 +124,9 @@ class CouponService extends ServiceAbstract
         }catch(\Exception $e){
             Bugsnag::notifyException($e);
 
-            return $this->error['500'];
+            return $this->error->_('500');
         }
 
-        return $this->error['500'];
     }
 
     public function createByArray(array $params_array){

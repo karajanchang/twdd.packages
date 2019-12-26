@@ -4,12 +4,14 @@
 namespace Twdd\Helpers;
 
 use ArrayAccess;
+use Illuminate\Support\Facades\Log;
 use Twdd\Facades\GoogleMap;
 use Twdd\Repositories\DistrictRepository;
 
 class LatLonService implements ArrayAccess
 {
     private $repository;
+    private $array_maps = [];
 
     protected $attributes = [
         'lat' => null,
@@ -68,20 +70,30 @@ class LatLonService implements ArrayAccess
         return $this;
     }
 
+    public function getArrayMaps(){
+        if(count($this->array_maps)==0) {
+            $file = __DIR__ . '/../Models/location.php';
+            if (file_exists($file)) {
+                $this->array_maps = include_once $file;
+            }
+        }
+
+        return $this->array_maps;
+    }
+
     public function zipFromDisk(string $cityName, string $districtName){
-        $file = __DIR__.'/../Models/location.php';
         $zip = null;
-        if(file_exists($file)){
-            $citys = include_once $file;
-            foreach($citys as $city => $districts){
-                if($city==trim($cityName)) {
+        $citys = $this->getArrayMaps();
+        if(is_array($citys)) {
+            foreach ($citys as $city => $districts) {
+                if ($city == trim($cityName)) {
                     $key = trim($districtName);
-                    array_map(function($ds) use($key, &$zip){
-                        if(!is_null($zip)){
+                    array_map(function ($ds) use ($key, &$zip) {
+                        if (!is_null($zip)) {
 
                             return null;
                         }
-                        if(array_key_exists($key, $ds)){
+                        if (array_key_exists($key, $ds)) {
 
                             $zip = $ds[$key];
                         }
