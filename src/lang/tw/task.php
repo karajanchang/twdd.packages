@@ -10,4 +10,5 @@ return [
     'this_call_have_match_fail' => '此呼叫已媒合失敗，不需要取消',
     'this_call_have_been_cancel_donot_duplicate_cancel' => '此呼叫已取消，不需要重覆取消',
     'you_already_have_one_task_can_not_call' => '你已經有一個任務了，無法重覆呼叫',
+    'please_provide_correct_latlon' => '請提供正確的經緯度',
 ];

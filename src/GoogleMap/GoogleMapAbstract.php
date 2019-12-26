@@ -11,8 +11,9 @@ namespace Twdd\GoogleMap;
 use ArrayAccess;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
 use Twdd\Facades\LatLonService;
+use Twdd\Models\LatLonMap;
+use Twdd\Services\LatLonMapService;
 use Zhyu\Facades\ZhyuCurl;
 
 
@@ -46,6 +47,11 @@ class GoogleMapAbstract implements ArrayAccess
 
     public function fire(){
         try {
+            if($this->lookFromLatLonMap()===true){
+
+                return $this;
+            }
+
             $url = $this->url();
             $content = ZhyuCurl::url($url)->get();
             $data = json_decode($content);
@@ -54,10 +60,46 @@ class GoogleMapAbstract implements ArrayAccess
 
             $this->toArray();
 
+            $this->insert2LatLonMap();
+
 
             return $this;
         }catch (Exception $e){
-            Log::alert(__CLASS__.'執行錯誤:'.$e->getMessage());
+            Log::alert(__CLASS__.'執行錯誤:'.$e->getMessage(), [$this->attributes]);
+        }
+    }
+
+    //---從LatLonMap去抓對應
+    private function lookFromLatLonMap(){
+        if(is_float($this->lat)===true && is_float($this->lon)===true ){
+            $location = app(LatLonMapService::class)->near($this->lat, $this->lon, 50, LatLonMap::ReturnFirst);
+            if(strlen($location['zip'])>0 && intval($location['city']) > 0 && intval($location['district']) > 0 ){
+                $this->zip = $location['zip'];
+                $this->city = $location['city'];
+                $this->city_id = $location['city_id'];
+                $this->district = $location['district'];
+                $this->district_id = $location['district_id'];
+                $this->addr = $location['addr'];
+                $this->address = $location['address'];
+                Log::info('GoogleMap使用了LatLonMap，查到了：', [$location]);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    //---塞入LatLonMap
+    private function insert2LatLonMap(){
+        if(strlen($this->zip) > 0 && intval($this->city_id) > 0 && intval($this->district_id) > 0){
+            try {
+                app(LatLonMapService::class)->insert($this->attributes);
+
+                Log::info('GoogleMap使用了LatLonMap，加入成功：', $this->attributes);
+            }catch(\Exception $e){
+                Log::error('GoogleMap使用了LatLonMap，加入失敗：', [$e]);
+            }
         }
     }
 

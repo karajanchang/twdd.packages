@@ -53,4 +53,8 @@ class TaskErrors extends ErrorAbstract
     public function error2003(){
         return trans('twdd::task.this_task_doesnot_exist');
     }
+
+    public function error4000(){
+        return trans('twdd::task.please_provide_correct_latlon');
+    }
 }
