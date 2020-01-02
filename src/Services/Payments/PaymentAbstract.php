@@ -46,7 +46,7 @@ class PaymentAbstract
         $this->log(false, $msg, $result, $error_code);
 
         return [
-            'error' => $this->error[$error_code],
+            'error' => $this->error->_($error_code),
             'OrderNo' => $this->getOrderNo(),
             'msg' => $msg,
             'result' => $result,

@@ -41,7 +41,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
         }
 
 
-        if(strlen($money)==0){
+        if((int) $money<=0){
 
             return $this->returnError( 2002, $money, '驗證錯誤');
         }

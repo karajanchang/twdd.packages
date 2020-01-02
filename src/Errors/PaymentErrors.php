@@ -19,4 +19,19 @@ class PaymentErrors extends ErrorAbstract
     }
     */
 
+    public function error2001(){
+
+        return trans('twdd::payment.must_provide_email_for_spgateway_to_pay');
+    }
+
+    public function error2002(){
+
+        return trans('twdd::payment.money_must_over_zero_for_spgateway_to_pay');
+    }
+
+    public function error2003(){
+
+        return trans('twdd::payment.spgateway_error');
+    }
+
 }

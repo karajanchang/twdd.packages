@@ -11,6 +11,7 @@ namespace Twdd\Errors;
 use Error;
 use ArrayAccess;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 use Illuminate\Support\Facades\Config;
 
@@ -135,10 +136,11 @@ class ErrorAbstract extends Error implements ArrayAccess
         return trans('twdd::errors.operation_error');
     }
 
-    public function output($code, array $params = []){
+    public function output($code = null, array $params = []){
         if(count($params)){
             $this->setReplaces($code, $params);
         }
+        Log::info('ErrorAbstract '.$code.' output: ', $params);
 
         $res = [];
         $res['error'] = $this[$code];
@@ -148,7 +150,8 @@ class ErrorAbstract extends Error implements ArrayAccess
 
     public function __call($name, array $arguments){
 
-        //dd($arguments);
+        dump($arguments);
+        Log::info('ErrorAbstract '.$name.' arguments: ', $arguments);
         return call_user_func_array([$this, 'output'], $arguments);
         //return $this->output($arguments[0]);
     }
