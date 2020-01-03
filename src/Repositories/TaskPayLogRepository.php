@@ -23,6 +23,8 @@ class TaskPayLogRepository extends Repository
     public function insertByTask(Model $task, array $params = []){
         $params['pay_type'] = $task->pay_type;
         $params['task_id'] = $task->id;
+        $params['created_at'] = date('Y-m-d H:i:s');
+        $params['updated_at'] = date('Y-m-d H:i:s');
 
         return $this->create($params);
     }
