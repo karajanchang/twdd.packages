@@ -73,7 +73,7 @@ class GoogleMapAbstract implements ArrayAccess
     private function lookFromLatLonMap(){
         if(is_float($this->lat)===true && is_float($this->lon)===true ){
             $location = app(LatLonMapService::class)->near($this->lat, $this->lon, 50, LatLonMap::ReturnFirst);
-            if(strlen($location['zip'])>0 && intval($location['city']) > 0 && intval($location['district']) > 0 ){
+            if(strlen($location['zip'])>0 && intval($location['city_id']) > 0 && intval($location['district_id']) > 0 ){
                 $this->zip = $location['zip'];
                 $this->city = $location['city'];
                 $this->city_id = $location['city_id'];
