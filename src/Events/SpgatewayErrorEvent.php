@@ -8,7 +8,7 @@ class SpgatewayErrorEvent extends Event
 {
 
     public $task;
-    public $result = nulll;
+    public $result = null;
     /**
      * Create a new event instance.
      *
