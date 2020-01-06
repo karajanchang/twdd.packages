@@ -4,11 +4,13 @@
 namespace Twdd\Listeners;
 
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Twdd\Facades\CouponService;
 use Twdd\Facades\TwddCache;
 use Twdd\Models\Task;
 use Twdd\Repositories\DriverDayNumsRepository;
+use Twdd\Repositories\MonthMoneyDriverRepository;
 use Twdd\Repositories\TaskRepository;
 
 class TwddEventSubscriber
@@ -30,6 +32,25 @@ class TwddEventSubscriber
         }
     }
 
+    private function updateMonthMoneyDriver(Task $task){
+        if(empty($task->createtime)){
+
+            return false;
+        }
+
+        $taskRepository = app(TaskRepository::class);
+        $result = $taskRepository->sumAndNumsFromTaskFeeByDriverAndDate($task->driver_id, date('Y-m-').'%');
+        $params = [
+            'nums' => $result->nums,
+            'sumTaskFee' => $result->money,
+            'money' => $result->money - $result->sumTwddFee,
+        ];
+        $dt = Carbon::parse($task->createtime);
+        $res = app(MonthMoneyDriverRepository::class)->createOrUpdateByDriverId($task->driver_id, $dt, $params);
+
+        return $res;
+    }
+
     private function clearCache(Task $task){
         if(isset($task->driver)){
 
@@ -45,6 +66,7 @@ class TwddEventSubscriber
     public function taskDone($event){
         $this->couponSetUsed($event->task);
         $this->updateDriverDayNums($event->task);
+        $this->updateMonthMoneyDriver($event->task);
         $this->clearCache($event->task);
 
         //---多人送獎勵
