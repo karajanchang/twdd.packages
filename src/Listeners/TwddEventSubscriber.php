@@ -6,6 +6,7 @@ namespace Twdd\Listeners;
 
 use Illuminate\Support\Facades\Log;
 use Twdd\Facades\CouponService;
+use Twdd\Facades\TwddCache;
 use Twdd\Models\Task;
 use Twdd\Repositories\DriverDayNumsRepository;
 use Twdd\Repositories\TaskRepository;
@@ -29,13 +30,27 @@ class TwddEventSubscriber
         }
     }
 
+    private function clearCache(Task $task){
+        if(isset($task->driver)){
+
+            return false;
+        }
+
+        $driver = $task->driver;
+        TwddCache::driver($driver->id)->MonthMoneyDriver($driver->id)->key('MonthMoneyDriver', $driver->id)->forget();
+
+        return true;
+    }
+
     public function taskDone($event){
         $this->couponSetUsed($event->task);
         $this->updateDriverDayNums($event->task);
+        $this->clearCache($event->task);
 
         //---多人送獎勵
         $multiCallCouponListener = app(MultiCallCouponListener::class);
         $multiCallCouponListener->handle($event->task);
+
     }
 
     public function subscribe($events){
