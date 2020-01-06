@@ -19,7 +19,7 @@ class MonthMoneyDriverRepository extends Repository
     public function createOrUpdateByDriverId(int $driver_id, Carbon $dt, array $params){
         $params['driver_id'] = $driver_id;
         $params['tyear'] = $dt->year;
-        $params['month'] = $dt->month;
+        $params['tmonth'] = $dt->month;
         $params['sumCouponTaskFee'] = isset($params['sumCouponTaskFee']) ? $params['sumCouponTaskFee'] : 0;
         $params['sumCouponnumsDriver'] = isset($params['sumCouponnumsDriver']) ? $params['sumCouponnumsDriver'] : 0;
         $params['sumCouponmoneyDriver'] = isset($params['sumCouponmoneyDriver']) ? $params['sumCouponmoneyDriver'] : 0;
@@ -30,8 +30,8 @@ class MonthMoneyDriverRepository extends Repository
 
         return $this->updateOrCreate([
              'driver_id' => $driver_id,
-             'tyear' => $year,
-             'tmonth' => $month,
+             'tyear' => $dt->year,
+             'tmonth' => $dt->month,
          ], $params);
     }
 }
