@@ -18,7 +18,8 @@ class LatLonMapRepository extends Repository
 
     private function getLatlon($lat, $lon){
         $latlon = [
-            $lon, $lat
+            (float) $lon,
+            (float) $lat
         ];
 
         return $latlon;
@@ -42,7 +43,7 @@ class LatLonMapRepository extends Repository
         $qb = $this->where('latlon', 'near', [
             '$geometry' => [
                 'type' => 'Point',
-                'coordinates' => $this->getLatlon($lat, $lon),
+                'coordinates' => $this->getLatlon( $lat, $lon ),
             ],
             '$maxDistance' => $maxDistance,
         ]);
