@@ -19,7 +19,7 @@ class DriverGoldAlterRecordRepository extends Repository
 
     public function countByTask(Model $task){
 
-        return $this->where('driver', $task->driver_id)->where('task_id', $task->id)->count();
+        return $this->where('driver_id', $task->driver_id)->where('task_id', $task->id)->count();
     }
 
     public function insertByTaskAndDriver(Task $task, Driver $driver){
