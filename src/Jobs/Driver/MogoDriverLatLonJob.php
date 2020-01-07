@@ -24,7 +24,7 @@ class MogoDriverLatLonJob extends Job
         $this->type = $type;
     }
 
-    public function handle() : bool {
+    public function handle(){
         $mongo_db_host = env('MONGO_DB_HOST', null);
         $mongo_db_port = env('MONGO_DB_PORT', null);
         if(is_null($mongo_db_host) || is_null($mongo_db_port)){
