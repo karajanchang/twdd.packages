@@ -186,10 +186,6 @@ class TwddCache
 
         if(count($this->tags)) {
             $this->setMap();
-
-            Log::info('TwddCache put '.$this->key.' tags: ', $this->tags);
-            Log::info('TwddCache put '.$this->key.' value: ', [$value]);
-
             Cache::tags($this->tags)->put($this->key, $value, $this->seconds);
             $this->clearTags();
 
