@@ -5,9 +5,7 @@ namespace Twdd\Repositories;
 
 
 use Illuminate\Database\Eloquent\Model;
-use Twdd\Models\Driver;
 use Twdd\Models\DriverGoldAlterRecord;
-use Twdd\Models\Task;
 use Zhyu\Repositories\Eloquents\Repository;
 
 class DriverGoldAlterRecordRepository extends Repository
@@ -22,7 +20,7 @@ class DriverGoldAlterRecordRepository extends Repository
         return $this->where('driver_id', $task->driver_id)->where('task_id', $task->id)->count();
     }
 
-    public function insertByTaskAndDriver(Task $task, Driver $driver){
+    public function insertByTaskAndDriver(Model $task, Model $driver){
 
         $this->insert([
             'assemble_type' => 1,

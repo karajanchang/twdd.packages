@@ -83,6 +83,11 @@ class DriverService extends ServiceAbstract
             return $this->error->_('4001');
         }
 
+        //---得到city_id district_id  or zip
+        if(isset($this->params['lat']) && isset($this->params['lon'])){
+            $this->getCitydistrictFromParams();
+        }
+
         //---寫入到mongodb
         dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attrs, 2));
 
