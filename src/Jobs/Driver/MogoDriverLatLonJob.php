@@ -24,12 +24,12 @@ class MogoDriverLatLonJob extends Job
         $this->type = $type;
     }
 
-    public function handle(){
+    public function handle() : bool {
         $mongo_db_host = env('MONGO_DB_HOST', null);
         $mongo_db_port = env('MONGO_DB_PORT', null);
         if(is_null($mongo_db_host) || is_null($mongo_db_port)){
 
-            return ;
+            return false;
         }
         try {
             $repository = app()->make(MongoDriverLatLonRepository::class);
@@ -40,14 +40,14 @@ class MogoDriverLatLonJob extends Job
                 3 => 'updateLocation',
             ];
             if (!isset($lut[$this->type])) {
-                throw new Exception('MogoDriverLatLon does not have this type: ' . $type);
+                throw new Exception('MogoDriverLatLon does not have this type: ' . $this->type);
             }
             $method = $lut[$this->type];
 
             return $repository->$method($this->driver, $this->params);
         }catch (\Exception $e){
 
-            Log::notice('Mongo database fails!!!');
+            Log::notice('Mongo database fails!!!', [$e]);
             return false;
         }
     }
