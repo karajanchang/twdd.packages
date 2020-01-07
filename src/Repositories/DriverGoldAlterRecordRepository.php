@@ -20,14 +20,14 @@ class DriverGoldAlterRecordRepository extends Repository
         return $this->where('driver_id', $task->driver_id)->where('task_id', $task->id)->count();
     }
 
-    public function insertByTaskAndDriver(Model $task, Model $driver){
+    public function insertByTask(Model $task){
 
         $this->insert([
             'assemble_type' => 1,
             'operation_type' => 2,
-            'driver_id' => $driver->id,
+            'driver_id' => $task->driver_id,
             'comments' => '',
-            'gold_num' => $driver->driver_gold_nums,
+            'gold_num' => $task->driver->driver_gold_nums,
             'change_num' => 1,
             'task_id' => $task->id,
         ]);

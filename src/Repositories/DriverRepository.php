@@ -53,7 +53,7 @@ class DriverRepository extends Repository
     public function updateDriverPassword(int $id, string $DriverPassword){
 
         return $this->update($id, [
-            'DriverState' => $DriverPassword,
+            'DriverPassword' => $DriverPassword,
         ]);
     }
 
@@ -79,7 +79,7 @@ class DriverRepository extends Repository
 
     //---叩掉金牌
     public function reduceGoldenNums(int $id, bool $autoClose = false){
-        $driver = $this->find($id);
+        $driver = $this->find($id, ['id', 'driver_gold_nums', 'is_used_gold']);
         $driver->driver_gold_nums = $driver->driver_gold_nums - 1;
 
         #達成任務後關閉金牌
