@@ -1,19 +1,20 @@
 <?php
 
 
-namespace Twdd\Listeners;
+namespace Twdd\Subscribers;
 
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Twdd\Facades\CouponService;
 use Twdd\Facades\TwddCache;
+use Twdd\Listeners\MultiCallCouponListener;
 use Twdd\Models\Task;
 use Twdd\Repositories\DriverDayNumsRepository;
 use Twdd\Repositories\MonthMoneyDriverRepository;
 use Twdd\Repositories\TaskRepository;
 
-class TwddEventSubscriber
+class TaskDoneEventSubscriber
 {
     private function  couponSetUsed(Task $task){
         Log::info('TaskDoneEventSubscriber couponSetUsed');
@@ -78,17 +79,10 @@ class TwddEventSubscriber
     }
 
     public function subscribe($events){
-
         $events->listen(
             'Twdd\Events\TaskDoneEvent',
-            'Twdd\Listeners\TwddEventSubscriber@taskDone'
+            'Twdd\Subscribers\TaskDoneEventSubscriber@taskDone'
         );
-        /*
-        $events->listen(
-            'Twdd\Events\SpgatewayFailEvent',
-            'Twdd\Listeners\TwddEventSubscriber@taskDone'
-        );
-        */
     }
 
 }
