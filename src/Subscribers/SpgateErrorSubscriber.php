@@ -18,7 +18,7 @@ class SpgateErrorSubscriber
     public function subscribe($events){
         $events->listen(
             'Twdd\Events\SpgatewayErrorEvent',
-            'Twdd\Listeners\SpgateErrorSubscriber@handle'
+            'Twdd\Subscribers\SpgateErrorSubscriber@handle'
         );
     }
 }

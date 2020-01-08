@@ -17,7 +17,7 @@ class SpgateFailSubscriber
     public function subscribe($events){
         $events->listen(
             'Twdd\Events\SpgatewayFailEvent',
-            'Twdd\Listeners\SpgateFailSubscriber@handle'
+            'Twdd\Subscribers\SpgateFailSubscriber@handle'
         );
     }
 }
