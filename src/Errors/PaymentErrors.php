@@ -35,8 +35,8 @@ class PaymentErrors extends ErrorAbstract
     }
 
     public function error2004(){
-
-        return trans('twdd::payment.spgateway_time_too_close');
+        $replace = $this->getReplaces('try_seconds');
+        return trans('twdd::payment.spgateway_time_too_close', $replace);
     }
 
     public function error2005(){
