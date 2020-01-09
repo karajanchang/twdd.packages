@@ -86,7 +86,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             $cache_timestamp = Cache::get($key);
             $seconds = empty($cache_timestamp) ? 1 : 30 - (time() - $cache_timestamp);
 
-            return $this->error('刷卡付款，請過 '.$seconds.' 秒後再試');
+            return $this->returnError(2004, '刷卡付款，請過 '.$seconds.' 秒後再試');
         }catch(\Exception $e){
             $msg = '刷卡異常 (單號：'.$this->task->id.'): '.$e->getMessage();
             Log::info($msg);

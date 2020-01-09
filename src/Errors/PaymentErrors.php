@@ -34,4 +34,9 @@ class PaymentErrors extends ErrorAbstract
         return trans('twdd::payment.spgateway_error');
     }
 
+    public function error2004(){
+
+        return trans('twdd::payment.spgateway_time_too_close');
+    }
+
 }
