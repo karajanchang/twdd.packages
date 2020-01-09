@@ -5,6 +5,7 @@ namespace Twdd\Services\Payments;
 
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Twdd\Events\SpgatewayErrorEvent;
 use Twdd\Events\SpgatewayFailEvent;
@@ -16,6 +17,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 {
     private $driverMerchant;
     private $memberCreditCard;
+    private $seconds = 30;
 
     public function back(){
 
@@ -60,22 +62,29 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
         ];
 
         try{
-            $url = env('SPGATEWAY_URL');
-            $res = $this->post($url, $this->preparePostData($datas));
-            if(isset($res->Status) && $res->Status=='SUCCESS') {
-                $msg = '刷卡成功 (單號：' . $this->task->id . ')';
-                Log::info($msg.': ', [$res]);
+            $lock = Cache::lock(env('APP_ENV') . 'SpgatewayPayment' . $this->task->id, $this->seconds);
+            $key = env('APP_ENV'). 'SpagetwayTimestamp';
+            Cache::put($key, time());
+            if($lock->get()) {
+                $url = env('SPGATEWAY_URL');
+                $res = $this->post($url, $this->preparePostData($datas));
+                if (isset($res->Status) && $res->Status == 'SUCCESS') {
+                    $msg = '刷卡成功 (單號：' . $this->task->id . ')';
+                    Log::info($msg . ': ', [$res]);
 
-                return $this->returnSuccess($msg, $res);
-            }else{
-                $msg = '刷卡失敗 (單號：' . $this->task->id . ')';
-                Log::info($msg.': ', [$res]);
-                //$this->mail(new InfoAdminMail('［系統通知］智付通，刷卡失敗', $msg, $res));
+                    return $this->returnSuccess($msg, $res);
+                } else {
+                    $msg = '刷卡失敗 (單號：' . $this->task->id . ')';
+                    Log::info($msg . ': ', [$res]);
+                    //$this->mail(new InfoAdminMail('［系統通知］智付通，刷卡失敗', $msg, $res));
 
-                event(new SpgatewayFailEvent($this->task, $res));
+                    event(new SpgatewayFailEvent($this->task, $res));
 
-                return $this->returnError(2003, $msg, $res);
+                    return $this->returnError(2003, $msg, $res);
+                }
             }
+            $seconds = 30 - time() - (int) Cache::get($key);
+            return $this->error('刷卡付款，請過 '.$seconds.' 秒後再試');
         }catch(\Exception $e){
             $msg = '刷卡異常 (單號：'.$this->task->id.'): '.$e->getMessage();
             Log::info($msg);
