@@ -5,5 +5,6 @@ return [
     'money_must_over_zero_for_spgateway_to_pay' => '刷卡付款的金額必需大於0payment.php',
     'spgateway_error' => '刷卡付款失敗',
     'spgateway_time_too_close' => '刷卡時間間隔太短',
+    'spgateway_exception' => '刷卡付款異常，金流公司無回應',
 ];
 
