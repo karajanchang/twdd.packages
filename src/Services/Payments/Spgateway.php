@@ -42,7 +42,6 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             return $this->returnError( 2001, $money, '驗證錯誤 - 沒有email');
         }
 
-
         if((int) $money<=0){
             Log::info('刷卡0元，成功 (單號：'. $this->task->id. ')');
 
