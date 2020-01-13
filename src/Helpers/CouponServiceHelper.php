@@ -21,20 +21,22 @@ class CouponServiceHelper
     }
 
     public function setUsed(){
-        if(empty($this->task->member)){
+        if(!isset($this->task->member)){
 
-            return ;
+            return false;
         }
 
         if(empty($this->task->UserCreditCode) || strlen($this->task->UserCreditCode)==0){
 
-            return ;
+            return false;
         }
+        Log::info('CouponServiceHelper ('.$this->task->id.'): setUsed', [$this->task->UserCreditCode]);
 
-        $coupon = CouponValid::member($this->task->member)->check($this->task->UserCreditCode);
+        $coupon = CouponValid::task($this->task)->check($this->task->UserCreditCode);
+
+        Log::info('CouponServiceHelper ('.$this->task->id.'): setUsed', [$coupon]);
         if($coupon instanceof Coupon){
-            $app = app()->make(CouponRepository::class);
-            $res = $app->setUsed($coupon->id);
+            $res = app(CouponRepository::class)->setUsed($coupon->id);
             if($res==0){
                 Log::error('(CouponServiceHelper) 優惠券'.$this->task->UserCreditCode.'設為已使用沒有更新 任務id: '.$this->task->id);
             }

@@ -66,6 +66,27 @@ class TaskDoneEventSubscriber
         return true;
     }
 
+    private function settingLongTermExtraPriceMap($task)
+    {
+        //4為長途代駕
+        if ($task->call_type != 4) {
+            return ;
+        }
+        if ((int) $task->extra_price == 0) {
+            return ;
+        }
+
+        $taskExtraPrices = TaskExtraPrice::where('task_id', $task->id)->get();
+        if ($taskExtraPrices->count() == 0) {
+            return ;
+        }
+
+        $taskExtraPrices->each(function ($extraPrice, $key) {
+            TaskExtraPrice::where('id', $extraPrice->id)->update(['extra_price' => $extraPrice->extra_price*2]);
+            Log::info('before extra_price:'.$extraPrice->id.$extraPrice->extra_price);
+        });
+    }
+
     public function taskDone($event){
         $this->couponSetUsed($event->task);
         $this->updateDriverDayNums($event->task);

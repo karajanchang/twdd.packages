@@ -32,7 +32,28 @@ class CouponwordService extends ServiceAbstract
         $this->taskRepository = $taskRepository;
     }
 
-    public function check($code, Model $member = null){
+    public function fetch($code){
+        $couponword = $this->repository->fetch($code);
+
+        if(!isset($couponword->id)){
+
+            return $this->error->_('4001');
+        }
+
+        return $couponword;
+    }
+
+    //--叩除這次的任務的nums7
+    private function nums7ExceptTaskByMemberAndTask(Model $member, Model $task = null){
+        if(!empty($task->TaskState) && $task->TaskState==7){
+
+            return $member->nums7 - 1;
+        }
+
+        return $member->nums7;
+    }
+
+    public function check($code, Model $member = null, Model $task = null){
         $couponword = $this->repository->fetch($code);
 
         if(!isset($couponword->id)){
@@ -47,12 +68,15 @@ class CouponwordService extends ServiceAbstract
         }
 
         if(isset($member->id) && $member->id>0){
-            if($couponword->only_first_use==1 && $member->nums7>0){
+            $nums7 = $this->nums7ExceptTaskByMemberAndTask($member, $task);
+            if($couponword->only_first_use==1 && $nums7>0){
 
                 return $this->error->_('4004');
             }
 
-            $nums = $this->taskRepository->nums7ByUserCreditCodeAndMember($code, $member->id);
+            $task_id = empty($task->id) ? null : $task->id;
+            $nums = $this->taskRepository->nums7ByUserCreditCodeAndMemberId($code, $member->id, $task_id);
+
             if($nums>0){
 
                 return $this->error->_('4007');

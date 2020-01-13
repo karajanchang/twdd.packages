@@ -56,9 +56,14 @@ class TaskRepository extends Repository
         return false;
     }
 
-    public function nums7ByUserCreditCodeAndMember(string $UserCreditCode, int $member_id){
+    public function nums7ByUserCreditCodeAndMemberId(string $UserCreditCode, int $member_id, int $task_id = null){
 
-        return $this->where('UserCreditCode', $UserCreditCode)->where('TaskState', 7)->where('member_id', $member_id)->count();
+        $qb = $this->where('UserCreditCode', $UserCreditCode)->where('TaskState', 7)->where('member_id', $member_id);
+        if(!is_null($task_id)){
+            $qb->where('id', '!=', $task_id);
+        }
+
+        return $qb->count();
     }
 
     public function isPay(int $id, int $TaskFee, int $twddFee, int $is_first_use = 0, int $member_creditcard_id = 0){
@@ -180,7 +185,7 @@ class TaskRepository extends Repository
             ->first();
 
         if(is_null($res->nums)){
-           $res->nums = 0;
+            $res->nums = 0;
         }
         if(is_null($res->money)){
             $res->money = 0;

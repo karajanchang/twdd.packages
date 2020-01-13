@@ -22,6 +22,7 @@ class CouponValid extends ServiceAbstract
     use AttributesArrayTrait;
 
     private $member = null;
+    private $task = null;
     private $couponService = null;
     private $couponwordService = null;
     private $driverRepository = null;
@@ -40,28 +41,43 @@ class CouponValid extends ServiceAbstract
         return $this;
     }
 
+    public function task(Model $task){
+        $this->task = $task;
+        $this->member($task->member);
+
+
+        return $this;
+    }
+
     public function check(string $UserCreditCode){
+
         if(!$UserCreditCode || strlen($UserCreditCode)==0){
 
             return false;
         }
-        $couponword = $this->couponwordService->check($UserCreditCode, $this->member);
 
-        if(isset($couponword['error'])){
-            $coupon = $this->couponService->check($UserCreditCode, $this->member);
+        $couponword = $this->couponwordService->fetch($UserCreditCode);
+        //---couponword
+        if(!isset($couponword['error'])){
+            $res = $this->couponwordService->check($UserCreditCode, $this->member, $this->task);
+            if(isset($res['error'])){
 
-            return $coupon;
-        }else {
-            if (isset($couponword->id) && $couponword->id > 0) {
-                $coupon = $this->couponService->validCouponword($UserCreditCode, $this->member);
-                if (isset($coupon->id) && $coupon->id > 0) {
-
-                    return $coupon;
-                }
+                return $res;
             }
+
+            $res = $this->couponService->validCouponword($UserCreditCode, $this->member, $this->task);
+            if (!empty($res->id)) {
+
+                return $res;
+            }
+
+            return false;
+        }else{//--coupon
+            $res = $this->couponService->check($UserCreditCode, $this->member, $this->task);
+
+            return $res;
         }
 
         return $couponword;
     }
-
 }

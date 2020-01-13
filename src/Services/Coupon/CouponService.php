@@ -35,7 +35,7 @@ class CouponService extends ServiceAbstract
 
     public function check($code, Model $member = null){
         $coupon = $this->repository->fetch($code);
-
+        //dd($coupon);
         if(!isset($coupon->id)){
 
             return $this->error->_('4001');
@@ -52,7 +52,8 @@ class CouponService extends ServiceAbstract
             return $this->error->_('4003');
         }
 
-        if($coupon->only_first_use==1 && isset($member->id) && $member->id>0 && $member->nums7>0){
+        $nums7_except_this_task = $this->nums7ExceptTaskByMemberAndTask($member, $task);
+        if($coupon->only_first_use==1 && isset($member->id) && $member->id>0 && $nums7_except_this_task>0){
 
             return $this->error->_('4004');
         }
@@ -70,7 +71,17 @@ class CouponService extends ServiceAbstract
         return $coupon;
     }
 
-    public function validCouponword($code, Model $member){
+    //--叩除這次的任務的nums7
+    private function nums7ExceptTaskByMemberAndTask(Model $member, Model $task = null){
+        if(!empty($task->TaskState) && $task->TaskState==7){
+
+            return $member->nums7 - 1;
+        }
+
+        return $member->nums7;
+    }
+
+    public function validCouponword($code, Model $member, Model $task = null){
         $coupon = $this->repository->firstByCodeAndMember($code, $member->id);
 
         if(!isset($coupon->id)){
@@ -89,7 +100,9 @@ class CouponService extends ServiceAbstract
             return $this->error->_('4003');
         }
 
-        if($coupon->only_first_use==1 && isset($member->id) && $member->id>0 && $member->nums7>0){
+        $nums7_except_this_task = $this->nums7ExceptTaskByMemberAndTask($member, $task);
+
+        if($coupon->only_first_use==1 && isset($member->id) && $member->id>0 && $nums7_except_this_task>0){
 
             return $this->error->_('4004');
         }
