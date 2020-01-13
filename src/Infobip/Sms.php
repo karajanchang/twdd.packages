@@ -38,7 +38,7 @@ class Sms {
 			
 			return $res;
 		}catch (\Exception $e){
-			Log::info('infobip SmsService: error:', [$e->getMessage()]);
+			Log::info('infobip SmsService: error:', [$e]);
 			
 			return $res;
 		}

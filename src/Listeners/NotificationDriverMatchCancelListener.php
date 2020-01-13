@@ -46,7 +46,7 @@ class NotificationDriverMatchCancelListener
                 $pushNotification->tokens([$push->PushToken])->title('此任務已取消')->action('user_have_cancel_match')->obj($call)->send();
             } catch (\Throwable $e) {
                 Bugsnag::notifyException($e);
-                Log::error('can not send notification: ' . $e->getMessage());
+                Log::error('can not send notification: ' . $e->getMessage(), [$e]);
             }
         }
         Log::info('call cancel', [$call]);

@@ -33,7 +33,7 @@ class CouponService extends ServiceAbstract
         $this->couponCode = $couponCode;
     }
 
-    public function check($code, Model $member = null){
+    public function check($code, Model $member = null, Model $task = null){
         $coupon = $this->repository->fetch($code);
         //dd($coupon);
         if(!isset($coupon->id)){

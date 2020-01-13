@@ -60,9 +60,10 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             'TokenSwitch'       =>  'on',
         ];
 
+        $key = env('APP_ENV'). 'SpagetwayTimestamp'.$this->task->id;
+
         try{
             $lock = Cache::lock(env('APP_ENV') . 'SpgatewayPayment' . $this->task->id, $this->seconds);
-            $key = env('APP_ENV'). 'SpagetwayTimestamp';
             Cache::put($key, time(), 30);
             if($lock->get()) {
                 $url = env('SPGATEWAY_URL');
@@ -89,7 +90,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             return $this->returnError(2004, '刷卡付款，請過 '.$seconds.' 秒後再試');
         }catch(\Exception $e){
             $msg = '刷卡異常 (單號：'.$this->task->id.'): '.$e->getMessage();
-            Log::info($msg);
+            Log::info($msg, [$e]);
             Bugsnag::notifyException($e);
             //$this->mail(new InfoAdminMail('［系統通知］!!!智付通，刷卡異常!!!', $msg));
 

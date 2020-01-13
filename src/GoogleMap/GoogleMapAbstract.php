@@ -65,7 +65,7 @@ class GoogleMapAbstract implements ArrayAccess
 
             return $this;
         }catch (Exception $e){
-            Log::alert(__CLASS__.'執行錯誤:'.$e->getMessage(), [$this->attributes]);
+            Log::alert(__CLASS__.'執行錯誤:'.$e->getMessage(), [$this->attributes, $e]);
         }
     }
 

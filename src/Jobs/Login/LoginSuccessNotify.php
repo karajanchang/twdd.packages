@@ -26,7 +26,7 @@ class LoginSuccessNotify extends Job
             dispatch(new PushNotify($this->identity, '你的帳號被從另一裝置登入，若非你本人的操作請通知公司'));
         }catch (\Exception $e){
             Bugsnag::notifyException($e);
-            Log::error('gorush does not start');
+            Log::error('gorush does not start', [$e]);
         }
 
         //建立或更新PushToken / DeviceType

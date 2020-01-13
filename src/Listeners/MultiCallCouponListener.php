@@ -45,7 +45,7 @@ class MultiCallCouponListener
             $this->sendCoupon($task);
             $this->pushNotification($task);
         } catch (\Exception $e) {
-            Log::error('多位司機優惠券失敗'. $task->id . $e->getMessage());
+            Log::error('多位司機優惠券失敗'. $task->id . $e->getMessage(), [$e]);
         }
     }
 

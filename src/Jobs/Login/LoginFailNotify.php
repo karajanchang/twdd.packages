@@ -25,7 +25,7 @@ class LoginFailNotify extends Job
             dispatch(new PushNotify($this->identity, '你的帳號被從另一裝置嘗試登入失敗'));
         }catch (\Exception $e){
             Bugsnag::notifyException($e);
-            Log::error('gorush does not start');
+            Log::error('gorush does not start', [$e]);
         }
     }
 }

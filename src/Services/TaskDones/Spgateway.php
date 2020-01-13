@@ -29,7 +29,7 @@ class Spgateway extends TaskDoneAbstract implements TaskDoneInterface
 
             return true;
         }catch (\Exception $e){
-            Log::error('任務 ('.$this->getTask()->id.') Spgateway 最後處理失敗: '.$e->getMessage());
+            Log::error('任務 ('.$this->getTask()->id.') Spgateway 最後處理失敗: '.$e->getMessage(), [$e]);
             DB::rollBack();
 
             return false;
