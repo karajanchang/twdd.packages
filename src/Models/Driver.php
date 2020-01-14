@@ -68,4 +68,8 @@ class Driver extends Model
         return $this->belongsTo(DriverGroup::class, 'driver_group_id');
     }
 
+    public function face8() {
+
+        return$this->hasOne(DriverFace8::class, 'driver_id', 'id');
+    }
 }
