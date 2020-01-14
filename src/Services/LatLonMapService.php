@@ -51,7 +51,7 @@ class LatLonMapService extends ServiceAbstract implements \ArrayAccess
     public function near($lat, $lon, int $maxDistance = 50, int $return = 1){
         $row = $this->repository->nearByLatLon($lat, $lon, $maxDistance, $return);
 
-        if(strlen($row->zip)){
+        if(!empty($row->zip) && strlen($row->zip) > 0){
             $this->setAll($row);
         }
 
