@@ -41,7 +41,7 @@ class LatLonMapService extends ServiceAbstract implements \ArrayAccess
 
         $row = $this->repository->findByLatLon($lat, $lon);
 
-        if(strlen($row->zip)){
+        if(!empty($row->zip) && strlen($row->zip)>0){
             $this->setAll($row);
         }
 

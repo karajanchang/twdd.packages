@@ -81,7 +81,15 @@ class GoogleMapAbstract implements ArrayAccess
                 $this->district_id = $location['district_id'];
                 $this->addr = $location['addr'];
                 $this->address = $location['address'];
-                Log::info('GoogleMap使用了LatLonMap，查到了：', [$location]);
+                Log::info('GoogleMap使用了LatLonMap，查到了：', [
+                    'zip' => $location['zip'],
+                    'city' => $location['city'],
+                    'city_id' => $location['city_id'],
+                    'district' => $location['district'],
+                    'district_id' => $location['district_id'],
+                    'addr' => $location['addr'],
+                    'address' => $location['address'],
+                ]);
 
                 return true;
             }
