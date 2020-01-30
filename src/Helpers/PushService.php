@@ -23,7 +23,9 @@ class PushService
                 ];
     private $collection;
 
+    private $obj = null;
     private $task = null;
+
     private $action;
     private $title;
     private $body;
@@ -72,6 +74,8 @@ class PushService
             $task = $this->taskRepository->find($task->id);
         }
         $this->task = $task;
+
+        $this->obj($this->task);
 
         return $this;
     }
@@ -158,8 +162,32 @@ class PushService
         return $this->body;
     }
 
-    public function send2driver(string $action = null, string $title = null, string $body = null){
-        $driver = $this->task->driver;
+    /**
+     * @return null
+     */
+    public function getObj()
+    {
+        return $this->obj;
+    }
+
+    /**
+     * @param null $obj
+     */
+    public function obj($obj): PushService
+    {
+        $this->obj = $obj;
+
+        return $this;
+    }
+
+
+
+    public function send2driver(string $action = null, string $title = null, string $body = null, $obj = null){
+        if(!is_null($this->obj->driver)){
+            $driver = $this->obj->driver;
+        }else{
+            throw new \Exception('must have driver');
+        }
 
         if(!is_null($action)){
             $this->action($action);
@@ -174,13 +202,24 @@ class PushService
         $this->setDeviceType($driver->driverpush->DeviceType);
         array_push($this->push_tokens, $driver->driverpush->PushToken);
 
-        $task = $this->taskRepository->view4push2driver($this->task->id);
 
-        return $this->send('driver', $task);
+        if(!empty($this->task->id)) {
+            $task = $this->taskRepository->view4push2driver($this->task->id);
+            $this->obj($task);
+        }
+        if(!is_null($obj)){
+            $this->obj($obj);
+        }
+
+        return $this->send('driver');
     }
 
-    public function send2member(string $action = null, string $title = null, string $body = null){
-        $member = $this->task->member;
+    public function send2member(string $action = null, string $title = null, string $body = null, $obj = null){
+        if(!is_null($this->obj->member)){
+            $member = $this->obj->member;
+        }else{
+            throw new \Exception('must have member');
+        }
 
         if(!is_null($action)){
             $this->action($action);
@@ -195,14 +234,19 @@ class PushService
         $this->setDeviceType($member->memberpush->DeviceType);
         array_push($this->push_tokens, $member->memberpush->PushToken);
 
-        $task = $this->taskRepository->view4push2member($this->task->id);
+        if(!empty($this->task->id)) {
+            $task = $this->taskRepository->view4push2member($this->task->id);
+            $this->obj($task);
+        }
+        if(!is_null($obj)){
+            $this->obj($obj);
+        }
 
-        return $this->send('member', $task);
+        return $this->send('member');
     }
 
-    private function send($type, Task $task){
+    private function send($type){
         $app = $this->app($type);
-
 
         return $app->send(
                     $this->getDeviceType(),
@@ -210,9 +254,8 @@ class PushService
                     $this->getTitle(),
                     $this->getBody(),
                     $this->push_tokens,
-                    $task
+                    $this->getObj(),
                 );
 
     }
-
 }
