@@ -254,7 +254,7 @@ class PushService
                     $this->getTitle(),
                     $this->getBody(),
                     $this->push_tokens,
-                    $this->getObj(),
+                    $this->getObj()
                 );
 
     }
