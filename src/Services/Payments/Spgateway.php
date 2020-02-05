@@ -11,6 +11,7 @@ use Twdd\Events\SpgatewayErrorEvent;
 use Twdd\Events\SpgatewayFailEvent;
 use Twdd\Repositories\DriverMerchantRepository;
 use Twdd\Repositories\MemberCreditcardRepository;
+use Twdd\Services\Task\TaskNo;
 use Zhyu\Facades\ZhyuCurl;
 
 class Spgateway extends PaymentAbstract implements PaymentInterface
@@ -60,7 +61,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             'TokenSwitch'       =>  'on',
         ];
 
-        $key = env('APP_ENV'). 'SpagetwayTimestamp'.$this->task->id;
+        $key = env('APP_ENV'). 'SpagetwayPayTimestamp'.$this->task->id;
 
         try{
             $lock = Cache::lock(env('APP_ENV') . 'SpgatewayPayment' . $this->task->id, $this->seconds);
@@ -110,7 +111,53 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
     */
 
     public function query(){
+        $this->preInit();
+        $memberCreditCard = $this->getMemberCreditCard();
+        $this->setMemberCreditcardId($memberCreditCard->id);
+        if (isset($this->task->id) && isset($this->task->pay_type) && $this->task->id > 0 && $this->task->pay_type == 2) {
+            $key = env('APP_ENV') . 'SpagetwayQueryTimestamp' . $this->task->id;
+            try {
+                $lock = Cache::lock(env('APP_ENV') . 'SpgatewayPayment' . $this->task->id, $this->seconds);
+                if ($lock->get()) {
+                    Cache::put($key, time(), 30);
+                    $url = env('SPGATEWAY_QUERY_URL', 'https://core.spgateway.com/API/QueryTradeInfo');
 
+                    $MerchantOrderNo = isset($task->OrderNo) && strlen($this->task->OrderNo)>0 ? $this->task->OrderNo : TaskNo::make($this->task->id);
+
+                    $datas = [
+                        'MerchantID' => $this->driverMerchant->MerchantID,
+                        'MerchantOrderNo' => $MerchantOrderNo,
+                        'Amt' => $this->task->TaskFee,
+                    ];
+                    $res = $this->postQuery($url, $this->preparePostDataQuery($datas));
+                    Log::info('Spgateway Query: ', [$res]);
+
+                    if (isset($res->Status) && $res->Status == 'SUCCESS') {
+                        $msg = '智付通查詢: 狀態成功';
+
+                        return $this->returnSuccess($msg, $res);
+                    }else{
+                        $msg = '智付通查詢: 狀態失敗';
+
+                        return $this->returnSuccess($msg, $res);
+                    }
+                }
+
+                $cache_timestamp = Cache::get($key);
+                $seconds = empty($cache_timestamp) ? 1 : 30 - (time() - $cache_timestamp);
+
+                $this->error->setReplaces('try_seconds', $seconds);
+                return $this->returnError(3001, '查詢智付通，請過 ' . $seconds . ' 秒後再試');
+            } catch (\Exception $e) {
+                $msg = '查詢智付通異常 (單號：' . $this->task->id . '): ' . $e->getMessage();
+                Log::info($msg, [$e]);
+                Bugsnag::notifyException($e);
+
+                return $this->returnError(3002, $msg);
+            }
+        }
+
+        return $this->returnError(3003, '此單非信用卡付款，無法查詢');
     }
 
 
@@ -144,6 +191,19 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
         return $postData;
     }
 
+    private function preparePostDataQuery(array $postData){
+        ksort($postData);
+        $check_str = http_build_query($postData);
+        $CheckCodeStr = "IV=".$this->driverMerchant->MerchantIvKey.'&'.$check_str."&Key=".$this->driverMerchant->MerchantHashKey;
+        $CheckValue = strtoupper(hash("sha256", $CheckCodeStr));
+        $postData['Version'] = '1.1';
+        $postData['RespondType'] = 'JSON';
+        $postData['TimeStamp'] = time();
+        $postData['CheckValue'] = $CheckValue;
+
+        return $postData;
+    }
+
     private function spgateway_encrypt($str = "") {
         $str = trim(bin2hex( openssl_encrypt($this->addPadding($str), 'aes-256-cbc', $this->driverMerchant->MerchantHashKey, OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING, $this->driverMerchant->MerchantIvKey) ));
 
@@ -168,4 +228,18 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
         return json_decode($res);
     }
 
+
+    function postQuery(string $url, array $postData)
+    {
+        if (strlen($url) == 0) {
+
+            throw new \Exception('Please set SPGATEWAY_QUERY_URL value in .env');
+        }
+        dump($url, $postData);
+        dump($postData);
+
+        $res = ZhyuCurl::url($url)->post($postData);
+
+        return json_decode($res);
+    }
 }

@@ -10,6 +10,7 @@ namespace Twdd\Services\Coupon;
 use App\User;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Twdd\Errors\CouponErrors;
 use Twdd\Repositories\CouponRepository;
 use Twdd\Services\ServiceAbstract;
@@ -38,6 +39,7 @@ class CouponService extends ServiceAbstract
         //dd($coupon);
         if(!isset($coupon->id)){
 
+            Log::info('CouponService '.$code.' check: ', [$coupon]);
             return $this->error->_('4001');
         }
 
@@ -86,6 +88,7 @@ class CouponService extends ServiceAbstract
 
         if(!isset($coupon->id)){
 
+            Log::info('CouponService '.$code.' validCouponword: ', [$coupon]);
             return $this->error->_('4001');
         }
 

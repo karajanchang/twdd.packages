@@ -45,4 +45,18 @@ class PaymentErrors extends ErrorAbstract
         return trans('twdd::payment.spgateway_exception');
     }
 
+    public function error3001(){
+
+        return trans('twdd::payment.spgateway_time_too_close');
+    }
+
+    public function error3002(){
+
+        return trans('twdd::payment.spgateway_query_error');
+    }
+
+    public function error3003(){
+
+        return trans('twdd::payment.not_spgateway_task');
+    }
 }

@@ -151,7 +151,7 @@ class ErrorAbstract extends Error implements ArrayAccess
     public function __call($name, array $arguments){
 
         Log::info('ErrorAbstract '.$name.' arguments: ', $arguments);
+
         return call_user_func_array([$this, 'output'], $arguments);
-        //return $this->output($arguments[0]);
     }
 }

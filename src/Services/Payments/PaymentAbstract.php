@@ -26,7 +26,9 @@ class PaymentAbstract
     public function task(Model $task){
         $this->task = $task;
         $this->setOrderNo();
-        $this->setMoney($task->TaskFee);
+        if(!is_null($task->TaskFee)) {
+            $this->setMoney($task->TaskFee);
+        }
 
         return $this;
     }
