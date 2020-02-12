@@ -199,6 +199,15 @@ class PushService
             $this->body($body);
         }
 
+        if(!isset($driver->driverpush)){
+
+            return false;
+        }
+        if(empty($driver->driverpush->DeviceType)){
+
+            return false;
+        }
+
         $this->setDeviceType($driver->driverpush->DeviceType);
         array_push($this->push_tokens, $driver->driverpush->PushToken);
 
@@ -229,6 +238,15 @@ class PushService
         }
         if(!is_null($body)) {
             $this->body($body);
+        }
+
+        if(!isset($member->memberpush)){
+
+            return false;
+        }
+        if(empty($member->memberpush->DeviceType)){
+
+            return false;
         }
 
         $this->setDeviceType($member->memberpush->DeviceType);
