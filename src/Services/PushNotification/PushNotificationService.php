@@ -54,7 +54,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         return $this;
     }
     public function body(string $body){
-        $this->alert->msg = $body;
+        $this->alert->body = $body;
         $this->msg = $body;
 
         return $this;

@@ -9,6 +9,7 @@
 namespace Twdd\Helpers;
 
 
+use Illuminate\Support\Facades\Log;
 use Twdd\Services\PushNotification\Gorush4driver;
 use Twdd\Services\PushNotification\Gorush4user;
 
@@ -73,8 +74,11 @@ class PushNotification
 
         $service = $this->service->toArray();
         $data->title = isset($service['title']) ? $service['title'] : '';
-        $data->msg = isset($service['body']) ? $service['body'] : '';
+        $data->msg = isset($service['msg']) ? $service['msg'] : '';
         $data->obj = $this->obj;
+
+        Log::info('Helpers PushNotification service: ', [$service]);
+        Log::info('Helpers PushNotification data: ', [$data]);
 
         return $data;
     }

@@ -122,7 +122,7 @@ class DriverService extends ServiceAbstract
             return $this->error->_('1008');
         }
 
-        if($this->driver->is_pass_rookie==0 && $this->driver->isARookie===true){
+        if($this->driver->is_pass_rookie==0 && $this->driver->isARookie()===true){
 
             return $this->error->_('1009', [
                 'start' => env('OLDBIRD_HOUR_START', 1),
