@@ -10,6 +10,7 @@ namespace Twdd\Helpers;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Twdd\Errors\CouponErrors;
 use Twdd\Repositories\DriverRepository;
 use Twdd\Services\Coupon\CouponService;
@@ -56,12 +57,14 @@ class CouponValid extends ServiceAbstract
         if(!isset($couponword['error'])){
             $res = $this->couponwordService->check($UserCreditCode, $this->member, $this->task);
             if(isset($res['error'])){
+                Log::error('CouponValid error (couponwordService->check): ', [$res]);
 
                 return $res;
             }
 
             $res = $this->couponService->validCouponword($UserCreditCode, $this->member, $this->task);
             if (!empty($res->id)) {
+                Log::error('CouponValid error (couponService->validCouponWord): ', [$res]);
 
                 return $res;
             }
@@ -69,10 +72,10 @@ class CouponValid extends ServiceAbstract
             return $res['error'];
         }else{//--coupon
             $res = $this->couponService->check($UserCreditCode, $this->member, $this->task);
+            Log::error('CouponValid error (couponService->check): ', [$res]);
 
             return $res;
         }
 
-        return $couponword;
     }
 }
