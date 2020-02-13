@@ -13,11 +13,13 @@ class PushNotify extends Job
 {
     private $identity;
     private $title;
+    private $body;
 
-    public function __construct(LoginIdentify $identity, $title)
+    public function __construct(LoginIdentify $identity, $title, $body)
     {
         $this->identity = $identity;
         $this->title = $title;
+        $this->body = $body;
     }
 
     public function handle(){
@@ -36,7 +38,7 @@ class PushNotify extends Job
         if ($deviceType == 'android') {
             $pushNotification->android();
         }
-        $res = $pushNotification->action('PushMsg')->title($this->title)->body($this->title)->tokens([$push->PushToken])->send();
+        $res = $pushNotification->action('PushMsg')->title($this->title)->body($this->body)->tokens([$push->PushToken])->send();
 
         //---通知成功
         if(isset($res['success']) && $res['success']=='ok' && !isset($res['logs'][0]['error'])){

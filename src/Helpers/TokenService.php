@@ -81,7 +81,9 @@ class TokenService
 
             return $res;
         }else{
-            dispatch(new LoginSuccessNotify($loginIdentity));
+            if($params['PushToken']!=$loginIdentity->push->PushToken) {
+                dispatch(new LoginSuccessNotify($loginIdentity));
+            }
             $res = $this->generateToken->generate($loginIdentity);
 
             return $res;
