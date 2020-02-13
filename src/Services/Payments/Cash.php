@@ -19,7 +19,7 @@ class Cash extends PaymentAbstract implements PaymentInterface
 
         $msg = '付現成功 (單號：' . $this->task->id . ')';
 
-        return $this->returnSuccess($msg, null);
+        return $this->returnSuccess($msg, null, true);
     }
 
     public function query(){

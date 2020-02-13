@@ -40,13 +40,13 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
         if(strlen($payer_email)==0){
 
-            return $this->returnError( 2001, $money, '驗證錯誤 - 沒有email');
+            return $this->returnError( 2001, $money, '驗證錯誤 - 沒有email', true);
         }
 
         if((int) $money<=0){
             Log::info('刷卡0元，成功 (單號：'. $this->task->id. ')');
 
-            return $this->returnSuccess('結帳成功');
+            return $this->returnSuccess('結帳成功', null, false);
         }
 
         $datas = [
@@ -73,7 +73,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
                     $msg = '刷卡成功 (單號：' . $this->task->id . ')';
                     Log::info($msg . ': ', [$res]);
 
-                    return $this->returnSuccess($msg, $res);
+                    return $this->returnSuccess($msg, $res, true);
                 } else {
                     $msg = '刷卡失敗 (單號：' . $this->task->id . ')';
                     Log::info($msg . ': ', [$res]);
@@ -81,14 +81,15 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
                     event(new SpgatewayFailEvent($this->task, $res));
 
-                    return $this->returnError(2003, $msg, $res);
+                    return $this->returnError(2003, $msg, $res, true);
                 }
             }
             $cache_timestamp = Cache::get($key);
             $seconds = empty($cache_timestamp) ? 1 : 30 - (time() - $cache_timestamp);
 
             $this->error->setReplaces('try_seconds', $seconds);
-            return $this->returnError(2004, '刷卡付款，請過 '.$seconds.' 秒後再試');
+
+            return $this->returnError(2004, '刷卡付款，請過 '.$seconds.' 秒後再試', null, true);
         }catch(\Exception $e){
             $msg = '刷卡異常 (單號：'.$this->task->id.'): '.$e->getMessage();
             Log::info($msg, [$e]);
@@ -97,7 +98,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
             event(new SpgatewayErrorEvent($this->task));
 
-            return $this->returnError( 2005, $msg);
+            return $this->returnError( 2005, $msg, null, true);
         }
     }
 

@@ -44,8 +44,10 @@ class PaymentAbstract
         return $this->money;
     }
 
-    protected function returnError(int $error_code, string $msg = null, $result = null){
-        $this->log(false, $msg, $result, $error_code);
+    protected function returnError(int $error_code, string $msg = null, $result = null, bool $is_log = false){
+        if($is_log===true) {
+            $this->log(false, $msg, $result, $error_code);
+        }
 
         return [
             'error' => $this->error->_($error_code),
@@ -56,8 +58,10 @@ class PaymentAbstract
         ];
     }
 
-    protected function returnSuccess(string $msg = null, $result = null){
-        $this->log(true, $msg, $result);
+    protected function returnSuccess(string $msg = null, $result = null, bool $is_log = false){
+        if($is_log===true) {
+            $this->log(true, $msg, $result);
+        }
 
         return [
             'OrderNo' => $this->getOrderNo(),
