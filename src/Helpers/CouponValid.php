@@ -64,15 +64,16 @@ class CouponValid extends ServiceAbstract
 
             $res = $this->couponService->validCouponword($UserCreditCode, $this->member, $this->task);
             if (!empty($res->id)) {
-                Log::error('CouponValid error (couponService->validCouponWord): ', [$res]);
+                Log::info('CouponValid (couponService->validCouponWord): ', [$res]);
 
                 return $res;
             }
 
-            return $res['error'];
+            Log::info('CouponValid (couponService->validCouponWord return $couponwordService->check()): ', [$res]);
+            return $res;
         }else{//--coupon
             $res = $this->couponService->check($UserCreditCode, $this->member, $this->task);
-            Log::error('CouponValid error (couponService->check): ', [$res]);
+            Log::info('CouponValid error (couponService->check): ', [$res]);
 
             return $res;
         }
