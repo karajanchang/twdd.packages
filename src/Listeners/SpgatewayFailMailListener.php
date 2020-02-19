@@ -3,7 +3,7 @@
 namespace Twdd\Listeners;
 
 use Illuminate\Support\Facades\Mail;
-use Twdd\Events\SpgatewayErrorEvent;
+use Twdd\Events\SpgatewayFailEvent;
 use Twdd\Mail\System\InfoAdminMail;
 
 class SpgatewayFailMailListener
@@ -17,7 +17,7 @@ class SpgatewayFailMailListener
      * @param ExampleEvent $event
      * @return void
      */
-    public function handle(SpgatewayErrorEvent $event)
+    public function handle(SpgatewayFailEvent $event)
     {
         $this->task = $event->task;
         $this->result = $event->result;
