@@ -84,8 +84,8 @@ class TaskDoneAbstract
         }
         $location = LatLonService::citydistrictFromLatlonOrZip($this->task->driver->location->DriverLat, $this->task->driver->location->DriverLon);
         $params = [
-            'lat' => $location['lat'],
-            'lon' => $location['lon'],
+            'lat' => $this->task->driver->location->DriverLat,
+            'lon' => $this->task->driver->location->DriverLon,
             'zip' => $location['zip'],
         ];
         DriverService::driver($this->task->driver)->online($params);
