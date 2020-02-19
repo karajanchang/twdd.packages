@@ -13,9 +13,8 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Twdd\Models\MongoDriverLatLon;
-use Zhyu\Repositories\Eloquents\Repository;
 
-class MongoDriverLatLonRepository extends Repository
+class MongoDriverLatLonRepository
 {
     private $driver;
     private $params;
@@ -63,7 +62,6 @@ class MongoDriverLatLonRepository extends Repository
     }
 
     private function insertByDriverId(){
-        Log::info('MongoDriverLatLonRepository params:', $this->params);
         $now = Carbon::now();
         $all = [
             'type' => $this->params['type'],
@@ -83,6 +81,8 @@ class MongoDriverLatLonRepository extends Repository
             'driver_state' => $this->params['driver_state'],
             'msg' => $this->msg,
         ];
-        return $this->create($all);
+        Log::info('MongoDriverLatLonRepository params:', $all);
+
+        return app($this->model())->create($all);
     }
 }

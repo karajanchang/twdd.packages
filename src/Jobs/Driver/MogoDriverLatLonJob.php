@@ -44,7 +44,10 @@ class MogoDriverLatLonJob extends Job
             }
             $method = $lut[$this->type];
 
-            return $repository->$method($this->driver, $this->params);
+            $res = $repository->$method($this->driver, $this->params);
+            Log::info('Mogo '.$method.' ('.$this->driver->id.') res: ', [$res]);
+
+            return $res;
         }catch (\Exception $e){
 
             Log::notice('Mongo database fails!!!', [$e]);
