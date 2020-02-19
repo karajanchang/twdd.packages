@@ -78,11 +78,15 @@ class TaskDoneAbstract
 
     //---把司機設為上線
     private function onlineDriver(){
+        if(empty($this->task->driver->location->DriverLat) || empty($this->task->driver->location->DriverLon) ){
 
+            return ;
+        }
+        $location = LatLonService::citydistrictFromLatlonOrZip($this->task->driver->location->DriverLat, $this->task->driver->location->DriverLon);
         $params = [
-            'lat' => $this->task->TaskStartLat,
-            'lon' => $this->task->TaskStartLon,
-            'zip' => $this->task->start_zip,
+            'lat' => $location['lat'],
+            'lon' => $location['lon'],
+            'zip' => $location['zip'],
         ];
         DriverService::driver($this->task->driver)->online($params);
     }
