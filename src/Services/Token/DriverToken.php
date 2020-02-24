@@ -89,7 +89,7 @@ class DriverToken extends TokenAbstract implements InterfaceToken
             return $this->error->_('1008');
         }
 
-        if($identity->is_pass_rookie==0 && $identity->isARookie===true){
+        if($identity->is_pass_rookie==0 && $identity->isARookie()===true){
 
             return $this->error->_('1009', [
                 'start' => env('OLDBIRD_HOUR_START', 1),

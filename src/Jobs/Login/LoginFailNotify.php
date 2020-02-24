@@ -22,7 +22,7 @@ class LoginFailNotify extends Job
 
         //---通知上一個登入的裝置，你的帳號被從另一裝置登入
         try {
-            dispatch(new PushNotify($this->identity, '司機帳號被登入失敗', '你的帳號被從另一裝置登入，若非你本人的操作請通知公司'));
+            dispatch(new PushNotify($this->identity, '登入失敗：司機帳號密碼有誤', '你的帳號登入失敗，若非你本人的操作請通知公司'));
         }catch (\Exception $e){
             Bugsnag::notifyException($e);
             Log::error('gorush does not start', [$e]);

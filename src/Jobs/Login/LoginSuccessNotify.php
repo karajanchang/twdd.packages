@@ -23,7 +23,7 @@ class LoginSuccessNotify extends Job
 
         //---通知上一個登入的裝置，你的帳號被從另一裝置登入
         try {
-            dispatch(new PushNotify($this->identity, '司機帳號被登入成功', '你的帳號被從另一裝置登入，若非你本人的操作請通知公司'));
+            dispatch(new PushNotify($this->identity, '帳戶安全提示', '你的帳號被從另一裝置登入，若非你本人的操作請通知公司'));
         }catch (\Exception $e){
             Bugsnag::notifyException($e);
             Log::error('gorush does not start', [$e]);
