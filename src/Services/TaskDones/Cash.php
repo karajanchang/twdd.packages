@@ -14,7 +14,7 @@ class Cash extends TaskDoneAbstract implements TaskDoneInterface
         DB::beginTransaction();
         try {
             //---系統費,黑卡不叩系統費
-            $credit = round(ZhyuTool::plusMinusConvert($this->twddFee));
+            $credit = round(ZhyuTool::plusMinusConvert((int)$this->twddFee));
             $this->doCreditChange(1, $credit);
 
             //---保險費
