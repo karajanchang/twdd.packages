@@ -21,8 +21,8 @@ class TaskDoneAbstract
     protected $driverRepository;
     protected $is_first_use = 0;
     protected $task;
-    protected $TaskFee;
-    protected $twddFee;
+    protected $TaskFee = 0;
+    protected $twddFee = 0;
     protected $price_share = 0.8;
     protected $taskRepository;
     protected $member_creditcard_id = null;
