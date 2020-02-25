@@ -8,6 +8,8 @@ use Twdd\Services\Task\TaskNo;
 
 class SpgatewayFailSmsListener
 {
+    use TraitPayTime;
+
     public $task;
     public $result;
 
@@ -27,7 +29,10 @@ class SpgatewayFailSmsListener
 
     private function sms(){
 
-        $body = '台灣代駕通知：您的任務（單號: '.TaskNo::make($this->task->id).'）因銀行回報授權失敗無法刷卡！若司機改以現金結帳請放心把現金交給司機。';
+        $time = $this->payTime();
+        $body = '台灣代駕通知：您的代駕服務 '.$time.'（單號: '.TaskNo::make($this->task->id).') 信用卡銀行回應刷卡失敗！';
         Infobip::sms()->send($this->task->member->UserPhone, $body);
     }
+
+
 }
