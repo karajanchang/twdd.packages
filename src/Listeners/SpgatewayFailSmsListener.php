@@ -2,7 +2,7 @@
 
 namespace Twdd\Listeners;
 
-use Twdd\Events\SpgatewayErrorEvent;
+use Twdd\Events\SpgatewayFailEvent;
 use Twdd\Facades\Infobip;
 use Twdd\Services\Task\TaskNo;
 
@@ -17,7 +17,7 @@ class SpgatewayFailSmsListener
      * @param ExampleEvent $event
      * @return void
      */
-    public function handle(SpgatewayErrorEvent $event)
+    public function handle(SpgatewayFailEvent $event)
     {
         $this->task = $event->task;
         $this->result = $event->result;
