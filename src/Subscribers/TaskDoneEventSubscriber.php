@@ -27,7 +27,7 @@ class TaskDoneEventSubscriber
         $taskRepository = app(TaskRepository::class);
 
         if(isset($task->id) && isset($task->driver_id)){
-            $result = $taskRepository->sumAndNumsFromTaskFeeByDriverAndDate($task->driver_id, date('Y-m-d').'%');
+            $result = $taskRepository->sumAndNumsFromTaskFeeByDriverAndDate($task->driver_id, date('Y'), date('n'), date('j'));
             Log::info('TaskDoneEventSubscriber updateDriverDayNums result: ', [$result]);
             $driverDayNumsRepository->insertByDriverId($task->driver_id, $result->nums, $result->money);
         }
@@ -40,7 +40,7 @@ class TaskDoneEventSubscriber
         }
 
         $taskRepository = app(TaskRepository::class);
-        $result = $taskRepository->sumAndNumsFromTaskFeeByDriverAndDate($task->driver_id, date('Y-m-').'%');
+        $result = $taskRepository->sumAndNumsFromTaskFeeByDriverAndDate($task->driver_id, date('Y'), date('n'));
         $params = [
             'nums' => $result->nums,
             'sumTaskFee' => $result->money,

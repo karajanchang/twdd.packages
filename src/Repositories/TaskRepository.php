@@ -176,13 +176,22 @@ class TaskRepository extends Repository
         return $this->select($columns)->where('driver_id', $driver_id)->orderby('id', 'desc')->first();
     }
 
-    public function sumAndNumsFromTaskFeeByDriverAndDate(int $driver_id, string $cdate){
+    public function sumAndNumsFromTaskFeeByDriverAndDate(int $driver_id, int $year = null, int $month = null, int $day = null){
 
-        $res = $this->select(DB::raw('count(id) as nums, sum(TaskFee) as money, sum(twddFee) as sumTwddFee'))
+        $qb = $this->select(DB::raw('count(id) as nums, sum(TaskFee) as money, sum(twddFee) as sumTwddFee'))
             ->where('TaskState', 7)
-            ->where('driver_id', $driver_id)
-            ->where('createtime', 'like', $cdate)
-            ->first();
+            ->where('driver_id', $driver_id);
+
+        if(!is_null($year)) {
+            $qb->where(DB::raw('YEAR(createtime)'), (int) $year);
+        }
+        if(!is_null($month)) {
+            $qb->where(DB::raw('MONTH(createtime)'), (int) $month);
+        }
+        if(!is_null($day)) {
+            $qb->where(DB::raw('DAY(createtime)'), (int) $day);
+        }
+        $res = $qb->first();
 
         if(is_null($res->nums)){
             $res->nums = 0;
