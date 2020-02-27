@@ -57,14 +57,14 @@ class CouponValid extends ServiceAbstract
         if(!isset($couponword['error'])){
             $res = $this->couponwordService->check($UserCreditCode, $this->member, $this->task);
             if(isset($res['error'])){
-                Log::error('CouponValid null (couponwordService->check): ', [$res]);
+                $this->log('CouponValid null (couponwordService->check): ', $res['error']);
 
                 return $res;
             }
 
             $res = $this->couponService->validCouponword($UserCreditCode, $this->member, $this->task);
             if (!empty($res->id)) {
-                Log::error('CouponValid null (couponService->validCouponWord): ', [$res]);
+                 Log::info('CouponValid null (couponService->validCouponWord): ', [$res]);
 
                 return $res;
             }
@@ -73,10 +73,27 @@ class CouponValid extends ServiceAbstract
             return $couponword;
         }else{//--coupon
             $res = $this->couponService->check($UserCreditCode, $this->member, $this->task);
-            Log::info('CouponValid (couponService->check): ', [$res]);
+
+            if(isset($res['error'])) {
+                $this->log('CouponValid (couponService->check): ', $res['error']);
+            }
 
             return $res;
         }
 
+    }
+
+    private function log($msg, $error){
+        try {
+            Log::info($msg, ['error' =>
+                [
+                    'unit' => $error->getUnit(),
+                    'code' => $error->getCode(),
+                    'message' => $error->getMessage(),
+                ]
+            ]);
+        }catch (\Exception $e){
+            Log::error('CouponValid log exception: ', [$e]);
+        }
     }
 }
