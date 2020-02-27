@@ -26,7 +26,7 @@ class SettingLongtermPriceService extends ServiceAbstract
     }
 
     public function fetchByHour(int $city_id = 1, int $hour = null){
-        $rhour = is_nul($hour) ? date('G') : $hour;
+        $rhour = is_null($hour) ? date('G') : $hour;
         $rows = $this->all($city_id);
 
         return $rows->where('hour_start', '<=', $rhour)->where('hour_end', '>', $rhour)->first();

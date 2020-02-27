@@ -19,17 +19,21 @@ class LoginSuccessNotify extends Job
     }
 
     public function handle(){
-        Mail::to($this->identity->email)->queue(new SuccessMail($this->identity));
+        if(isset($this->identity)) {
+            if(!empty($this->identity->email)) {
+                Mail::to($this->identity->email)->queue(new SuccessMail($this->identity));
+            }
 
-        //---通知上一個登入的裝置，你的帳號被從另一裝置登入
-        try {
-            dispatch(new PushNotify($this->identity, '帳戶安全提示', '你的帳號被從另一裝置登入，若非你本人的操作請通知公司'));
-        }catch (\Exception $e){
-            Bugsnag::notifyException($e);
-            Log::error('gorush does not start', [$e]);
+            //---通知上一個登入的裝置，你的帳號被從另一裝置登入
+            try {
+                dispatch(new PushNotify($this->identity, '帳戶安全提示', '你的帳號被從另一裝置登入，若非你本人的操作請通知公司'));
+            } catch (\Exception $e) {
+                Bugsnag::notifyException($e);
+                Log::error('gorush does not start', [$e]);
+            }
+
+            //建立或更新PushToken / DeviceType
+            PushService::createOrUpdateByLoginIdentity($this->identity);
         }
-
-        //建立或更新PushToken / DeviceType
-        PushService::createOrUpdateByLoginIdentity($this->identity);
     }
 }

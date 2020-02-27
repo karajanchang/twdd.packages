@@ -18,14 +18,19 @@ class LoginFailNotify extends Job
     }
 
     public function handle(){
-        Mail::to($this->identity->email)->queue(new FailMail($this->identity));
+        if(isset($this->identity)) {
 
-        //---通知上一個登入的裝置，你的帳號被從另一裝置登入
-        try {
-            dispatch(new PushNotify($this->identity, '登入失敗：司機帳號密碼有誤', '你的帳號登入失敗，若非你本人的操作請通知公司'));
-        }catch (\Exception $e){
-            Bugsnag::notifyException($e);
-            Log::error('gorush does not start', [$e]);
+            if (!empty($this->identity->email)) {
+                Mail::to($this->identity->email)->queue(new FailMail($this->identity));
+            }
+
+            //---通知上一個登入的裝置，你的帳號被從另一裝置登入
+            try {
+                dispatch(new PushNotify($this->identity, '登入失敗：司機帳號密碼有誤', '你的帳號登入失敗，若非你本人的操作請通知公司'));
+            } catch (\Exception $e) {
+                Bugsnag::notifyException($e);
+                Log::error('gorush does not start', [$e]);
+            }
         }
     }
 }
