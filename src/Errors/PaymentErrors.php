@@ -45,6 +45,16 @@ class PaymentErrors extends ErrorAbstract
         return trans('twdd::payment.spgateway_exception');
     }
 
+    public function error2006(){
+
+        return trans('twdd::payment.must_have_drivermerchant_account');
+    }
+
+    public function error2007(){
+
+        return trans('twdd::payment.member_this_creditcard_is_not_exist');
+    }
+
     public function error3001(){
 
         return trans('twdd::payment.spgateway_time_too_close');

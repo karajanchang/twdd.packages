@@ -28,10 +28,35 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
     }
 
+    private function checkIfDriverMerchantExists(){
+        if(empty($this->driverMerchant->MerchantID) || empty($this->driverMerchant->MerchantHashKey) || empty($this->driverMerchant->MerchantIvKey)){
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private function checkIfMemberCreditcardExists(){
+
+    }
+
     public function pay(array $params = []){
         $this->preInit();
+
+        if($this->checkIfDriverMerchantExists() === false){
+
+            return $this->returnError( 2006, '智付通驗證錯誤 - 司機沒有啓用商店. 任務單號： ('.$this->task->id.')', null, true);
+        }
+
         $memberCreditCard = $this->getMemberCreditCard();
         $this->setMemberCreditcardId($memberCreditCard->id);
+
+        if($this->checkIfMemberCreditcardExists() === false){
+
+            return $this->returnError( 2007, '智付通驗證錯誤 - 會員該張信用卡已移除或不存在. 任務單號： ('.$this->task->id.')', null, true);
+        }
+
         $payer_email = isset($params['payer_email']) ? $params['payer_email'] : $memberCreditCard->CardHolder;
         $is_random_serial = isset($params['is_random_serial']) ? $params['is_random_serial'] : false;
         $OrderNo = $this->setOrderNo($is_random_serial);
@@ -40,7 +65,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
         if(strlen($payer_email)==0){
 
-            return $this->returnError( 2001, $money, '驗證錯誤 - 沒有email', true);
+            return $this->returnError( 2001, '驗證錯誤 - 沒有email', null, true);
         }
 
         if((int) $money<=0){
