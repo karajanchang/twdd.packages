@@ -140,7 +140,7 @@ class ErrorAbstract extends Error implements ArrayAccess
         if(count($params)){
             $this->setReplaces($code, $params);
         }
-        Log::info('ErrorAbstract unit: '.$this->unit.', params: ', $params);
+        Log::info('ErrorAbstract unit: '.$this->unit.', code: '.(string) $code.', params: ', $params);
 
         $res = [];
         $res['error'] = $this[$code];
