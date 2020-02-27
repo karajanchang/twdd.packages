@@ -191,8 +191,8 @@ class TaskDoneAbstract
 
     private function getPriceShare(){
         $city_id = $this->getCityId();
-
-        $settingPrice = SettingPriceService::callType(1)->fetchByHour($city_id);
+        $call_type = empty($this->task->call_type) ? 1 : (int) $this->task->call_type;
+        $settingPrice = SettingPriceService::callType($call_type)->fetchByHour($city_id);
 
         $column = $this->task->pay_type==2 ? 'price_share_creditcard' : 'price_share';
         if(isset($settingPrice->$column) && $settingPrice->$column > 0){
