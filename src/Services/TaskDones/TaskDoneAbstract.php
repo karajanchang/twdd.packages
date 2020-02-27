@@ -149,7 +149,7 @@ class TaskDoneAbstract
     //--系統費
     private function calucateTwddFee(){
         if($this->chargeTwddFee()===true){
-            $this->twddFee = ceil($this->TaskFee * (1 - $this->price_share));
+            $this->twddFee = round($this->TaskFee * (1 - $this->price_share));
         }
     }
 
