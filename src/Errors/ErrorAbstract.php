@@ -136,6 +136,12 @@ class ErrorAbstract extends Error implements ArrayAccess
         return trans('twdd::errors.operation_error');
     }
 
+    public function error400(){
+
+        $replaces = $this->getReplaces('400');
+        return trans('twdd::errors.not_allow_request', $replaces['400']);
+    }
+
     public function output($code = null, array $params = []){
         if(count($params)){
             $this->setReplaces($code, $params);
@@ -153,4 +159,6 @@ class ErrorAbstract extends Error implements ArrayAccess
 
         return call_user_func_array([$this, 'output'], $arguments);
     }
+
+
 }

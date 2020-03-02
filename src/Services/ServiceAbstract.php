@@ -82,7 +82,7 @@ abstract class ServiceAbstract
 
         if(!isset($this->params) || count($this->params)==0){
 
-            abort(400);
+            abort(400, '沒有參數');
         }
 
         $res = $this->validate($this->params);
@@ -95,7 +95,7 @@ abstract class ServiceAbstract
         $this->attrs = $request->input("attributes");
         if(!isset($this->attrs) || count($this->attrs)==0){
 
-            abort(400);
+            abort(400, '沒有裝置參數');
         }
     }
 

@@ -12,6 +12,7 @@ class DriverErrors extends ErrorAbstract
 {
     protected $unit = 'driver';
 
+
     public function error1000(){
 
         return trans('twdd::driver.driver_does_not_exists');
@@ -59,6 +60,7 @@ class DriverErrors extends ErrorAbstract
 
     public function error1009(){
         $replaces = $this->getReplaces('1009');
+
         return trans('twdd::driver.driver_is_rookie', $replaces['1009']);
     }
 

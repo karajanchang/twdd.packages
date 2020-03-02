@@ -10,6 +10,7 @@ namespace Twdd\Helpers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Twdd\Errors\DriverErrors;
 use Twdd\Facades\LatLonService;
 use Twdd\Facades\TwddCache;
@@ -65,10 +66,16 @@ class DriverService extends ServiceAbstract
     }
 
     public function offline(array $params = []){
-        $res = $this->validateAttributesAndParams($params);
-        if($res!==true){
+        try {
+            $res = $this->validateAttributesAndParams($params);
+            if ($res !== true) {
 
-            return $res;
+                return $res;
+            }
+        }catch (\Exception $e){
+            $this->error->setReplaces('400', ['message' => $e->getMessage()]);
+
+            return $this->error->_('400');
         }
 
         if($this->driver->DriverState==2){
@@ -96,10 +103,16 @@ class DriverService extends ServiceAbstract
     }
 
     public function online(array $params = []){
-        $res = $this->validateAttributesAndParams($params);
-        if($res!==true){
+        try {
+            $res = $this->validateAttributesAndParams($params);
+            if ($res !== true) {
 
-            return $res;
+                return $res;
+            }
+        }catch (\Exception $e){
+            $this->error->setReplaces('400', ['message' => $e->getMessage()]);
+
+            return $this->error->_('400');
         }
 
         if($this->driver->is_online!=1){
@@ -123,6 +136,7 @@ class DriverService extends ServiceAbstract
         }
 
         if($this->driver->is_pass_rookie==0 && $this->driver->isARookie()===true){
+            Log::info('driver', [$this->driver]);
 
             return $this->error->_('1009', [
                 'start' => env('OLDBIRD_HOUR_START', 1),
