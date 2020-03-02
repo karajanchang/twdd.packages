@@ -34,7 +34,7 @@ class CouponRepository extends Repository
     public function setUsed(int $id){
         $params = [
             'isUsed' => 1,
-            'usedtime' => time(),
+            'usedtime' => date('Y-m-d H:i:s'),
         ];
 
         return $this->update($id, $params);
