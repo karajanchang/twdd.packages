@@ -31,10 +31,11 @@ class CouponRepository extends Repository
         return $this->where('member_id', $member_id)->where('code', $code)->orderBy('id', 'desc')->first();
     }
 
-    public function setUsed(int $id){
+    public function setUsed(int $id, int $member_id){
         $params = [
             'isUsed' => 1,
             'usedtime' => date('Y-m-d H:i:s'),
+            'member_id' => $member_id,
         ];
 
         return $this->update($id, $params);

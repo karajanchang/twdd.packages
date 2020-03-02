@@ -36,7 +36,7 @@ class CouponServiceHelper
 
         Log::info('CouponServiceHelper ('.$this->task->id.'): setUsed', [$coupon]);
         if($coupon instanceof Coupon){
-            $res = app(CouponRepository::class)->setUsed($coupon->id);
+            $res = app(CouponRepository::class)->setUsed($coupon->id, $this->task->member_id);
             if($res==0){
                 Log::error('(CouponServiceHelper) 優惠券'.$this->task->UserCreditCode.'設為已使用沒有更新 任務id: '.$this->task->id);
             }
