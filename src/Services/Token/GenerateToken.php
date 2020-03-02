@@ -38,9 +38,16 @@ class GenerateToken
         
         return env('APP_TYPE').ucfirst($type).$loginIdentify->id;
     }
+
+    private function processExpireAt2Lunch(){
+        $expiredAt = Carbon::create(date('Y'), date('n'), date('j'),12, 0, 0);
+
+        return $expiredAt->addDays(env('LOGIN_TOKEN_DAYS', 14));
+    }
     
     public function generate(LoginIdentify $loginIdentify){
-        $expiredAt = Carbon::now()->addDays(env('LOGIN_TOKEN_DAYS', 14));
+        $expiredAt = $this->processExpireAt2Lunch();
+
         $key = $this->getKey($loginIdentify);
         $token = Hash::make($key);
         $keyToken = env('APP_TYPE').'Token'.$token;
