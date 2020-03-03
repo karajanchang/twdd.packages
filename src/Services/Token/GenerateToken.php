@@ -40,7 +40,7 @@ class GenerateToken
     }
 
     private function processExpireAt2Lunch(){
-        $expiredAt = Carbon::create(date('Y'), date('n'), date('j'),12, 0, 0);
+        $expiredAt = Carbon::create(null, null, null, 12, 0, 0);
 
         return $expiredAt->addDays(env('LOGIN_TOKEN_DAYS', 14));
     }
