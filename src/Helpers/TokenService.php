@@ -5,8 +5,7 @@ namespace Twdd\Helpers;
 
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
-use Twdd\Errors\ErrorAbstract;
+use Twdd\Facades\PushService;
 use Twdd\Http\Traits\ValidateTrait;
 use Twdd\Jobs\Login\LoginFailNotify;
 use Twdd\Models\LoginIdentify;
@@ -81,10 +80,12 @@ class TokenService
 
             return $res;
         }else{
-            if($params['PushToken']!=$loginIdentity->push->PushToken) {
-                dispatch(new LoginSuccessNotify($loginIdentity));
-            }
             $res = $this->generateToken->generate($loginIdentity);
+            if(!empty($loginIdentity->push->PushToken) && $params['PushToken']!=$loginIdentity->push->PushToken) {
+                dispatch(new LoginSuccessNotify($loginIdentity));
+            }else {
+                PushService::createOrUpdateByLoginIdentity($loginIdentity);
+            }
 
             return $res;
         }
