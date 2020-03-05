@@ -51,7 +51,7 @@ class MongoDriverLatLonRepository
 
     //---更新位置
     public function updateLocation(Model $driver, array $params){
-        $params['type'] = 1;
+        $params['type'] = 3;
         //--以司機目前的狀況為driver_state
         $params['driver_state'] = $driver->DriverState;
         $this->driver = $driver;
