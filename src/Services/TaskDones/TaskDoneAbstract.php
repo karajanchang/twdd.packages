@@ -131,9 +131,9 @@ class TaskDoneAbstract
     }
 
     private function doCalucate(){
+        $this->getPriceShare();
         $this->calucateTaskFee();
         $this->calucateTwddFee();
-        $this->getPriceShare();
 
         $this->task->TaskFee = $this->TaskFee;
         $this->task->twddFee = $this->twddFee;
