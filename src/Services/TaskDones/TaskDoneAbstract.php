@@ -6,6 +6,7 @@ namespace Twdd\Services\TaskDones;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Twdd\Events\TaskDoneEvent;
 use Twdd\Facades\DriverService;
 use Twdd\Facades\LatLonService;
@@ -189,15 +190,24 @@ class TaskDoneAbstract
         return true;
     }
 
+    private function getTaskStartHour(){
+        $dt = Carbon::createFromTimestamp($this->task->TaskStartTS);
+
+        return $dt->format('G');
+    }
+
     private function getPriceShare(){
         $city_id = $this->getCityId();
         $call_type = empty($this->task->call_type) ? 1 : (int) $this->task->call_type;
-        $settingPrice = SettingPriceService::callType($call_type)->fetchByHour($city_id);
+
+        $hour = $this->getTaskStartHour();
+        $settingPrice = SettingPriceService::callType($call_type)->fetchByHour($city_id, $hour);
 
         $column = $this->task->pay_type==2 ? 'price_share_creditcard' : 'price_share';
-        if(isset($settingPrice->$column) && $settingPrice->$column > 0){
+        if(!empty($settingPrice->$column)){
 
             $this->price_share = $settingPrice->$column;
+            Log::info('TaskDoneAbstract 抓到了金額，單號('.$this->task->id.')', ['TaskStartHour' => $hour, 'call_type' => $this->task->call_type, 'column' => $column, 'price_share' => $this->price_share]);
         }
     }
 

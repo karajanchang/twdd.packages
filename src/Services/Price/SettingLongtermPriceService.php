@@ -29,6 +29,7 @@ class SettingLongtermPriceService extends ServiceAbstract
         $rhour = is_null($hour) ? date('G') : $hour;
         $rows = $this->all($city_id);
 
-        return $rows->where('hour_start', '<=', $rhour)->where('hour_end', '>', $rhour)->first();
+        return $rows->first();
+        //return $rows->where('hour_start', '<=', $rhour)->where('hour_end', '>', $rhour)->first();
     }
 }
