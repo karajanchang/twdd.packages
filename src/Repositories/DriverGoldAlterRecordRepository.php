@@ -22,8 +22,8 @@ class DriverGoldAlterRecordRepository extends Repository
     }
 
     public function insertByTask(Model $task){
-        $now = Carbon::now();
-        $this->insert([
+
+        return $this->create([
             'assemble_type' => 1,
             'operation_type' => 2,
             'driver_id' => $task->driver_id,
@@ -31,8 +31,6 @@ class DriverGoldAlterRecordRepository extends Repository
             'gold_num' => $task->driver->driver_gold_nums,
             'change_num' => 1,
             'task_id' => $task->id,
-//            'created_at' => $now,
-//            'updated_at' => $now,
         ]);
     }
 }
