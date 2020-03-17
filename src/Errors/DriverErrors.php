@@ -50,7 +50,7 @@ class DriverErrors extends ErrorAbstract
 
     public function error1007(){
 
-        return trans('twdd::driver.driver_credit_is_under_100');
+        return trans('twdd::driver.driver_credit_is_under_300');
     }
 
     public function error1008(){

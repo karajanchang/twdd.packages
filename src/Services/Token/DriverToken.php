@@ -84,6 +84,7 @@ class DriverToken extends TokenAbstract implements InterfaceToken
             return $this->error->_('1008');
         }
 
+        /*
         if($identity->is_pass_rookie==0 && $identity->isARookie()===true){
 
             return $this->error->_('1009', [
@@ -92,6 +93,7 @@ class DriverToken extends TokenAbstract implements InterfaceToken
                 'nums' => ($identity->pass_rookie_times - $identity->DriverServiceTime),
             ]);
         }
+        */
 
         if($identity->is_tmp_offline===true){
 

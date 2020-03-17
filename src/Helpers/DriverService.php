@@ -125,7 +125,7 @@ class DriverService extends ServiceAbstract
             return $this->error->_('1006');
         }
 
-        if((int) $this->driver->DriverCredit < 100){
+        if((int) $this->driver->DriverCredit < 300){
 
             return $this->error->_('1007');
         }
