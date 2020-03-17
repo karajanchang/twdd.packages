@@ -79,11 +79,6 @@ class DriverToken extends TokenAbstract implements InterfaceToken
             return $this->error->_('1006');
         }
 
-        if((int) $identity->DriverCredit < 100){
-
-            return $this->error->_('1007');
-        }
-
         if($identity->DriverNew<2){
 
             return $this->error->_('1008');
