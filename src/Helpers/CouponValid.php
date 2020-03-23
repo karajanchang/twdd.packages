@@ -27,6 +27,7 @@ class CouponValid extends ServiceAbstract
     private $couponService = null;
     private $couponwordService = null;
     private $driverRepository = null;
+    const black_card_grade_id = 5;
 
     public function __construct(CouponErrors $error, CouponService $couponService, CouponwordService $couponwordService)
     {
@@ -51,6 +52,11 @@ class CouponValid extends ServiceAbstract
     }
 
     public function check(string $UserCreditCode){
+
+        if($this->member->memberGrade->id==self::black_card_grade_id){
+
+            return $this->error->_('4008');
+        }
 
         $couponword = $this->couponwordService->fetch($UserCreditCode);
         //---couponword

@@ -53,4 +53,8 @@ class CouponErrors extends ErrorAbstract
         return trans('twdd::coupon.coupon_have_been_used');
     }
 
+    public function error4008(){
+
+        return trans('twdd::coupon.black_card_can_not_use_coupon');
+    }
 }

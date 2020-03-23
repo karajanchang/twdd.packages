@@ -18,6 +18,16 @@ class Member extends Model
 
     protected $guarded = ['id'];
 
+    public function creditCards(){
+
+        return $this->hasMany(MemberCreditcard::class, 'member_id', 'id');
+    }
+
+    public function memberGrade(){
+
+        return $this->belongsTo(MemberGrade::class);
+    }
+
     public function memberpush(){
 
         return $this->hasOne(MemberPush::class);
