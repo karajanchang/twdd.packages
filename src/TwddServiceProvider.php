@@ -9,6 +9,7 @@
 namespace Twdd;
 
 use Illuminate\Support\ServiceProvider;
+use Twdd\Services\Task\TaskNo;
 
 
 class TwddServiceProvider extends ServiceProvider
@@ -82,6 +83,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\PayService::class);
         });
 
+        $this->app->bind('PayType', function($app, $params){
+
+            return app()->make(\Twdd\Models\PayType::class);
+        });
+
         $this->app->bind('PushNotification', function()
         {
             return app()->make(\Twdd\Helpers\PushNotification::class);
@@ -120,6 +126,11 @@ class TwddServiceProvider extends ServiceProvider
         $this->app->bind('TaskDone', function()
         {
             return app()->make(\Twdd\Helpers\TaskDoneHelper::class);
+        });
+
+        $this->app->bind('TaskNo', function()
+        {
+            return app()->make(TaskNo::class);
         });
 
         $this->app->bind('TaskService', function()
@@ -197,6 +208,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('MoneyAccount', \Twdd\Facades\MoneyAccount::class);
             $loader->alias('MqttPushService', \Twdd\Facades\MqttPushService::class);
             $loader->alias('PayService', \Twdd\Facades\PayService::class);
+            $loader->alias('PayType', \Twdd\Facades\PayType::class);
             $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
             $loader->alias('PushNotification', \Twdd\Facades\PushNotification::class);
             $loader->alias('PushService', \Twdd\Facades\PushService::class);
