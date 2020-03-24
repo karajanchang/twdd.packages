@@ -6,11 +6,11 @@ namespace Twdd\Services\Payments;
 
 interface PaymentInterface
 {
-    public function back();
+    public function back(int $amt, bool $is_notify_member = false);
 
     public function cancel();
 
-    public function pay(array $params = []);
+    public function pay(array $params = [], bool $is_notify_member = true);
 
     public function query();
 

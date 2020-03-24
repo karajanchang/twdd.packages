@@ -39,9 +39,9 @@ class PayService
         return $this;
     }
 
-    public function back(){
+    public function back(int $amt, bool $is_notify_member = false){
 
-        return $this->payment->task($this->task)->back();
+        return $this->payment->task($this->task)->back($amt, $is_notify_member);
     }
 
     public function cancel(){
@@ -49,9 +49,9 @@ class PayService
         return $this->payment->task($this->task)->cancel();
     }
 
-    public function pay(array $params = []){
+    public function pay(array $params = [], bool $is_notify_member = true){
 
-        return $this->payment->task($this->task)->pay($params);
+        return $this->payment->task($this->task)->pay($params, $is_notify_member);
     }
 
     public function query(){

@@ -26,4 +26,8 @@ class TaskPayLog extends Model
         return $this->belongsTo(Member::class);
     }
 
+    public function memberCreditcard(){
+
+        return $this->belongsTo(MemberCreditcard::class);
+    }
 }
