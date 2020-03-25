@@ -171,41 +171,14 @@ class TaskDoneAbstract
         return IsTaskChargeTwddFee($this->task);
     }
 
-    private function getTaskStartHour(){
-        $dt = Carbon::createFromTimestamp($this->task->TaskStartTS);
-
-        return $dt->format('G');
-    }
-
     private function getPriceShare(){
-        $city_id = $this->getCityId();
-        $call_type = empty($this->task->call_type) ? 1 : (int) $this->task->call_type;
-
-        $hour = $this->getTaskStartHour();
-        $settingPrice = SettingPriceService::callType($call_type)->fetchByHour($city_id, $hour);
-
-        $column = $this->task->pay_type==2 ? 'price_share_creditcard' : 'price_share';
-        if(!empty($settingPrice->$column)){
-
-            $this->price_share = $settingPrice->$column;
-            Log::info('TaskDoneAbstract 抓到了金額，單號('.$this->task->id.')', ['TaskStartHour' => $hour, 'call_type' => $this->task->call_type, 'column' => $column, 'price_share' => $this->price_share]);
-        }
+        $this->price_share = TaskPriceShare($this->task);
+        Log::info('TaskDoneAbstract 抓到了金額，單號('.$this->task->id.')', ['call_type' => $this->task->call_type, 'price_share' => $this->price_share]);
     }
 
     private function getCityId(){
-        if(isset($this->task->start_city_id) && $this->task->start_city_id > 0){
 
-            return $this->task->start_city_id;
-        }
-        $start_zip =  isset($this->task->start_zip) ? $this->task->start_zip : null;
-
-        $cityDistrict = LatLonService::citydistrictFromLatlonOrZip($this->task->UserLat, $this->task->UserLon, $start_zip);
-        if(isset($cityDistrict['city_id'])){
-
-            return $cityDistrict['city_id'];
-        }
-
-        return 1;
+        return TaskStartCityId($this->task);
     }
 
 

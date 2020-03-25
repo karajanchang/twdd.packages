@@ -1,5 +1,10 @@
 <?php
 //---得到國泰的Bank Account
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+use Twdd\Facades\LatLonService;
+use Twdd\Facades\SettingPriceService;
+
 if (!function_exists('BankAccount')) {
     function BankAccount($DriverID){
         if(!isset($DriverID)){
@@ -58,6 +63,46 @@ if (!function_exists('ClearTaskCache')) {
         }
     }
 }
+
+//---取得該任務的分潤比率 PriceShare
+if (!function_exists('TaskPriceShare')) {
+    function TaskPriceShare(\Illuminate\Database\Eloquent\Model $task){
+        $city_id = TaskStartCityId($task);
+        $call_type = empty($task->call_type) ? 1 : (int) $task->call_type;
+
+        $hour = Carbon::createFromTimestamp($task->TaskStartTS);
+
+        $settingPrice = SettingPriceService::callType($call_type)->fetchByHour($city_id, $hour);
+
+        $column = $task->pay_type==2 ? 'price_share_creditcard' : 'price_share';
+        if(!empty($settingPrice->$column)){
+
+            return $settingPrice->$column;
+        }
+
+        return 0.8;
+    }
+}
+//---取得該任務的StartCityId
+if (!function_exists('TaskStartCityId')) {
+    function TaskStartCityId(\Illuminate\Database\Eloquent\Model $task){
+        if(isset($task->start_city_id) && $task->start_city_id > 0){
+
+             return $task->start_city_id;
+        }
+
+        $start_zip =  isset($task->start_zip) ? $task->start_zip : null;
+        $cityDistrict = LatLonService::citydistrictFromLatlonOrZip($task->UserLat, $task->UserLon, $start_zip);
+        if(isset($cityDistrict['city_id'])){
+
+            return $cityDistrict['city_id'];
+        }
+
+        return 1;
+    }
+}
+
+
 //---把 任務單號 123 轉成補0的字串 00000123
 if (!function_exists('TaskNo')) {
     function TaskNo($task){
