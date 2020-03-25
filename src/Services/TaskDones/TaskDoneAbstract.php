@@ -141,10 +141,16 @@ class TaskDoneAbstract
 
     //--費用
     private function calucateTaskFee(){
-        $this->TaskFee = $this->task->TaskStartFee + (int) $this->task->TaskDistanceFee + (int) $this->task->TaskWaitTimeFee + (int) $this->task->over_price + (int) $this->task->extra_price - (int) $this->task->UserCreditValue;
+        //---有收系統費的才再算一次
+        if($this->chargeTwddFee()===true){
+            $this->TaskFee = $this->task->TaskStartFee + (int) $this->task->TaskDistanceFee + (int) $this->task->TaskWaitTimeFee + (int) $this->task->over_price + (int) $this->task->extra_price - (int) $this->task->UserCreditValue;
+        }else{
+            $this->TaskFee = $this->task->TaskFee;
+        }
         if($this->TaskFee<0){
             $this->TaskFee = 0;
         }
+        Log::info('TaskDoneAbstract ', ['TaskFee' => $this->TaskFee, 'task' => $this->task->TaskFee]);
     }
 
     //--系統費
