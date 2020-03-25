@@ -18,6 +18,8 @@ class TwddServiceProvider extends ServiceProvider
     ];
 
     public function register(){
+        $this->loadFunctions();
+
         $this->app->bind('Bank', function()
         {
             return app()->make(\Twdd\Helpers\Bank::class);
@@ -152,7 +154,11 @@ class TwddServiceProvider extends ServiceProvider
         {
             return app()->make(\Twdd\Helpers\TwddInvoice::class);
         });
-        $this->loadFunctions();
+
+        $this->app->bind('Twdd', function()
+        {
+            return app()->make(\Twdd\Helpers\Twdd::class);
+        });
 
         $this->registerAliases();
     }
@@ -228,6 +234,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('TaskNo', \Twdd\Services\Task\TaskNo::class);
             $loader->alias('TaskService', \Twdd\Facades\TaskService::class);
             $loader->alias('TokenService', \Twdd\Facades\TokenService::class);
+            $loader->alias('Twdd', \Twdd\Facades\Twdd::class);
         }
     }
 
