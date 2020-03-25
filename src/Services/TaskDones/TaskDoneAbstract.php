@@ -167,27 +167,8 @@ class TaskDoneAbstract
 
     //---檢查是否要收系統費
     private function chargeTwddFee(){
-        //---黑卡
-        if ($this->task->member->member_grade_id==5) {
 
-            return false;
-        }
-
-        //--不收的時段
-        $NO_CHARGE_TWDD_FEEs = [];
-        $NO_CHARGE_TWDD_FEE = env('NO_CHARGE_TWDD_FEE');
-        if(strlen($NO_CHARGE_TWDD_FEE)>0){
-            $NO_CHARGE_TWDD_FEEs = explode(',', $NO_CHARGE_TWDD_FEE);
-        }
-        if(count($NO_CHARGE_TWDD_FEEs)==2){
-            $now = time();
-            if($now >= $NO_CHARGE_TWDD_FEEs[0] && $now <= $NO_CHARGE_TWDD_FEEs[1]){
-
-                return false;
-            }
-        }
-
-        return true;
+        return IsTaskChargeTwddFee($this->task);
     }
 
     private function getTaskStartHour(){

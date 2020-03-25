@@ -60,8 +60,7 @@ class TaskDoneEventSubscriber
             return false;
         }
 
-        $driver = $task->driver;
-        TwddCache::driver($driver->id)->MonthMoneyDriver($driver->id)->key('MonthMoneyDriver', $driver->id)->forget();
+        ClearTaskCache($task);
 
         return true;
     }
