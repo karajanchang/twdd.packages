@@ -4,9 +4,7 @@
 namespace Twdd\Helpers;
 
 
-use Twdd\Services\ServiceAbstract;
-
-class Bank extends ServiceAbstract
+class Bank
 {
     public function account(string $DriverID){
         $DriverID = trim($DriverID);

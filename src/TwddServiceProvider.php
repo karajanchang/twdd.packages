@@ -152,7 +152,7 @@ class TwddServiceProvider extends ServiceProvider
         {
             return app()->make(\Twdd\Helpers\TwddInvoice::class);
         });
-
+        $this->loadFunctions();
 
         $this->registerAliases();
     }
@@ -171,6 +171,12 @@ class TwddServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/resources/views' => resource_path('views'),
         ]);
+    }
+
+    protected function loadFunctions(){
+        foreach (glob(__DIR__.'/functions/*.php') as $filename) {
+            require_once $filename;
+        }
     }
 
     /**
