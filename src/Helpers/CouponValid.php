@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Twdd\Errors\CouponErrors;
 use Twdd\Repositories\DriverRepository;
+use Twdd\Repositories\MemberRepository;
 use Twdd\Services\Coupon\CouponService;
 use Twdd\Services\Coupon\CouponwordService;
 use Twdd\Services\ServiceAbstract;
@@ -28,12 +29,17 @@ class CouponValid extends ServiceAbstract
     private $couponwordService = null;
     private $driverRepository = null;
     const black_card_grade_id = 5;
+    /**
+     * @var MemberRepository
+     */
+    private $memberRepository;
 
-    public function __construct(CouponErrors $error, CouponService $couponService, CouponwordService $couponwordService)
+    public function __construct(CouponErrors $error, CouponService $couponService, CouponwordService $couponwordService, MemberRepository $memberRepository)
     {
         $this->couponService = $couponService;
         $this->couponwordService = $couponwordService;
         $this->error = $error;
+        $this->memberRepository = $memberRepository;
     }
 
 
@@ -52,8 +58,9 @@ class CouponValid extends ServiceAbstract
     }
 
     public function check(string $UserCreditCode){
+        $m = $this->memberRepository->find($this->member->id, ['member_grade_id']);
 
-        if($this->member->memberGrade->id==self::black_card_grade_id){
+        if(!empty($m->member_grade_id) && $m->member_grade_id==self::black_card_grade_id){
 
             return $this->error->_('4008');
         }
