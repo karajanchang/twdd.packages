@@ -11,8 +11,8 @@ class Gorush4driver extends PushNotificationService
 {
     public function __construct()
     {
-        $this->host = env('GORUSH_USER_HOST', 'http://localhost');
-        $this->port = env('GORUSH_USER_PORT', 7788);
+        $this->host = env('GORUSH_DRIVER_HOST', 'http://localhost');
+        $this->port = env('GORUSH_DRIER_PORT', 7788);
         $this->topic = env('IOS_DRIVER_TOPIC', 'com.tw.twdd.driver');
         $this->alert = new \stdClass();
         $this->badge = 3;

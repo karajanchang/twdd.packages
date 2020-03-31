@@ -14,8 +14,8 @@ class Gorush4User extends PushNotificationService
 {
     public function __construct()
     {
-        $this->host = env('GORUSH_DRIVER_HOST', 'http://localhost');
-        $this->port = env('GORUSH_DRIVER_PORT', 7789);
+        $this->host = env('GORUSH_USER_HOST', 'http://localhost');
+        $this->port = env('GORUSH_USER_PORT', 7789);
         $this->topic = env('IOS_USER_TOPIC', 'com.rich.app.DesignedDrivingClient');
         $this->alert = new \stdClass();
         $this->badge = 3;
