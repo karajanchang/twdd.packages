@@ -103,8 +103,15 @@ class TaskDoneAbstract
     //--短程費用調為300的補貼
     private function doShortDistanceBack(){
         $task = $this->getTask();
-        if(time() >= env('SHORT_FEE_CHANGE_START_TIMESTAMP', 1573444800) && time() <= env('SHORT_FEE_CHANGE_END_TIMESTAMP', 1893427200) && (int)$task->TaskDistance<=3000){
-            $this->doCreditChange(15, round($task->TaskFee * 0.1), '短程津貼');
+        if( (int)$task->TaskDistance<=3000 ){
+            //--第一次
+            if (time() >= env('SHORT_FEE_CHANGE_START_TIMESTAMP', 1573444800) && time() <= env('SHORT_FEE_CHANGE_END_TIMESTAMP', 1893427200)){
+                $this->doCreditChange(15, round($task->TaskFee * 0.1), '短程津貼');
+            }
+            //--第二次
+            if (time() >= env('SHORT_FEE_CHANGE_START_TIMESTAMP2', 1588262400) && time() <= env('SHORT_FEE_CHANGE_END_TIMESTAMP2', 1596211199)){
+                $this->doCreditChange(15, round($task->TaskFee * 0.05), '短程津貼');
+            }
         }
     }
 
