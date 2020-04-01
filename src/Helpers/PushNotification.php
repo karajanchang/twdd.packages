@@ -17,10 +17,7 @@ class PushNotification
 {
     private $service;
     private $tokens = [];
-    private $action;
     private $obj;
-    private $objKey = 'obj';
-
 
     private $types = [ 1 => 'ios', 2 => 'android' ];
 
@@ -69,6 +66,10 @@ class PushNotification
     }
 
     private function makeData(array $params = []){
+        if(count($params)){
+
+            return $params;
+        }
         $data = new \stdClass();
         $data->serial = uniqid();
         $data->code = 0;
@@ -77,7 +78,7 @@ class PushNotification
         $service = $this->service->toArray();
         $data->title = isset($service['title']) ? $service['title'] : '';
         $data->msg = isset($service['msg']) ? $service['msg'] : '';
-        $data->{$this->objKey} = $this->obj;
+        $data->obj = $this->obj;
 
         Log::info('Helpers PushNotification service: ', [$service]);
         Log::info('Helpers PushNotification data: ', [$data]);
@@ -91,20 +92,20 @@ class PushNotification
         return $this;
     }
 
-    public function obj($obj, string $objKey = 'obj'){
+    public function obj($obj){
         $this->obj = $obj;
-        $this->objKey = $objKey;
 
         return $this;
     }
 
-    public function send(){
-        $data = $this->makeData();
+    public function send(array $params = []){
+        $data = $this->makeData($params);
         //dump($data);
         //$this->service->tokens($this->tokens);
         $this->service->data($data);
 
         $this->tokens = [];
+
         return $this->service->send();
     }
 }

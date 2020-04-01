@@ -106,6 +106,7 @@ class TaskRepository extends Repository
 
         $qb = $this->join('calldriver_task_map', 'calldriver_task_map.task_id', '=', 'task.id')
             ->join('member', 'task.member_id', '=', 'member.id')
+            ->join('driver', 'task.driver_id', '=', 'Driver.id')
             ->leftJoin('member_grade', 'member.member_grade_id', '=', 'member_grade.id')
             ->leftJoin('member_push', 'task.member_id', '=', 'member_push.member_id')
             ->Join('driver_location', 'driver.id', '=', 'driver_location.driver_id')
@@ -130,8 +131,9 @@ class TaskRepository extends Repository
             'TaskDistanceFee',
             'UserCreditCode',
             'UserCreditValue',
-            'type', 'task.pay_type',
-            'call_type',
+            'task.type',
+            'task.pay_type',
+            'task.call_type',
             DB::raw('left(member.UserName, 1) as UserName'),
             'member.UserGender',
             'task.UserRemark',
@@ -161,7 +163,7 @@ class TaskRepository extends Repository
             'DestAddress',
             'DestAddressKey',
             'extra_price', 'over_price', 'DestCity', 'DestDistrict', 'DestAddress', 'DriverLat', 'DriverLon', DB::raw('CEILING((UNIX_TIMESTAMP()-UNIX_TIMESTAMP(Driver.DriverDrivingSeniorityDate))/3600/24/365) as DriverDrivingSeniorityYear'),
-            'member_push.DeviceType', 'task.depot_user_id', 'task.is_receive_money_first', 'task.callback_url', 'call_member_id'
+            'member_push.DeviceType', 'task.depot_user_id', 'task.is_receive_money_first', 'task.callback_url', 'task.call_member_id'
         )
             ->first();
 

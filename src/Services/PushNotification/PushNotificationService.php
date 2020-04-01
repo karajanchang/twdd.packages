@@ -67,14 +67,35 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     }
 
     private function makeNotification(){
+        if($this->platform==1){
+
+            return $this->iosNotificaiton();
+        }
+        //dump('$notification==============$notification', $notification);
+        return $this->androidNotification();
+    }
+    private function iosNotificaiton(){
+        $notification = $this->toArray();
+        $notification['aps']['alert'] = $this->alert;
+        $notification['data'] = $this->data;
+        //dump($notification);
+
+        Log::info('$notification ios ==============$notification', $notification);
+
+        return $notification;
+    }
+    private function androidNotification(){
         $notification = $this->toArray();
         $notification['alert'] = $this->alert;
         $notification['data']['data'] = $this->data;
+        //dump($notification);
 
-        Log::info('$notification==============$notification', $notification);
-        //dump('$notification==============$notification', $notification);
+        Log::info('$notification android ==============$notification', $notification);
+
         return $notification;
     }
+
+
 
     public function send(){
         $send = new \stdClass();
