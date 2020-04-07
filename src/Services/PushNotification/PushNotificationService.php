@@ -64,7 +64,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
 
     public function sound($sound){
         if(is_int($sound)){
-            $sounds = include_once './sound.php';
+            $sounds = include_once __DIR__.'/sound.php';
             $this->sound = Collection::make($sounds)->get($sound, 0);
 
             return $this;
