@@ -7,6 +7,7 @@
  */
 namespace Twdd\Services\PushNotification;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Twdd\Traits\AttributesArrayTrait;
 use Zhyu\Facades\ZhyuCurl;
@@ -19,6 +20,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     protected $port = 0;
     protected $alert = null;
     protected $data = null;
+    protected $sound = 'default';
     //protected $platform = 1;
 //    protected $tokens = [];
 
@@ -60,6 +62,20 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         return $this;
     }
 
+    public function sound($sound){
+        if(is_int($sound)){
+            $sounds = include_once './sound.php';
+            $this->sound = Collection::make($sounds)->get($sound, 0);
+
+            return $this;
+        }
+        if(is_string($sound)){
+            $this->sound = $sound;
+
+            return $this;
+        }
+    }
+
     public function data($data){
         $this->data = $data;
 
@@ -76,9 +92,11 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     }
     private function iosNotificaiton(){
         $notification = $this->toArray();
-        $notification['aps']['alert'] = $this->alert;
-        $notification['data'] = $this->data;
-        //dump($notification);
+        $notification['alert'] = $this->alert;
+        $notification['data']['data'] = $this->data;
+        $notification['data']['action'] = $this->action;
+        $notification['sound'] = $this->sound;
+
 
         Log::info('$notification ios ==============$notification', $notification);
 
@@ -88,7 +106,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         $notification = $this->toArray();
         $notification['alert'] = $this->alert;
         $notification['data']['data'] = $this->data;
-        //dump($notification);
+        $notification['data']['action'] = $this->action;
 
         Log::info('$notification android ==============$notification', $notification);
 
@@ -101,11 +119,9 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         $send = new \stdClass();
         $send->notifications[] = $this->makeNotification();
 
-
         $url = $this->host.':'.$this->port.'/api/push';
         //dump($url);
         //dd('send ... send... send ...', $send);
-
         //--正式機才發推播
         if(env('APP_ENV')=='production') {
             $res = ZhyuCurl::url($url)->json($send, true);
@@ -120,11 +136,8 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         }
 
         $send = null;
-
         $this->tokens = [];
 
         return $res;
     }
-
-
 }

@@ -98,10 +98,13 @@ class PushNotification
         return $this;
     }
 
-    public function send(array $params = []){
+    public function send(array $params = [], $sound = null){
         $data = $this->makeData($params);
         //dump($data);
         //$this->service->tokens($this->tokens);
+        if(!is_null($sound)){
+            $this->service->sound($sound);
+        }
         $this->service->data($data);
 
         $this->tokens = [];
