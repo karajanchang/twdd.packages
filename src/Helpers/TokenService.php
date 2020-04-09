@@ -112,6 +112,7 @@ class TokenService
         $loginIdentity->PushToken = $this->service->getPushToken();
         $loginIdentity->DeviceType = $this->service->getDeviceType();
         $loginIdentity->device = $this->service->getDevice();
+        $loginIdentity->PushEnv = $this->service->getPushEnv();
 
         $pushColumn = $this->service->getPushColumn();
         if(isset($identity->{$pushColumn})) {
