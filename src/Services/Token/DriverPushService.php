@@ -18,12 +18,11 @@ class DriverPushService
     }
 
     public function createOrUpdateByLoginIdentity(LoginIdentify $loginIdentify){
-        $PushEnv = !empty($loginIdentify->PushEnv) ? $loginIdentify->PushEnv : null;
         $res = $this->repository->updateOrCreate([
                 'driver_id' => $loginIdentify->id
             ],
             [
-                'PushEnv' => $PushEnv,
+                'PushEnv' => $loginIdentify->PushEnv,
                 'PushToken' => $loginIdentify->PushToken,
                 'DeviceType' => $loginIdentify->DeviceType,
             ]
