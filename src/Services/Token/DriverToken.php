@@ -111,6 +111,7 @@ class DriverToken extends TokenAbstract implements InterfaceToken
             'DriverPassword' => 'required|min:6',
             'DeviceType' => 'required',
             'PushToken' => 'required',
+            'PushEnv' => 'string',
             'ID' => 'required|string'
         ];
     }

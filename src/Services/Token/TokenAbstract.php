@@ -18,6 +18,7 @@ class TokenAbstract extends ServiceAbstract
     protected $type = null;
 
     protected $PushToken = null;
+    protected $PushEnv = null;
     protected $DeviceType = null;
     protected $device = null;
     protected $account = null;
@@ -85,6 +86,21 @@ class TokenAbstract extends ServiceAbstract
         return $this->PushToken;
     }
 
+    /**
+     * @return null
+     */
+    public function getPushEnv()
+    {
+        return $this->PushEnv;
+    }
+
+    /**
+     * @param null $PushEnv
+     */
+    public function setPushEnv($PushEnv): void
+    {
+        $this->PushEnv = $PushEnv;
+    }
 
     /**
      * @return null
@@ -113,6 +129,10 @@ class TokenAbstract extends ServiceAbstract
 
         if(isset($params['PushToken'])) {
             $this->setPushToken($params['PushToken']);
+        }
+
+        if(isset($params['PushEnv'])) {
+            $this->setPushEnv($params['PushEnv']);
         }
 
         if(isset($params['DeviceType'])) {

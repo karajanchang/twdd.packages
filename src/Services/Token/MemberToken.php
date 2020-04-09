@@ -21,6 +21,7 @@ class MemberToken extends TokenAbstract implements InterfaceToken
         $this->error = $memberErrors;
     }
 
+    /*
     public function validate(){
         if(is_null($this->account)){
 
@@ -37,12 +38,18 @@ class MemberToken extends TokenAbstract implements InterfaceToken
 
         return true;
     }
+    */
 
     public function login(){
-        $res = $this->validate();
+        $res = $this->validate($this->params);
         if($res!==true){
 
             return $res;
+        }
+
+        if(is_null($this->PushToken)){
+
+            return $this->error->_('1003');
         }
 
         $identity = $this->identity(['id', 'UserPhone', 'UserName', 'UserPassword', 'UserEmail', 'remember_token', 'is_online' ]);
@@ -66,4 +73,15 @@ class MemberToken extends TokenAbstract implements InterfaceToken
         return $identity;
     }
 
+    public function rules(){
+
+        return [
+            'UserPhone' => 'required',
+            'UserPassword' => 'required',
+            'DeviceType' => 'required',
+            'PushToken' => 'required',
+            'PushEnv' => 'string',
+            'ID' => 'required|string'
+        ];
+    }
 }
