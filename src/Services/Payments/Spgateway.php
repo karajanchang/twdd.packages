@@ -331,7 +331,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
             throw new \Exception('Please set SPGATEWAY_XXX_URL value in .env');
         }
-        $res = ZhyuCurl::url($url)->post($postData);
+        $res = ZhyuCurl::url($url)->post($postData, (int) env('SPGATEWAY_TIMEOUT', 50));
 
         return json_decode($res);
     }
