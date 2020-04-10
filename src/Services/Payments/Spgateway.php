@@ -14,6 +14,8 @@ use Twdd\Repositories\MemberCreditcardRepository;
 use Zhyu\Facades\ZhyuCurl;
 use Zhyu\Facades\ZhyuTool;
 use TaskNo;
+use \Zhyu\Errors\CurlTimeout;
+use \Zhyu\Errors\CurlError;
 
 class Spgateway extends PaymentAbstract implements PaymentInterface
 {
@@ -172,7 +174,14 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             Cache::put($key, time(), 30);
             if($lock->get()) {
                 $url = env('SPGATEWAY_URL', 'https://core.spgateway.com/API/CreditCard');
-                $res = $this->post($url, $this->preparePostData($datas));
+                try {
+                    $res = $this->post($url, $this->preparePostData($datas));
+                }catch(CurlTimeout $e){
+                    $msg = '刷卡timeout (單號：' . $this->task->id . ')';
+
+                    return $this->notifyExceptionAndLog($e, 2005, $msg, $is_notify_member, trtue);
+                }
+
                 if (isset($res->Status) && $res->Status == 'SUCCESS') {
                     $msg = '刷卡成功 (單號：' . $this->task->id . ')';
                     Log::info($msg . ': ', [$res]);
@@ -197,16 +206,21 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             return $this->returnError(2004, '刷卡付款，請過 '.$seconds.' 秒後再試', null, true);
         }catch(\Exception $e){
             $msg = '刷卡異常 (單號：'.$this->task->id.'): '.$e->getMessage();
-            Log::info($msg, [$e]);
-            Bugsnag::notifyException($e);
+
             //$this->mail(new InfoAdminMail('［系統通知］!!!智付通，刷卡異常!!!', $msg));
-
-            if($is_notify_member===true) {
-                event(new SpgatewayErrorEvent($this->task));
-            }
-
-            return $this->returnError( 2005, $msg, null, true);
+            return $this->notifyExceptionAndLog($e, 2005, $msg, $is_notify_member);
         }
+    }
+
+    private function notifyExceptionAndLog($e, int $code, string $msg = '', bool $is_notify_member = false, bool $is_payment_timeout = false){
+        Log::info($msg, [$e]);
+        Bugsnag::notifyException($e);
+
+        if($is_notify_member===true) {
+            event(new SpgatewayErrorEvent($this->task));
+        }
+
+        return $this->returnError( 2005, $msg, null, true, $is_payment_timeout);
     }
 
     /*
@@ -331,7 +345,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
             throw new \Exception('Please set SPGATEWAY_XXX_URL value in .env');
         }
-        $res = ZhyuCurl::url($url)->post($postData, (int) env('SPGATEWAY_TIMEOUT', 50));
+        $res = ZhyuCurl::url($url)->post($postData, (int)env('SPGATEWAY_TIMEOUT', 50));
 
         return json_decode($res);
     }

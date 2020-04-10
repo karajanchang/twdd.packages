@@ -44,9 +44,13 @@ class PaymentAbstract
         return $this->money;
     }
 
-    protected function returnError(int $error_code, string $msg = null, $result = null, bool $is_log = false){
+    protected function returnError(int $error_code, string $msg = null, $result = null, bool $is_log = false, bool $is_payment_timeout = false){
         if($is_log===true) {
-            $this->log(false, $msg, $result, $error_code);
+            $pay_status = 0;
+            if($is_payment_timeout===true){
+                $pay_status = 2;
+            }
+            $this->log($pay_status, $msg, $result, $error_code);
         }
 
         return [
@@ -60,7 +64,7 @@ class PaymentAbstract
 
     protected function returnSuccess(string $msg = null, $result = null, bool $is_log = false){
         if($is_log===true) {
-            $this->log(true, $msg, $result);
+            $this->log(1, $msg, $result);
         }
 
         return [
