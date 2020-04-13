@@ -65,7 +65,7 @@ class PushNotification
         return $this;
     }
 
-    private function makeData(array $params = []){
+    private function iosData(array $params = []){
         if(count($params)){
 
             return $params;
@@ -84,6 +84,36 @@ class PushNotification
         Log::info('Helpers PushNotification data: ', [$data]);
 
         return $data;
+    }
+
+    private function androidData(array $params = []){
+        $data = new \stdClass();
+        $data->serial = uniqid();
+        $data->code = 0;
+        $data->action = $this->action;
+
+        $service = $this->service->toArray();
+        $data->title = isset($service['title']) ? $service['title'] : '';
+        $data->msg = isset($service['msg']) ? $service['msg'] : '';
+        if(count($params)){
+            $data->data = $params;
+        }else{
+            $data->obj = $this->obj;
+        }
+
+        Log::info('Helpers PushNotification service: ', [$service]);
+        Log::info('Helpers PushNotification data: ', [$data]);
+
+        return $data;
+    }
+
+    private function makeData(array $params = []){
+        if($this->service->platform==1){
+
+            return $this->iosData($params);
+        }
+
+        return $this->androidData($params);
     }
 
     public function action($action){
