@@ -179,7 +179,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
                 }catch(CurlTimeout $e){
                     $msg = '刷卡timeout (單號：' . $this->task->id . ')';
 
-                    return $this->notifyExceptionAndLog($e, 2005, $msg, $is_notify_member, trtue);
+                    return $this->notifyExceptionAndLog($e, 2005, $msg, $is_notify_member, true);
                 }
 
                 if (isset($res->Status) && $res->Status == 'SUCCESS') {
