@@ -128,7 +128,7 @@ class PushNotification
         return $this;
     }
 
-    public function send(array $params = [], $sound = null){
+    public function send(array $params = [], $sound = null, bool $is_send_tester = false){
         $data = $this->makeData($params);
         //dump($data);
         //$this->service->tokens($this->tokens);
@@ -139,6 +139,25 @@ class PushNotification
 
         $this->tokens = [];
 
-        return $this->service->send();
+        $res = $this->service->send();
+
+        if($is_send_tester===true){
+            $testers = $this->service->androidTesters();
+            $data = $this->makeData($params);
+            $this->service->data($data);
+            if(isset($testers) && count($testers)>0){
+                $this->service->tokens($testers);
+                $res1 = $this->service->send();
+            }
+            $testers = $this->service->iosTesters();
+            $data = $this->makeData($params);
+            $this->service->data($data);
+            if(isset($testers) && count($testers)>0){
+                $this->service->tokens($testers);
+                $res2 = $this->service->send();
+            }
+        }
+
+        return $res;
     }
 }

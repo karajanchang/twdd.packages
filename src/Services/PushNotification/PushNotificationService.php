@@ -7,7 +7,7 @@
  */
 namespace Twdd\Services\PushNotification;
 
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Twdd\Traits\AttributesArrayTrait;
 use Zhyu\Facades\ZhyuCurl;
@@ -21,6 +21,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     protected $alert = null;
     protected $data = null;
     protected $sound = 'default';
+    private $is_send_test = false;
     //protected $platform = 1;
 //    protected $tokens = [];
 
@@ -44,11 +45,16 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         return $this->platform('android');
     }
 
-    public function tokens(array $tokens = []){
+    public function tokens($tokens){
+        if(!is_array($tokens)){
+            $tokens = [$tokens];
+        }
         $this->tokens = array_unique($tokens);
 
         return $this;
     }
+
+
 
     public function title(string $title){
         $this->alert->title = $title;
@@ -113,11 +119,44 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         return $notification;
     }
 
-
-
-    public function send(){
+    private function getSend() : \stdClass{
         $send = new \stdClass();
         $send->notifications[] = $this->makeNotification();
+
+        return $send;
+    }
+
+
+    private function testers(string $type='ios') : array{
+        $this->is_send_test = true;
+        $this->platform($type);
+
+        $name = strtolower($type);
+        $rows = app($this->testRepository())->with($name.'Push')->where('receive_push_notification', 1)->get();
+        $testers = new Collection();
+        if( isset($rows) && count($rows)>0 ) {
+            foreach ($rows as $row) {
+                if (isset($row->{$name.'Push'}->PushToken)) {
+                    $testers->push($row->{$name.'Push'}->PushToken);
+                }
+            }
+        }
+
+        return $testers->toArray();
+    }
+
+    public function iosTesters() : array{
+
+        return $this->testers('ios');
+    }
+
+    public function androidTesters() : array{
+
+        return $this->testers('android');
+    }
+
+    public function send(){
+        $send = $this->getSend();
 
         $url = $this->host.':'.$this->port.'/api/push';
         //dump($url);
@@ -130,7 +169,8 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
                 'counts' => 0,
                 'success' => 'ok',
             ];
-            if(count($this->tokens)==1){
+            //dump($this->is_send_test);
+            if(count($this->tokens)==1 || $this->is_send_test===true){
                 $res = ZhyuCurl::url($url)->json($send, true);
             }
         }
