@@ -18,20 +18,26 @@ class SpgatewayErrorDectect
                 '卡片過期',
                 '拒絕交易',
                 '掛失卡',
-                '餘額不足',
                 '非正常卡',
                 '卡號保護中',
             ],
-
         ];
     }
 
+    private function getPayFailType($msg){
+
+        return new Collection([
+            '掛失卡' => 1,
+            '卡片過期' => 2,
+        ]);
+    }
+
     public function init(MemberCreditcard $memberCreditcard, string $status, string $message) : void{
-        $res = $this->check($status, $message);
+        $pay_fail_type = $this->check($status, $message);
         //---要註記mark
-        if($res===true){
+        if($pay_fail_type > 0){
             try{
-                $memberCreditcard->is_pay_fail = 1;
+                $memberCreditcard->pay_fail_type = $pay_fail_type;
                 $memberCreditcard->save();
                 Log::info('SpgatewayErrorDectect 註記 memberCreditcard 付款失敗 id: ('.$memberCreditcard->id.')');
             }catch (\Exception $e){
@@ -40,19 +46,19 @@ class SpgatewayErrorDectect
         }
     }
 
-    private function check(string $status, string $message){
+    private function check(string $status, string $message) : int{
         $maps = new Collection($this->map);
         $array = $maps->get(strtoupper($status), []);
         if(count($array)){
             foreach($array as $msg){
                 if(preg_match('/'.$msg.'/', $message)){
 
-                    return true;
+                    return $this->getPayFailType($msg)->get($msg, 0);
                 }
             }
         }
 
-        return false;
+        return 0;
     }
 
 }
