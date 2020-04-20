@@ -196,6 +196,8 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
                         event(new SpgatewayFailEvent($this->task, $res));
                     }
 
+                    app(SpgatewayErrorDectect::class)->init($memberCreditCard, $res->Status, $res->Message);
+
                     return $this->returnError(2003, $msg, $res, true);
                 }
             }
