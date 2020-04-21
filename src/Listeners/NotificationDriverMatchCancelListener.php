@@ -37,13 +37,18 @@ class NotificationDriverMatchCancelListener
         $call = $event->call;
         if(isset($call->driver)) {
             try {
-                $pushNotification = PushNotification::user();
+                $pushNotification = PushNotification::driver();
                 $push = $call->driver->driverpush;
                 $deviceType = strtolower($push->DeviceType);
                 if ($deviceType == 'android') {
                     $pushNotification->android();
                 }
-                $pushNotification->tokens([$push->PushToken])->title('此任務已取消')->action('user_have_cancel_match')->obj($call)->send();
+                $data = [
+                    'task_id' => $call->task->id,
+                    'map_id' => $call->id,
+                    'TSsend' => time(),
+                ];
+                $pushNotification->tokens($push->PushToken)->action('user_have_cancel_match')->title('代駕服務通知')->body('客人已取消服務')->send($data);
             } catch (\Throwable $e) {
                 Bugsnag::notifyException($e);
                 Log::error('can not send notification: ' . $e->getMessage(), [$e]);
