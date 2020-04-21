@@ -16,10 +16,8 @@ class SpgatewayErrorDectect
         $this->map = [
             'TRA10016' => [
                 '卡片過期',
-                '拒絕交易',
                 '掛失卡',
                 '非正常卡',
-                '卡號保護中',
             ],
         ];
     }
@@ -29,6 +27,7 @@ class SpgatewayErrorDectect
         return new Collection([
             '掛失卡' => 1,
             '卡片過期' => 2,
+            '非正常卡' => 3,
         ]);
     }
 

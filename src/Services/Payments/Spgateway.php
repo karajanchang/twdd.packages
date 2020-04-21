@@ -166,6 +166,8 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             'TokenTerm'         =>  $this->task->member_id,
             'TokenSwitch'       =>  'on',
         ];
+        $msg = '刷卡資料 (單號：' . $this->task->id . ')';
+        Log::info($msg, $datas);
 
         $key = env('APP_ENV'). 'SpagetwayPayTimestamp'.$this->task->id;
 
