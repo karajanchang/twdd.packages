@@ -17,6 +17,7 @@ class MemberRepository extends Repository
 {
 
     public function model(){
+
         return Member::class;
     }
 

@@ -40,6 +40,7 @@ class Register extends ServiceAbstract
 
         $count = $this->repository->countByUserPhone($params['UserPhone']);
         if($count==0) {
+            $params['InviteCode'] = app(InviteCode::class)->init();
             $this->repository->create($params);
         }
 
