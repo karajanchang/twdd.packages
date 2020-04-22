@@ -141,23 +141,37 @@ class PushNotification
 
         $res = $this->service->send();
 
+        //--送給測試者
         if($is_send_tester===true){
-            $testers = $this->service->androidTesters();
-            $data = $this->makeData($params);
-            $this->service->data($data);
-            if(isset($testers) && count($testers)>0){
-                $this->service->tokens($testers);
-                $res1 = $this->service->send();
-            }
-            $testers = $this->service->iosTesters();
-            $data = $this->makeData($params);
-            $this->service->data($data);
-            if(isset($testers) && count($testers)>0){
-                $this->service->tokens($testers);
-                $res2 = $this->service->send();
-            }
+            $this->sendTesters($params, $sound, 2);
+            $this->sendTesters($params, $sound, 1);
         }
 
         return $res;
+    }
+
+    private function getTesters($type) : array{
+        if($type==2) {
+            $testers = $this->service->iosTesters();
+        }else{
+            $testers = $this->service->androidTesters();
+        }
+
+        return $testers;
+    }
+
+    private function sendTesters(array $params, $sound = null, int $type = 1) : void{
+        $testers = $this->getTesters($type);
+
+        $data = $this->makeData($params);
+        if(!is_null($sound)){
+            $this->service->sound($sound);
+        }
+        $this->service->data($data);
+        if(isset($testers) && count($testers)>0){
+            $this->service->tokens($testers);
+
+            $res = $this->service->send();
+        }
     }
 }
