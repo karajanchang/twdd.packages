@@ -22,8 +22,6 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     protected $data = null;
     protected $sound = 'default';
     private $is_send_test = false;
-    //protected $platform = 1;
-//    protected $tokens = [];
 
     public function platform(string $type = 'ios'){
         if(strtolower($type)=='ios'){
@@ -47,13 +45,13 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
 
     public function tokens($tokens){
         if(!is_array($tokens)){
-            $tokens = [$tokens];
+            $this->tokens = [$tokens];
+        }else {
+            $this->tokens = array_unique($tokens);
         }
-        $this->tokens = array_unique($tokens);
 
         return $this;
     }
-
 
 
     public function title(string $title){
@@ -63,7 +61,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     }
     public function body(string $body){
         $this->alert->body = $body;
-        $this->message = $body;
+        $this->msg = $body;
 
         return $this;
     }
@@ -93,9 +91,10 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
 
             return $this->iosNotificaiton();
         }
-        //dump('$notification==============$notification', $notification);
+
         return $this->androidNotification();
     }
+
     private function iosNotificaiton(){
         $notification = $this->toArray();
         $notification['alert'] = $this->alert;
@@ -103,16 +102,21 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         $notification['data']['action'] = $this->action;
         $notification['sound'] = $this->sound;
 
-
         Log::info('$notification ios ==============$notification', $notification);
 
         return $notification;
     }
+
     private function androidNotification(){
         $notification = $this->toArray();
-        $notification['alert'] = $this->alert;
         $notification['data']['data'] = $this->data;
-        $notification['data']['action'] = $this->action;
+        UNSET($notification['title']);
+        UNSET($notification['msg']);
+        UNSET($notification['action']);
+        UNSET($notification['port_dev']);
+        UNSET($notification['topic']);
+        UNSET($notification['badge']);
+        UNSET($notification['port_dev']);
 
         Log::info('$notification android ==============$notification', $notification);
 
@@ -171,6 +175,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
             ];
             //dump($this->is_send_test);
             if(count($this->tokens)==1 || $this->is_send_test===true){
+                $this->iosPortDynamicChangeByToken($this->tokens[0]);
                 $res = ZhyuCurl::url($url)->json($send, true);
             }
         }

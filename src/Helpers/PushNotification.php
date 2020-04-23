@@ -77,7 +77,7 @@ class PushNotification
 
         $service = $this->service->toArray();
         $data->title = isset($service['title']) ? $service['title'] : '';
-        $data->msg = isset($service['msg']) ? $service['msg'] : '';
+        $data->message = isset($service['msg']) ? $service['msg'] : '';
         $data->obj = $this->obj;
 
         Log::info('Helpers PushNotification service: ', [$service]);
@@ -87,22 +87,22 @@ class PushNotification
     }
 
     private function androidData(array $params = []){
+        $service = $this->service->toArray();
         $data = new \stdClass();
         $data->serial = uniqid();
         $data->code = 0;
         $data->action = $this->action;
-
-        $service = $this->service->toArray();
         $data->title = isset($service['title']) ? $service['title'] : '';
         $data->msg = isset($service['msg']) ? $service['msg'] : '';
         if(count($params)){
             $data->data = $params;
-        }else{
-            $data->obj = $this->obj;
+            Log::info('Helpers PushNotification data: ', [$data]);
+
+            return $data;
         }
 
-        Log::info('Helpers PushNotification service: ', [$service]);
-        Log::info('Helpers PushNotification data: ', [$data]);
+        $data->obj = $this->obj;
+        Log::info('Helpers PushNotification obj: ', [$data]);
 
         return $data;
     }
@@ -130,8 +130,7 @@ class PushNotification
 
     public function send(array $params = [], $sound = null, bool $is_send_tester = false){
         $data = $this->makeData($params);
-        //dump($data);
-        //$this->service->tokens($this->tokens);
+
         if(!is_null($sound)){
             $this->service->sound($sound);
         }
@@ -171,7 +170,7 @@ class PushNotification
         if(isset($testers) && count($testers)>0){
             $this->service->tokens($testers);
 
-            $res = $this->service->send();
+            $this->service->send();
         }
     }
 }

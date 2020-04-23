@@ -8,6 +8,7 @@
 namespace Twdd\Services\PushNotification;
 
 
+use Twdd\Repositories\MemberPushRepository;
 use Twdd\Repositories\MemberTesterRepository;
 
 class Gorush4user extends PushNotificationService implements PushNotificationInterface
@@ -20,6 +21,15 @@ class Gorush4user extends PushNotificationService implements PushNotificationInt
         $this->topic = env('IOS_USER_TOPIC', 'com.rich.app.DesignedDrivingClient');
         $this->alert = new \stdClass();
         $this->badge = 3;
+    }
+
+    public function iosPortDynamicChangeByToken(string $token){
+        $PushEnv = app(MemberPushRepository::class)->checkIfIsByPushEnv($token);
+        if($PushEnv!==false){
+            if($PushEnv!='production'){
+                $this->port = $this->port_dev;
+            }
+        }
     }
 
     public function testRepository() : string{

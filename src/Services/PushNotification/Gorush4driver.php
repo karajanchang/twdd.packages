@@ -7,6 +7,7 @@
  */
 namespace Twdd\Services\PushNotification;
 
+use Twdd\Repositories\DriverPushRepository;
 use Twdd\Repositories\DriverTesterRepository;
 
 class Gorush4driver extends PushNotificationService implements PushNotificationInterface
@@ -19,6 +20,15 @@ class Gorush4driver extends PushNotificationService implements PushNotificationI
         $this->topic = env('IOS_DRIVER_TOPIC', 'com.tw.twdd.driver');
         $this->alert = new \stdClass();
         $this->badge = 3;
+    }
+
+    public function iosPortDynamicChangeByToken(string $token){
+        $PushEnv = app(DriverPushRepository::class)->checkIfIsByPushEnv($token);
+        if($PushEnv!==false){
+            if($PushEnv!='production'){
+                $this->port = $this->port_dev;
+            }
+        }
     }
 
     public function testRepository() : string{
