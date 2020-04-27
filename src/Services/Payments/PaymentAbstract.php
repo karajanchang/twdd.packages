@@ -76,7 +76,7 @@ class PaymentAbstract
         ];
     }
 
-    private function log(bool $pay_status, string $msg = null, $obj = null, int $error_code = null){
+    private function log(int $pay_status, string $msg = null, $obj = null, int $error_code = null){
         $params = [
             'pay_status' => $pay_status,
             'error_code' => $error_code,
