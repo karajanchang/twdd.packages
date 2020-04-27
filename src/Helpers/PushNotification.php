@@ -163,6 +163,8 @@ class PushNotification
         $testers = $this->getTesters($type);
 
         $data = $this->makeData($params);
+
+        dump('sendTesters', ['sound' => $sound, 'params' => $params, 'type' => $type]);
         if(!is_null($sound)){
             $this->service->sound($sound);
         }

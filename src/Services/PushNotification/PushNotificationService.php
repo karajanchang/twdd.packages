@@ -22,6 +22,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     protected $data = null;
     protected $sound = 'default';
     private $is_send_test = false;
+    private $sounds = [];
 
     public function platform(string $type = 'ios'){
         if(strtolower($type)=='ios'){
@@ -68,8 +69,10 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
 
     public function sound($sound){
         if(is_int($sound)){
-            $sounds = include_once __DIR__.'/sound.php';
-            $this->sound = Collection::make($sounds)->get($sound, 0);
+            if(count($this->sounds)==0) {
+                $this->sounds = include_once __DIR__ . '/sound.php';
+            }
+            $this->sound = Collection::make($this->sounds)->get($sound, 0);
 
             return $this;
         }
