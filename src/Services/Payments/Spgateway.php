@@ -152,7 +152,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
         if((int) $money<=0){
             Log::info('刷卡0元，成功 (單號：'. $this->task->id. ')');
 
-            return $this->returnSuccess('結帳成功', null, false);
+            return $this->returnSuccess('結帳成功', null, true);
         }
 
         $datas = [
