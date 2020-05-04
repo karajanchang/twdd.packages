@@ -5,6 +5,7 @@ namespace Twdd\Services\Payments;
 
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Twdd\Errors\PaymentErrors;
 use Twdd\Repositories\TaskPayLogRepository;
 
@@ -77,16 +78,20 @@ class PaymentAbstract
     }
 
     private function log(int $pay_status, string $msg = null, $obj = null, int $error_code = null){
-        $params = [
-            'pay_status' => $pay_status,
-            'error_code' => $error_code,
-            'msg'=> $msg,
-            'obj' => json_encode([$obj], JSON_UNESCAPED_UNICODE),
-            'OrderNo' => $this->getOrderNo(),
-            'amt' => $this->getMoney(),
-            'member_creditcard_id' => $this->getMemberCreditcardId(),
-        ];
-        $this->taskPayLogRepository->insertByTask($this->task, $params);
+        try {
+            $params = [
+                'pay_status' => $pay_status,
+                'error_code' => (int)$error_code,
+                'msg' => $msg,
+                'obj' => json_encode([$obj], JSON_UNESCAPED_UNICODE),
+                'OrderNo' => $this->getOrderNo(),
+                'amt' => $this->getMoney(),
+                'member_creditcard_id' => (int)$this->getMemberCreditcardId(),
+            ];
+            $this->taskPayLogRepository->insertByTask($this->task, $params);
+        }catch (\Exception $e){
+            Log::error('PaymentAbstract exception: ', [ 'params' => $params, $e->getMessage()]);
+        }
     }
 
     protected function setOrderNo(bool $is_random_serial = false){
