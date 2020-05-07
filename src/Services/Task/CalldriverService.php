@@ -159,23 +159,28 @@ class CalldriverService extends ServiceAbstract
         //---lat lon 代0時要 地址轉latlon
         $this->ifMmemberIsNullThenEqalCallMember();
 
-        if(isset($params['zip'])) {
-            $cityDistricts = LatLonService::locationFromZip($params['zip']);
-            if (isset($cityDistricts) && count($cityDistricts)) {
-                $cityDistrict = $cityDistricts->first();
-                $params['city'] = $cityDistrict->city;
-                $params['district'] = $cityDistrict->district;
+        if(empty($params['city']) || empty($params['district'])) {
+            if (isset($params['zip'])) {
+                $cityDistricts = LatLonService::locationFromZip($params['zip']);
+                if (isset($cityDistricts) && count($cityDistricts)) {
+                    $cityDistrict = $cityDistricts->first();
+                    $params['city'] = $cityDistrict->city;
+                    $params['district'] = $cityDistrict->district;
+                }
             }
         }
 
-        if(isset($params['zip_det'])) {
-            $cityDistricts_det = LatLonService::locationFromZip($params['zip_det']);
-            if (isset($cityDistricts_det) && count($cityDistricts_det)) {
-                $cityDistrict_det = $cityDistricts_det->first();
-                $params['city_det'] = $cityDistrict_det->city;
-                $params['district_det'] = $cityDistrict_det->district;
+        if(empty($params['city_det']) || empty($params['district_det'])) {
+            if (isset($params['zip_det'])) {
+                $cityDistricts_det = LatLonService::locationFromZip($params['zip_det']);
+                if (isset($cityDistricts_det) && count($cityDistricts_det)) {
+                    $cityDistrict_det = $cityDistricts_det->first();
+                    $params['city_det'] = $cityDistrict_det->city;
+                    $params['district_det'] = $cityDistrict_det->district;
+                }
             }
         }
+        Log::info('CalldriverService create params: ', $params);
 
         try {
             $params = $this->filter($params);
