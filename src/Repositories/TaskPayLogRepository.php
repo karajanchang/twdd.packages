@@ -25,6 +25,7 @@ class TaskPayLogRepository extends Repository
         $params['task_id'] = $task->id;
         $params['created_at'] = date('Y-m-d H:i:s');
         $params['updated_at'] = date('Y-m-d H:i:s');
+        $params['member_creditcard_id'] = isset($params['member_creditcard_id']) && $params['member_creditcard_id']!=0 ? $params['member_creditcard_id'] : null;
 
         return $this->create($params);
     }

@@ -86,7 +86,7 @@ class PaymentAbstract
                 'obj' => json_encode([$obj], JSON_UNESCAPED_UNICODE),
                 'OrderNo' => $this->getOrderNo(),
                 'amt' => $this->getMoney(),
-                'member_creditcard_id' => (int)$this->getMemberCreditcardId(),
+                'member_creditcard_id' => $this->getMemberCreditcardId(),
             ];
             $this->taskPayLogRepository->insertByTask($this->task, $params);
         }catch (\Exception $e){
