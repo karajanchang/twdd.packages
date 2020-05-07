@@ -130,7 +130,7 @@ class DriverService extends ServiceAbstract
             return $this->error->_('1007');
         }
 
-        if($this->driver->DriverNew<2){
+        if($this->driver->DriverNew!=2){
 
             return $this->error->_('1008');
         }

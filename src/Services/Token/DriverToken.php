@@ -79,7 +79,7 @@ class DriverToken extends TokenAbstract implements InterfaceToken
             return $this->error->_('1006');
         }
 
-        if($identity->DriverNew<2){
+        if($identity->DriverNew!=2){
 
             return $this->error->_('1008');
         }
@@ -94,11 +94,11 @@ class DriverToken extends TokenAbstract implements InterfaceToken
             ]);
         }
         */
-
+        /*
         if($identity->is_tmp_offline===true){
 
             return $this->error->_('1010');
-        }
+        }*/
 
 
         return $identity;
