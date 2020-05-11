@@ -115,11 +115,14 @@ class LatLonService implements ArrayAccess
             'district' => null,
             'zip' => null,
         ];
-        if(isset($zip) && strlen($zip)>0){
+
+        $if_in = false;
+        if(!empty($zip)) {
             $cityDistricts = $this->locationFromZip($zip);
             if (count($cityDistricts)) {
                 $cityDistrict = $cityDistricts->first();
                 if (isset($cityDistrict->city_id) && isset($cityDistrict->district_id)) {
+                    $if_in = true;
                     $all = [
                         'lat' => $lat,
                         'lon' => $lon,
@@ -131,26 +134,30 @@ class LatLonService implements ArrayAccess
                     ];
                 }
             }
-        }else{
-            if($lat==0 && $lon==0){
-                $this->setAll($all);
+        }
+        if($if_in===true){
+            $this->setAll($all);
 
-                return $this;
-            }
+            return $this;
+        }
 
-            $location = GoogleMap::latlon($lat, $lon);
+        if($lat==0 && $lon==0){
+            $this->setAll($all);
 
-            if((int)($location->city_id) > 0 && (int) $location->district_id >0 ){
-                $all = [
-                    'lat' => $lat,
-                    'lon' => $lon,
-                    'city_id' => $location->city_id,
-                    'city' => $location->city,
-                    'district_id' => $location->district_id,
-                    'district' => $location->district,
-                    'zip' => $location->zip,
-                ];
-            }
+            return $this;
+        }
+
+        $location = GoogleMap::latlon($lat, $lon);
+        if((int)($location->city_id) > 0 && (int) $location->district_id >0 ){
+            $all = [
+                'lat' => $lat,
+                'lon' => $lon,
+                'city_id' => $location->city_id,
+                'city' => $location->city,
+                'district_id' => $location->district_id,
+                'district' => $location->district,
+                'zip' => $location->zip,
+            ];
         }
 
         $this->setAll($all);
