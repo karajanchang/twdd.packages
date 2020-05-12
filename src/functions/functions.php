@@ -1,9 +1,9 @@
 <?php
 //---得到國泰的Bank Account
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use Twdd\Facades\LatLonService;
 use Twdd\Facades\SettingPriceService;
+use Twdd\Facades\TokenService;
 
 if (!function_exists('BankAccount')) {
     function BankAccount($DriverID){
@@ -116,5 +116,23 @@ if (!function_exists('TaskNo')) {
         }
 
         return app(\Twdd\Services\Task\TaskNo::class)::make($task_id);
+    }
+}
+
+//--清除 driver 登錄
+if (!function_exists('DriverLogout')) {
+    function DriverLogout(int $driver_id){
+        if(empty($driver_id)) return ;
+
+        TokenService::driver()->forget('driver', $driver_id);
+    }
+}
+
+//--清除 member 登錄
+if (!function_exists('MemberLogout')) {
+    function MemberLogout(int $member_id){
+        if(empty($member_id)) return ;
+
+        TokenService::member()->forget('member', $member_id);
     }
 }

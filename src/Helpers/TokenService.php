@@ -128,6 +128,11 @@ class TokenService
         return $this->generateToken->id();
     }
 
+    public function forget(string $type, int $id){
+
+        $this->generateToken->forget($type, $id);
+    }
+
     //--重新cache id
     public function reCacheToken(string $type, int $id){
 

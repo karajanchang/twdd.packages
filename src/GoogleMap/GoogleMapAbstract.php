@@ -72,26 +72,30 @@ class GoogleMapAbstract implements ArrayAccess
     //---從LatLonMap去抓對應
     private function lookFromLatLonMap(){
         if(is_float($this->lat)===true && is_float($this->lon)===true ){
-            $location = app(LatLonMapService::class)->near($this->lat, $this->lon, 50, LatLonMap::ReturnFirst);
-            if(strlen($location['zip'])>0 && intval($location['city_id']) > 0 && intval($location['district_id']) > 0 ){
-                $this->zip = $location['zip'];
-                $this->city = $location['city'];
-                $this->city_id = $location['city_id'];
-                $this->district = $location['district'];
-                $this->district_id = $location['district_id'];
-                $this->addr = $location['addr'];
-                $this->address = $location['address'];
-                Log::info('GoogleMap使用了LatLonMap，查到了：', [
-                    'zip' => $location['zip'],
-                    'city' => $location['city'],
-                    'city_id' => $location['city_id'],
-                    'district' => $location['district'],
-                    'district_id' => $location['district_id'],
-                    'addr' => $location['addr'],
-                    'address' => $location['address'],
-                ]);
+            try {
+                $location = app(LatLonMapService::class)->near($this->lat, $this->lon, 50, LatLonMap::ReturnFirst);
+                if (strlen($location['zip']) > 0 && intval($location['city_id']) > 0 && intval($location['district_id']) > 0) {
+                    $this->zip = $location['zip'];
+                    $this->city = $location['city'];
+                    $this->city_id = $location['city_id'];
+                    $this->district = $location['district'];
+                    $this->district_id = $location['district_id'];
+                    $this->addr = $location['addr'];
+                    $this->address = $location['address'];
+                    Log::info('GoogleMap使用了LatLonMap，查到了：', [
+                        'zip' => $location['zip'],
+                        'city' => $location['city'],
+                        'city_id' => $location['city_id'],
+                        'district' => $location['district'],
+                        'district_id' => $location['district_id'],
+                        'addr' => $location['addr'],
+                        'address' => $location['address'],
+                    ]);
 
-                return true;
+                    return true;
+                }
+            }catch (\Exception $e){
+                Log::info(__CLASS__.'::'.__METHOD__.' mongo 查詢失敗', [$e]);
             }
         }
 

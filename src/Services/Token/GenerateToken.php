@@ -82,6 +82,15 @@ class GenerateToken
         Cache::put($keyToken, $loginIdentify->id, $expiredAt);
     }
 
+    public function forget(string $type, int $id){
+        $loginIdentify = new LoginIdentify();
+        $loginIdentify['id'] = $id;
+        $loginIdentify['type'] = $type;
+        $key = $this->getKey($loginIdentify);
+
+        Cache::forget($key);
+    }
+
     public function id(){
         $token = $this->request->header('token');
         $keyToken = env('APP_TYPE').'Token'.$token;
