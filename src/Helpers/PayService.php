@@ -44,9 +44,12 @@ class PayService
         return $this->payment->task($this->task)->back($amt, $is_notify_member);
     }
 
-    public function cancel(){
+    public function cancel(string $OrderNo = null, int $amount){
+        if(!is_null($this->task)){
+            $this->payment->task($this->task);
+        }
 
-        return $this->payment->task($this->task)->cancel();
+        return $this->payment->cancel($OrderNo, $amount);
     }
 
     public function pay(array $params = [], bool $is_notify_member = true){
@@ -58,7 +61,6 @@ class PayService
 
         return $this->payment->task($this->task)->query();
     }
-
 
 }
 

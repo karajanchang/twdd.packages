@@ -77,7 +77,9 @@ class PaymentAbstract
         ];
     }
 
-    private function log(int $pay_status, string $msg = null, $obj = null, int $error_code = null){
+    private function log(int $pay_status, string $msg = null, $obj = null, int $error_code = null) : void{
+        if(is_null($this->task)) return ;
+
         try {
             $params = [
                 'pay_status' => $pay_status,

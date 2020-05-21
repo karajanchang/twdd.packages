@@ -55,6 +55,11 @@ class PaymentErrors extends ErrorAbstract
         return trans('twdd::payment.member_this_creditcard_is_not_exist');
     }
 
+    public function error2008(){
+
+        return trans('twdd::payment.spgateway_cancel_fail');
+    }
+
     public function error3001(){
 
         return trans('twdd::payment.spgateway_time_too_close');
@@ -69,4 +74,11 @@ class PaymentErrors extends ErrorAbstract
 
         return trans('twdd::payment.not_spgateway_task');
     }
+
+    public function error3004(){
+
+        return trans('twdd::payment.spgateway_cancel_exception');
+    }
+
+
 }

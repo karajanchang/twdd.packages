@@ -9,19 +9,15 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Twdd\Events\SpgatewayErrorEvent;
 use Twdd\Events\SpgatewayFailEvent;
-use Twdd\Repositories\DriverMerchantRepository;
-use Twdd\Repositories\MemberCreditcardRepository;
-use Zhyu\Facades\ZhyuCurl;
+use Twdd\Models\DriverMerchant;
 use Zhyu\Facades\ZhyuTool;
 use TaskNo;
 use \Zhyu\Errors\CurlTimeout;
-use \Zhyu\Errors\CurlError;
 
 class Spgateway extends PaymentAbstract implements PaymentInterface
 {
-    private $driverMerchant;
-    private $memberCreditCard;
-    private $seconds = 30;
+    use SpgatewayTrait;
+
 
     public function back(int $amt, bool $is_notify_member = false){
         $this->preInit();
@@ -80,11 +76,11 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
                     return $this->returnError(2003, $msg, $res, true);
                 }
             }
-            $cache_timestamp = Cache::get($key);
-            $seconds = empty($cache_timestamp) ? 1 : 30 - (time() - $cache_timestamp);
-            $this->error->setReplaces('try_seconds', $seconds);
 
-            return $this->returnError(2004, '刷卡付款，請過 '.$seconds.' 秒後再試', null, true);
+            $reverse_seconds =  $this->cacheReserveSeconds($key);
+            $this->error->setReplaces('try_seconds', $reverse_seconds);
+
+            return $this->returnError(2004, '刷卡付款，請過 '.$reverse_seconds.' 秒後再試', null, true);
         }catch (\Exception $e){
             $msg = '刷卡異常 (單號：'.$this->task->id.'): '.$e->getMessage();
             Log::info($msg, [$e]);
@@ -99,28 +95,52 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
         }
     }
 
-    public function cancel(){
-
-    }
-
-    private function checkIfDriverMerchantExists(){
-        if(empty($this->driverMerchant->MerchantID) || empty($this->driverMerchant->MerchantHashKey) || empty($this->driverMerchant->MerchantIvKey)){
-
-            return false;
+    public function cancel(string $OrderNo = null, int $amount = null){
+        if(is_null($OrderNo)){
+            $OrderNo = $this->task->OrderNo;
+            if(empty($OrderNo)) return false;
+        }else{
+            $driverMerchant = DriverMerchant::find(env('SPGATEWAY_BIND_DRIVER_MERCHANT_ID', 1443));
+            $this->setDriverMerchant($driverMerchant);
+            $this->setMoney($amount);
         }
 
-        return true;
-    }
+        if($this->checkIfDriverMerchantExists() === false){
 
-    private function checkIfMemberCreditcardExists(){
-        $memberCreditCard = $this->getMemberCreditCard();
-        if(empty($memberCreditCard->id)){
-
-            return false;
+            return $this->returnError( 2006, '智付通驗證錯誤 - 司機沒有啓用商店. 刷卡單號： ('.$OrderNo.')', null, true);
         }
 
-        return true;
+        try{
+            $lock = Cache::lock(env('APP_ENV') . 'SpgatewayPayment' . $OrderNo, $this->seconds);
+            $res = null;
+            $key = env('APP_ENV'). 'SpagetwayCancelTimestamp'.$OrderNo;
+            if($lock->get()) {
+                Cache::put($key, time(), 30);
+                $url = env('SPGATEWAY_CANCEL_URL', 'https://core.spgateway.com/API/CreditCard/Cancel');
+                $datas = $this->prepareCancelPostData($OrderNo, $amount);
+                $res = $this->post($url, $datas);
+
+                if (isset($res->Status) && $res->Status == 'SUCCESS') {
+
+                    return $this->returnSuccess('成功', $res, true);
+                } else {
+
+                    return $this->returnError(2008, '取消授權失敗，請稍後再試', $res, true);
+                }
+            }
+
+            $reverse_seconds =  $this->cacheReserveSeconds($key);
+            $this->error->setReplaces('try_seconds', $reverse_seconds);
+
+            return $this->returnError(2004, '取消授權多次，請過'.$reverse_seconds.'秒後再試');
+        }catch(\Exception $e){
+            $msg = '取消授權異常 商店訂單編號(：'.$OrderNo.'): '.$e->getMessage();
+            Log::info(__CLASS__.'::'.__METHOD__.' exception: ', [$msg, $e]);
+
+            return $this->returnError(3004, '操作失敗，請稍後再試', $res, true);
+        }
     }
+
 
     public function pay(array $params = [], bool $is_notify_member = true){
         $this->preInit();
@@ -203,11 +223,10 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
                     return $this->returnError(2003, $msg, $res, true);
                 }
             }
-            $cache_timestamp = Cache::get($key);
-            $seconds = empty($cache_timestamp) ? 1 : 30 - (time() - $cache_timestamp);
-            $this->error->setReplaces('try_seconds', $seconds);
+            $reverse_seconds =  $this->cacheReserveSeconds($key);
+            $this->error->setReplaces('try_seconds', $reverse_seconds);
 
-            return $this->returnError(2004, '刷卡付款，請過 '.$seconds.' 秒後再試', null, true);
+            return $this->returnError(2004, '刷卡付款，請過 '.$reverse_seconds.' 秒後再試', null, true);
         }catch(\Exception $e){
             $msg = '刷卡異常 (單號：'.$this->task->id.'): '.$e->getMessage();
 
@@ -216,16 +235,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
         }
     }
 
-    private function notifyExceptionAndLog($e, int $code, string $msg = '', bool $is_notify_member = false, bool $is_payment_timeout = false){
-        Log::info($msg, [$e]);
-        Bugsnag::notifyException($e);
 
-        if($is_notify_member===true) {
-            event(new SpgatewayErrorEvent($this->task));
-        }
-
-        return $this->returnError( 2005, $msg, null, true, $is_payment_timeout);
-    }
 
     /*
     private function mail(InfoAdminMail $infoAdminMail){
@@ -287,23 +297,6 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
     }
 
 
-    public function getDriverMerchant(){
-
-        return $this->driverMerchant;
-    }
-
-    public function getMemberCreditCard(){
-
-        return $this->memberCreditCard;
-    }
-
-    private function preInit(){
-        $this->driverMerchant = app(DriverMerchantRepository::class)->findByTaskId($this->task);
-        $this->memberCreditCard = app(MemberCreditcardRepository::class)->findByTaskId($this->task);
-    }
-
-
-
     private function preparePostData(array $datas){
         $post_data_str = http_build_query($datas);
         $encrypt_data = $this->spgateway_encrypt($post_data_str);
@@ -330,28 +323,25 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
         return $postData;
     }
 
-    private function spgateway_encrypt($str = "") {
-        $str = trim(bin2hex( openssl_encrypt($this->addPadding($str), 'aes-256-cbc', $this->driverMerchant->MerchantHashKey, OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING, $this->driverMerchant->MerchantIvKey) ));
+    private function prepareCancelPostData(string $OrderNo, int $amount){
+        $array = [
+            'RespondType'         =>  'JSON',
+            'Version'           =>  '1.0',
+            'Amt'               =>  $amount,
+            'MerchantOrderNo'   =>  $OrderNo,
+            'TimeStamp'         =>  time(),
+            'IndexType'         =>  1,
+        ];
+        $post_data_str = http_build_query($array);
+        $encrypt_data = $this->spgateway_encrypt($post_data_str);
 
-        return $str;
+        $postData = [
+            'MerchantID_'   =>  $this->driverMerchant->MerchantID,
+            'PostData_' =>  $encrypt_data,
+        ];
+
+        return $postData;
     }
 
-    function addPadding($string, $blocksize = 32) {
-        $len = strlen($string);
-        $pad = $blocksize - ($len % $blocksize);
-        $string .= str_repeat(chr($pad), $pad);
-
-        return $string;
-    }
-
-    function post(string $url, array $postData){
-        if(strlen($url)==0){
-
-            throw new \Exception('Please set SPGATEWAY_XXX_URL value in .env');
-        }
-        $res = ZhyuCurl::url($url)->post($postData, (int)env('SPGATEWAY_TIMEOUT', 50));
-
-        return json_decode($res);
-    }
 
 }

@@ -10,5 +10,6 @@ return [
     'not_spgateway_task' => '此單非信用卡付款，無法查詢',
     'must_have_drivermerchant_account' => '必須啓用商店功能',
     'member_this_creditcard_is_not_exist' => '乘客未綁定信用卡，請改由其他付款方式結帳',
+    'spgateway_cancel_fail' => '刷卡取消授權失敗',
 ];
 

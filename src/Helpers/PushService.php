@@ -183,8 +183,8 @@ class PushService
 
 
     public function send2driver(string $action = null, string $title = null, string $body = null, $obj = null){
-        if(!is_null($this->obj->driver)){
-            $driver = $this->obj->driver;
+        if(!is_null($this->task->driver)){
+            $driver = $this->task->driver;
         }else{
             throw new \Exception('must have driver');
         }
@@ -224,8 +224,8 @@ class PushService
     }
 
     public function send2member(string $action = null, string $title = null, string $body = null, $obj = null){
-        if(!is_null($this->obj->member)){
-            $member = $this->obj->member;
+        if(!is_null($this->task->member)){
+            $member = $this->task->member;
         }else{
             throw new \Exception('must have member');
         }

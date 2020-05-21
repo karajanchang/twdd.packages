@@ -18,6 +18,9 @@ class Couponword extends Model
 
     protected $guarded = ['id'];
 
+    public function activity(){
 
+        return $this->belongsTo(Activity::class);
+    }
 
 }

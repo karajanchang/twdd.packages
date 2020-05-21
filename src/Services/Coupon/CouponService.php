@@ -130,7 +130,7 @@ class CouponService extends ServiceAbstract
         }
 
         try {
-            if(!is_null($this->member)){
+            if(!empty($this->member->id) || count($this->members)==0){
 
                 return $this->createSingle($params);
             }else {

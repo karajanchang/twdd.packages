@@ -15,6 +15,8 @@ class Activity extends Model {
 	public $timestamps = true;
 	protected $table = 'activities';
 
+	protected $guarded = ['id'];
+
     public function couponword(){
         return $this->HasOne(Couponword::class);
     }
