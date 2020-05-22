@@ -59,7 +59,7 @@ class SettingPriceServiceHelper
         ];
 
         $collection = new Collection($lut);
-        $appClass = $collection->get($call_type, null);
+        $appClass = $collection->get($call_type, 1);
         if(!is_null($appClass)){
             $this->app = app($appClass);
         }

@@ -105,6 +105,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\PushService::class);
         });
 
+        $this->app->bind('Price', function()
+        {
+            return app()->make(\Twdd\Helpers\Price::class);
+        });
+
         $this->app->bind('RedisPushService', function()
         {
             return app()->make(\Twdd\Services\PushNotification\RedisPushService::class);
@@ -158,6 +163,11 @@ class TwddServiceProvider extends ServiceProvider
         $this->app->bind('Twdd', function()
         {
             return app()->make(\Twdd\Helpers\Twdd::class);
+        });
+
+        $this->app->bind('TwoPointDistance', function()
+        {
+            return app()->make(\Twdd\Helpers\TwoPointDistance::class);
         });
 
         $this->registerAliases();
@@ -224,6 +234,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('Pusher', \Twdd\Facades\Pusher::class);
             $loader->alias('PushNotification', \Twdd\Facades\PushNotification::class);
             $loader->alias('PushService', \Twdd\Facades\PushService::class);
+            $loader->alias('Price', \Twdd\Facades\Price::class);
             $loader->alias('RedisPushService', \Twdd\Facades\RedisPushService::class);
             $loader->alias('SettingExtraPriceService', \Twdd\Facades\SettingExtraPriceService::class);
             $loader->alias('SettingPriceService', \Twdd\Facades\SettingPriceService::class);
@@ -235,6 +246,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('TaskService', \Twdd\Facades\TaskService::class);
             $loader->alias('TokenService', \Twdd\Facades\TokenService::class);
             $loader->alias('Twdd', \Twdd\Facades\Twdd::class);
+            $loader->alias('TwoPointDistance', \Twdd\Facades\TwoPointDistance::class);
         }
     }
 
