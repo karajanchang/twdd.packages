@@ -33,7 +33,6 @@ class CouponBatchFromCouponword extends AbstractCouponBatch implements Interface
             return $couponword;
         }
 
-
         $params = [
             'title' => $couponword->title,
             'code' => $couponword->code,

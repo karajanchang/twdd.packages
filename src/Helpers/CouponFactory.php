@@ -42,6 +42,7 @@ class CouponFactory
 
     public function addMember(\stdClass $member){
         if(!is_null($this->member)){
+
             throw new \Exception('only one method to use!');
         }
 
@@ -74,18 +75,18 @@ class CouponFactory
         }
 
         $app = app()->make($this->createClass);
-
         $res = $app->init($this);
 
         $this->member = null;
         $this->members = [];
+
         return $res;
     }
 
     public function createByArray(array $params_array){
         $app = app()->make($this->createClass);
-
         $res = $app->initByArray($this, $params_array);
+
         return $res;
     }
 

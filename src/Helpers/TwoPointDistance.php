@@ -54,4 +54,9 @@ class TwoPointDistance
             'duration' => $duration,
         ];
     }
+
+    public function line(float $lat1, float $lon1, float $lat2, float $lon2){
+
+        return DistanceTwoPointByLine($lat1, $lon1, $lat2, $lon2);
+    }
 }

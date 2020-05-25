@@ -48,7 +48,10 @@ class DriverService extends ServiceAbstract
         return $this->taskRepository->lastTaskByDriverId($this->driver->id, $columns);
     }
 
-    public function intask(){
+     /*
+     * @params $is_intask_by_others 1被客人在任務中 2被客服在任務中
+     */
+    public function intask($is_intask_by_others = 0){
         if($this->driver->DriverState==2){
 
             return true;
@@ -65,108 +68,122 @@ class DriverService extends ServiceAbstract
         return $this->changeDriverState(2);
     }
 
-    public function offline(array $params = []){
-        try {
-            $res = $this->validateAttributesAndParams($params);
-            if ($res !== true) {
+    /*
+     * @params $is_offline_by_others 1被客人下線 2被客服下線
+     */
+    public function offline(array $params = [], int $is_offline_by_others = 0){
+        if($is_offline_by_others==0) {
+            try {
+                $res = $this->validateAttributesAndParams($params);
+                if ($res !== true) {
 
-                return $res;
+                    return $res;
+                }
+            } catch (\Exception $e) {
+                $this->error->setReplaces('400', ['message' => $e->getMessage()]);
+
+                return $this->error->_('400');
             }
-        }catch (\Exception $e){
-            $this->error->setReplaces('400', ['message' => $e->getMessage()]);
 
-            return $this->error->_('400');
+            if ($this->driver->DriverState == 2) {
+
+                return $this->error->_('1012');
+            }
+
+            //---有在進行中的任務，無法上下線
+            $last_task = $this->lastTask(['id', 'TaskState']);
+            if (isset($last_task->TaskState) && $last_task->TaskState >= 0 && $last_task->TaskState < 7) {
+
+                return $this->error->_('4001');
+            }
+
+            //---得到city_id district_id  or zip
+            if (isset($this->params['lat']) && isset($this->params['lon'])) {
+                $this->getCitydistrictFromParams();
+            }
+
+            //---寫入到mongodb
+            dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attrs, 2));
+        }else{
+            Log::info('司機被下線 is_online_by_others (1客人app 2客服) : ', [$is_online_by_others]);
         }
-
-        if($this->driver->DriverState==2){
-
-            return $this->error->_('1012');
-        }
-
-        //---有在進行中的任務，無法上下線
-        $last_task = $this->lastTask(['id', 'TaskState']);
-        if(isset($last_task->TaskState) && $last_task->TaskState>=0 && $last_task->TaskState<7){
-
-            return $this->error->_('4001');
-        }
-
-        //---得到city_id district_id  or zip
-        if(isset($this->params['lat']) && isset($this->params['lon'])){
-            $this->getCitydistrictFromParams();
-        }
-
-        //---寫入到mongodb
-        dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attrs, 2));
 
         //---更改db DriverState
         return $this->changeDriverState(0);
     }
 
-    public function online(array $params = []){
-        try {
-            $res = $this->validateAttributesAndParams($params);
-            if ($res !== true) {
+    /*
+     * @param $is_online_by_others = 1 阁用戶上線 2 被客服上線
+     */
+    public function online(array $params = [], int $is_online_by_others = 0){
+        if($is_online_by_others==0) {
+            try {
+                $res = $this->validateAttributesAndParams($params);
+                if ($res !== true) {
 
-                return $res;
+                    return $res;
+                }
+            } catch (\Exception $e) {
+                $this->error->setReplaces('400', ['message' => $e->getMessage()]);
+
+                return $this->error->_('400');
             }
-        }catch (\Exception $e){
-            $this->error->setReplaces('400', ['message' => $e->getMessage()]);
 
-            return $this->error->_('400');
+            if ($this->driver->is_online != 1) {
+
+                return $this->error->_('1005');
+            }
+
+            if ($this->driver->is_out == 1) {
+
+                return $this->error->_('1006');
+            }
+
+            if ((int)$this->driver->DriverCredit < 300) {
+
+                return $this->error->_('1007');
+            }
+
+            if ($this->driver->DriverNew != 2) {
+
+                return $this->error->_('1008');
+            }
+
+            if ($this->driver->is_pass_rookie == 0 && $this->driver->isARookie() === true) {
+                Log::info('driver', [$this->driver]);
+
+                return $this->error->_('1009', [
+                    'start' => env('OLDBIRD_HOUR_START', 1),
+                    'end' => env('OLDBIRD_HOUR_END', 5),
+                    'nums' => ($this->driver->pass_rookie_times - $this->driver->DriverServiceTime),
+                ]);
+            }
+
+            if ($this->driver->isPayForAccidentInsurance($this->driver->id) !== true) {
+
+                return $this->error->_('4004');
+            }
+
+            //---有在進行中的任務，無法上線
+            $last_task = $this->lastTask(['id', 'TaskState']);
+            if (isset($last_task->TaskState) && $last_task->TaskState >= 0 && $last_task->TaskState < 7) {
+
+                return $this->error->_('4002');
+            }
+
+            //---得到city_id district_id  or zip
+            if (isset($this->params['lat']) && isset($this->params['lon'])) {
+                $this->getCitydistrictFromParams();
+            }
+
+            //---更新資料庫DriverLocation時間或lat lon
+            dispatch(new DriverLocationJob($this->driver, $this->params));
+
+            //---寫入到mongodb
+            dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attrs, 1));
+        }else{
+            Log::info('司機被上線 is_online_by_others (1客人app 2客服) : ', [$is_online_by_others]);
         }
-
-        if($this->driver->is_online!=1){
-
-            return $this->error->_('1005');
-        }
-
-        if($this->driver->is_out==1){
-
-            return $this->error->_('1006');
-        }
-
-        if((int) $this->driver->DriverCredit < 300){
-
-            return $this->error->_('1007');
-        }
-
-        if($this->driver->DriverNew!=2){
-
-            return $this->error->_('1008');
-        }
-
-        if($this->driver->is_pass_rookie==0 && $this->driver->isARookie()===true){
-            Log::info('driver', [$this->driver]);
-
-            return $this->error->_('1009', [
-                'start' => env('OLDBIRD_HOUR_START', 1),
-                'end' => env('OLDBIRD_HOUR_END', 5),
-                'nums' => ($this->driver->pass_rookie_times - $this->driver->DriverServiceTime),
-            ]);
-        }
-
-        if ($this->driver->isPayForAccidentInsurance($this->driver->id)!==true) {
-
-            return $this->error->_('4004');
-        }
-
-        //---有在進行中的任務，無法上線
-        $last_task = $this->lastTask(['id', 'TaskState']);
-        if(isset($last_task->TaskState) && $last_task->TaskState>=0 && $last_task->TaskState<7){
-
-            return $this->error->_('4002');
-        }
-
-        //---得到city_id district_id  or zip
-        if(isset($this->params['lat']) && isset($this->params['lon'])){
-            $this->getCitydistrictFromParams();
-        }
-
-        //---更新資料庫DriverLocation時間或lat lon
-        dispatch(new DriverLocationJob($this->driver, $this->params));
-
-        //---寫入到mongodb
-        dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attrs, 1));
 
         //---更改db DriverState
         return $this->changeDriverState(1);

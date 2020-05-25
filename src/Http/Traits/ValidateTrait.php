@@ -11,9 +11,10 @@ Trait ValidateTrait
 
     public function getParams(){
         $request = app(Request::class);
-        $params = $request->input("params");
+        $params = (array) $request->input("params");
         $attributes = $request->input("attributes");
         $pars = $params;
+
         if(is_array($attributes)) {
             $pars = array_merge($params, $attributes);
         }

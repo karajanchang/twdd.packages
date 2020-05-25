@@ -74,7 +74,9 @@ class CouponService extends ServiceAbstract
     }
 
     //--叩除這次的任務的nums7
-    private function nums7ExceptTaskByMemberAndTask(Model $member, Model $task = null){
+    private function nums7ExceptTaskByMemberAndTask(Model $member = null, Model $task = null) : int{
+        if(is_null($member)) return 0;
+
         if(!empty($task->TaskState) && $task->TaskState==7){
 
             return $member->nums7 - 1;
@@ -83,8 +85,9 @@ class CouponService extends ServiceAbstract
         return $member->nums7;
     }
 
-    public function validCouponword($code, Model $member, Model $task = null){
-        $coupon = $this->repository->firstByCodeAndMember($code, $member->id);
+    public function validCouponword($code, Model $member = null, Model $task = null){
+        $member_id = !empty($member->id) ? $member->id : null;
+        $coupon = $this->repository->firstByCodeAndMember($code, $member_id);
 
         if(!isset($coupon->id)){
 
@@ -128,9 +131,8 @@ class CouponService extends ServiceAbstract
         if($error!==true){
             return $error;
         }
-
         try {
-            if(!empty($this->member->id) || count($this->members)==0){
+            if(!is_null($this->member)){
 
                 return $this->createSingle($params);
             }else {
@@ -165,7 +167,14 @@ class CouponService extends ServiceAbstract
             $code = $this->genCode();
             $params['code'] = $code;
         }
-        $coupon = $this->repository->create($params);
+        try {
+            $data = $this->filter($params);
+            $coupon = $this->repository->create($data);
+        }catch (\Exception $e){
+            Log::info('Twdd::CouponService::createSingle exception: ', [$e]);
+
+            return $this->error->_('500');
+        }
 
         return $coupon;
     }
@@ -216,6 +225,7 @@ class CouponService extends ServiceAbstract
 
     public function members(array $members){
         if(!is_null($this->member) && count($this->members)){
+
             throw new \Exception('only one method to use!');
         }
         $this->members = $members;

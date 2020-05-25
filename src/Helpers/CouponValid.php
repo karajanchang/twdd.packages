@@ -58,11 +58,12 @@ class CouponValid extends ServiceAbstract
     }
 
     public function check(string $UserCreditCode){
-        $m = $this->memberRepository->find($this->member->id, ['member_grade_id']);
+        if(!empty($this->member->id)) {
+            $m = $this->memberRepository->find($this->member->id, ['member_grade_id']);
+            if (!empty($m->member_grade_id) && $m->member_grade_id == self::black_card_grade_id) {
 
-        if(!empty($m->member_grade_id) && $m->member_grade_id==self::black_card_grade_id){
-
-            return $this->error->_('4008');
+                return $this->error->_('4008');
+            }
         }
 
         $couponword = $this->couponwordService->fetch($UserCreditCode);
@@ -77,7 +78,7 @@ class CouponValid extends ServiceAbstract
 
             $res = $this->couponService->validCouponword($UserCreditCode, $this->member, $this->task);
             if (!empty($res->id)) {
-                 Log::info('CouponValid null (couponService->validCouponWord): ', [$res]);
+                Log::info('CouponValid null (couponService->validCouponWord): ', [$res]);
 
                 return $res;
             }
