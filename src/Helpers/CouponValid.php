@@ -84,6 +84,7 @@ class CouponValid extends ServiceAbstract
             }
 
             Log::info('CouponValid (couponService->validCouponWord return $couponwordService->check()): ', [$couponword]);
+
             return $couponword;
         }else{//--coupon
             $res = $this->couponService->check($UserCreditCode, $this->member, $this->task);

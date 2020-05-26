@@ -55,7 +55,7 @@ class CouponService extends ServiceAbstract
         }
 
         $nums7_except_this_task = $this->nums7ExceptTaskByMemberAndTask($member, $task);
-        if($coupon->only_first_use==1 && isset($member->id) && $member->id>0 && $nums7_except_this_task>0){
+        if($coupon->only_first_use==1 && !empty($member->id) && $member->id>0 && $nums7_except_this_task>0){
 
             return $this->error->_('4004');
         }
@@ -65,7 +65,7 @@ class CouponService extends ServiceAbstract
             return $this->error->_('4005');
         }
 
-        if ($coupon->isOnlyForThisMember == 1 && isset($member->id) && $member->id!= $coupon->member_id) {
+        if ($coupon->isOnlyForThisMember == 1 && !empty($member->id) && !empty($coupon->member_id) && $member->id!= $coupon->member_id) {
 
             return $this->error->_('4006');
         }
@@ -108,7 +108,7 @@ class CouponService extends ServiceAbstract
 
         $nums7_except_this_task = $this->nums7ExceptTaskByMemberAndTask($member, $task);
 
-        if($coupon->only_first_use==1 && isset($member->id) && $member->id>0 && $nums7_except_this_task>0){
+        if($coupon->only_first_use==1 && !empty($member->id) && $member->id>0 && $nums7_except_this_task>0){
 
             return $this->error->_('4004');
         }
@@ -118,7 +118,7 @@ class CouponService extends ServiceAbstract
             return $this->error->_('4005');
         }
 
-        if ($coupon->isOnlyForThisMember == 1 && isset($member->id) && $member->id!= $coupon->member_id) {
+        if ($coupon->isOnlyForThisMember == 1 && !empty($member->id) && !empty($coupon->member_id) && $member->id!= $coupon->member_id) {
 
             return $this->error->_('4006');
         }
