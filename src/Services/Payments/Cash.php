@@ -13,7 +13,7 @@ class Cash extends PaymentAbstract implements PaymentInterface
         return $this->returnSuccess($msg, null, true);
     }
 
-    public function cancel(){
+    public function cancel(string $OrderNo = null, int $amount = null){
 
     }
 
