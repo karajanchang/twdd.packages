@@ -71,7 +71,7 @@ class TaskDoneAbstract
         $this->updateTaskDone();
 
         //---把司機設為上線
-        $this->onlineDriver();
+        //$this->onlineDriver();
 
         //--Event
         Event(new TaskDoneEvent($this->getTask()));
