@@ -69,9 +69,9 @@ class DriverService extends ServiceAbstract
     }
 
     /*
-     * @params $is_offline_by_others 1被客人下線 2被客服下線
+     * @params $is_offline_by_others 1被客人下線 2被客服下線 $force_offline 強制下線，不檢查
      */
-    public function offline(array $params = [], int $is_offline_by_others = 0){
+    public function offline(array $params = [], int $is_offline_by_others = 0, bool $force_offline = false){
         if($is_offline_by_others==0) {
             try {
                 $res = $this->validateAttributesAndParams($params);
@@ -85,16 +85,21 @@ class DriverService extends ServiceAbstract
                 return $this->error->_('400');
             }
 
-            if ($this->driver->DriverState == 2) {
+            //---強制下線時就不用檢查了
+            if($force_offline===false) {
+                if ($this->driver->DriverState == 2) {
 
-                return $this->error->_('1012');
-            }
+                    return $this->error->_('1012');
+                }
 
-            //---有在進行中的任務，無法上下線
-            $last_task = $this->lastTask(['id', 'TaskState']);
-            if (isset($last_task->TaskState) && $last_task->TaskState >= 0 && $last_task->TaskState < 7) {
+                //---有在進行中的任務，無法上下線
+                $last_task = $this->lastTask(['id', 'TaskState']);
+                if (isset($last_task->TaskState) && $last_task->TaskState >= 0 && $last_task->TaskState < 7) {
 
-                return $this->error->_('4001');
+                    return $this->error->_('4001');
+                }
+            }else{
+                Log::info(__CLASS__.'::'.__METHOD__.' 強制下線 $force_offline===true');
             }
 
             //---得到city_id district_id  or zip
@@ -102,10 +107,11 @@ class DriverService extends ServiceAbstract
                 $this->getCitydistrictFromParams();
             }
 
+
             //---寫入到mongodb
             dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attrs, 2));
         }else{
-            Log::info('司機被下線 is_online_by_others (1客人app 2客服) : ', [$is_online_by_others]);
+            Log::info('司機被下線 is_online_by_others (1客人app 2客服) : ', [$is_offline_by_others]);
         }
 
         //---更改db DriverState
