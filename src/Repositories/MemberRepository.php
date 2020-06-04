@@ -28,9 +28,9 @@ class MemberRepository extends Repository
         return $this->count();
     }
 
-    public function byInviteCode(string $OtherInviteCode){
+    public function byInviteCode(string $OtherInviteCode, array $columns = ['*']){
 
-        return $this->where('InviteCode', $OtherInviteCode)->first();
+        return $this->where('InviteCode', $OtherInviteCode)->select($columns)->first();
     }
 
     public function profile(int $id, array $columns = []){

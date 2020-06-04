@@ -75,7 +75,7 @@ class CouponService extends ServiceAbstract
 
     //--叩除這次的任務的nums7
     private function nums7ExceptTaskByMemberAndTask(Model $member = null, Model $task = null) : int{
-        if(is_null($member)) return 0;
+        if( is_null($member) || empty($member->nums7) ) return 0;
 
         if(!empty($task->TaskState) && $task->TaskState==7){
 

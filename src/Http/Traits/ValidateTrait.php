@@ -29,6 +29,7 @@ Trait ValidateTrait
         }else{
             $pars = $this->getParams();
         }
+        if(!is_array($pars)) return new \Exception('Validate params is not array');
 
         $validate = Validator::make($pars, $rules);
         if($validate->fails()){

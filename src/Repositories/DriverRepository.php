@@ -92,4 +92,11 @@ class DriverRepository extends Repository
 
         return $driver;
     }
+
+    //--從DriverID得到model
+    public function findByDriverID(string $DriverID, array $columns = ['*']){
+        $qb = $this->where('DriverID', $DriverID);
+
+        return $qb->select($columns)->first();
+    }
 }
