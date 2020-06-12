@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Log;
 use Twdd\Errors\TaskErrors;
 use Twdd\Facades\LatLonService;
 use Twdd\Models\Member;
-use App\User;
 use Twdd\Repositories\CalldriverRepository;
 use Twdd\Repositories\CalldriverTaskMapRepository;
 use Twdd\Services\ServiceAbstract;
@@ -28,6 +27,7 @@ class CalldriverService extends ServiceAbstract
     use AttributesArrayTrait;
 
     private $call_member = null;
+    private $call_driver = null;
     private $members = [];
     private $mapRepository;
     private $user = null;
@@ -57,7 +57,7 @@ class CalldriverService extends ServiceAbstract
     }
 
     private function checkDuplicateByMember($member){
-        if($this->mapRepository->checkIfDuplcate($member)>0){
+        if($this->mapRepository->numsOfDuplcateByMember($member)>0){
             $this->error->setReplaces('seconds', $this->calucateLastSeconds());
 
             return $this->error['1005'];
@@ -96,7 +96,6 @@ class CalldriverService extends ServiceAbstract
 
     public function currentCall(int $calldriver_id){
         $call = $this->mapRepository->currentCall($calldriver_id);
-
 
         $driver = InitalObject::parseDriverFromCall($call);
 
@@ -215,6 +214,11 @@ class CalldriverService extends ServiceAbstract
             $params['call_type'] = 3;
         }
         $params['call_member_id'] = $call_member_id;
+
+        $params['call_driver_id'] = !empty($this->call_driver->id) ? $this->call_driver->id : null;
+        if(is_null($params['call_driver_id'])) {
+            $params['call_driver_id'] = !empty($params['call_driver_id']) ? $params['call_driver_id'] : null;
+        }
         $params['createtime'] = date('Y-m-d H:i:s');
         $params['IsMatch'] = 0;
         $params['IsByUserKeyin'] = 0;
@@ -291,11 +295,29 @@ class CalldriverService extends ServiceAbstract
     }
 
 
-    public function user(User $user){
+    public function user($user = null){
         $this->user = $user;
 
         return $this;
     }
+
+    /**
+     * @return null
+     */
+    public function getCallDriver()
+    {
+        return $this->call_driver;
+    }
+
+    /**
+     * @param null $call_driver
+     */
+    public function setCallDriver($call_driver): void
+    {
+        $this->call_driver = $call_driver;
+    }
+
+
 
     public function rules(){
 

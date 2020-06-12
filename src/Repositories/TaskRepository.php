@@ -24,8 +24,7 @@ class TaskRepository extends Repository
         return Task::class;
     }
 
-    public function checkNotHaveInProcessTaskByMemberId($member_id){
-
+    public function checkNotHaveInProcessTaskByMemberId($member_id) : bool{
         $taskStateUnder3 = app()->make(TaskStateInProcess::class);
         $this->pushCriteria($taskStateUnder3);
         $tasks = $this->findWhere([
@@ -34,14 +33,13 @@ class TaskRepository extends Repository
 
         if(count($tasks)>0){
 
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
-    public function checkNotHaveInProcessTaskByDriverId($driver_id){
-
+    public function checkNotHaveInProcessTaskByDriverId($driver_id) : bool{
         $taskStateUnder3 = app()->make(TaskStateInProcess::class);
         $this->pushCriteria($taskStateUnder3);
         $tasks = $this->findWhere([
@@ -50,10 +48,10 @@ class TaskRepository extends Repository
 
         if(count($tasks)>0){
 
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public function nums7ByUserCreditCodeAndMemberId(string $UserCreditCode, int $member_id, int $task_id = null){

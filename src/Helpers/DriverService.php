@@ -67,9 +67,9 @@ class DriverService extends ServiceAbstract
         //---更改db DriverState
         return $this->changeDriverState(2);
     }
-
     /*
      * @params $is_offline_by_others 1被客人下線 2被客服下線 $force_offline 強制下線，不檢查
+     *   DriverService::driver()->offline([], 2, true);
      */
     public function offline(array $params = [], int $is_offline_by_others = 0, bool $force_offline = false){
         if($is_offline_by_others==0) {

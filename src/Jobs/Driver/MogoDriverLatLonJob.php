@@ -14,14 +14,20 @@ class MogoDriverLatLonJob extends Job
     private $driver;
     private $params = [];
     private $type = 1;
+    /*
+     * 從哪裡執行此job  從  $is_offline_by_others 代過來的
+     *   0司機自己  1被客人下線 2被客服下線
+     */
+    private $by_source = 0;
 
-    public function __construct(Model $driver, array $params, array $attributes, int $type = 1)
+    public function __construct(Model $driver, array $params, array $attributes, int $type = 1, int $by_type = 0)
     {
         $this->driver = $driver;
         $this->attributes = $attributes;
         $params['device_token'] = $attributes['ID'];
         $this->params = $params;
         $this->type = $type;
+        $this->by_type = $by_type;
     }
 
     public function handle(){

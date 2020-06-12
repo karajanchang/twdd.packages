@@ -65,6 +65,16 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\LatLonService::class);
         });
 
+        $this->app->bind('MatchFactory', function()
+        {
+            return app()->make(\Twdd\Helpers\MatchFactory::class);
+        });
+
+        $this->app->bind('MatchService', function()
+        {
+            return app()->make(\Twdd\Services\Match\MatchService::class);
+        });
+
         $this->app->bind('MemberService', function()
         {
             return app()->make(\Twdd\Helpers\MemberService::class);
@@ -226,6 +236,8 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('Infobip', \Twdd\Facades\Infobip::class);
             $loader->alias('LastCall', \Twdd\Facades\LastCall::class);
             $loader->alias('LatLonService', \Twdd\Facades\LatLonService::class);
+            $loader->alias('MatchFactory', \Twdd\Facades\MatchFactory::class);
+            $loader->alias('MatchService', \Twdd\Facades\MatchService::class);
             $loader->alias('MemberService', \Twdd\Facades\MemberService::class);
             $loader->alias('MoneyAccount', \Twdd\Facades\MoneyAccount::class);
             $loader->alias('MqttPushService', \Twdd\Facades\MqttPushService::class);

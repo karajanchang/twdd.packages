@@ -10,7 +10,9 @@ namespace Twdd\Repositories;
 
 
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Twdd\Criterias\Calldriver\JoinCalldriver;
 use Twdd\Criterias\Calldriver\OrderByMapId;
 use Twdd\Criterias\Calldriver\WhereIsCancelOrIsMatchFail;
@@ -24,10 +26,11 @@ use Zhyu\Repositories\Eloquents\Repository;
 class CalldriverTaskMapRepository extends Repository
 {
     public function model(){
+
         return CalldriverTaskMap::class;
     }
 
-    public function checkIfDuplcate(Model $member){
+    public function numsOfDuplcateByMember(Model $member){
         $joinCalldriver = new JoinCalldriver();
         $whereMember = new WhereMember($member);
         $whereTSOver = new WhereTSOver();
@@ -72,4 +75,27 @@ class CalldriverTaskMapRepository extends Repository
         return $call;
     }
 
+    /*
+     * 檢查此司機幾秒內是否有媒合的單
+     */
+    public function isInMatchingByDriverID(int $driver_id, int $seconds = 45) : bool{
+        $count = $this->where(DB::raw('UNIX_TIMESTAMP() - TS'), '<', $seconds)->count();
+
+        return $count > 0;
+    }
+
+    /*
+     * 在 指定時間內有預約單的數量
+     */
+    public function numsOfPrematchByMemberIdAndHour(int $member_id, float $hour) : int{
+        $now = Carbon::now();
+
+        return $this->where('member_id', $member_id)
+            ->whereBetween('TS', [$now->timestamp, $now->addMinutes($hour*60)->timestamp])
+            ->where('call_type', 2)
+            ->where('is_done', 1)
+            ->where('is_cancel', 0)
+            ->where('IsMatchFail', 0)
+            ->count();
+    }
 }

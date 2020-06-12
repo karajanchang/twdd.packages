@@ -50,7 +50,7 @@ class Task
 
     //---檢查該會員有沒有進行中 0-6 的任務
     public function checkNotHaveInProcessTaskStateByMember(Model $member){
-        if($this->repository->checkNotHaveInProcessTaskByMemberId($member->id)===true){
+        if($this->repository->checkNotHaveInProcessTaskByMemberId($member->id)!==true){
 
             return $this->error['1008'];
         }
@@ -60,7 +60,7 @@ class Task
 
     //---檢查該司機有沒有進行中 0-6 的任務
     public function checkNotHaveInProcessTaskStateByDriver(Model $driver){
-        if($this->repository->checkNotHaveInProcessTaskByDriverId($driver->id)===true){
+        if($this->repository->checkNotHaveInProcessTaskByDriverId($driver->id)!==true){
 
             return $this->error['1009'];
         }
