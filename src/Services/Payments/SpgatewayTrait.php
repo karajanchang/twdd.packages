@@ -49,7 +49,7 @@ Trait SpgatewayTrait
     /**
      * @param mixed $driverMerchant
      */
-    public function setDriverMerchant(Model $driverMerchant): DriverMerchant
+    public function setDriverMerchant(Model $driverMerchant)
     {
         $this->driverMerchant = $driverMerchant;
 
@@ -67,7 +67,7 @@ Trait SpgatewayTrait
     /**
      * @param mixed $memberCreditCard
      */
-    public function setMemberCreditCard(Model $memberCreditCard): MemberCreditcard
+    public function setMemberCreditCard(Model $memberCreditCard)
     {
         $this->memberCreditCard = $memberCreditCard;
 
