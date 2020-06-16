@@ -62,6 +62,12 @@ class PayService
         return $this->payment->task($this->task)->query();
     }
 
+    public function money(int $money){
+        $this->payment->setMoney($money);
+
+        return $this;
+    }
+
 }
 
 //---付款

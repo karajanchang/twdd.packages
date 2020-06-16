@@ -37,4 +37,7 @@ class PayService extends Facade
 
     PayService::by($pay_type)->task($task)->query();
 
+
+##5.Task付款，用別種金額
+    PayService::by($pay_type)->task($task)->money(100)->query();
  */
