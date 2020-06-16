@@ -25,4 +25,10 @@ class DriverMerchantRepository extends Repository
 
         return $model;
     }
+
+    public function findByDriverId(int $driver_id){
+        $model = $this->findby('driver_id', $driver_id);
+
+        return $model;
+    }
 }

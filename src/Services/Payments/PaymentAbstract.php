@@ -15,6 +15,7 @@ class PaymentAbstract
     protected $task;
     private $taskPayLogRepository;
     protected $money = 0;
+    protected $pay_type = 1;
     protected $OrderNo = null;
     protected $member_creditcard_id = null;
 
@@ -24,10 +25,10 @@ class PaymentAbstract
         $this->taskPayLogRepository = $taskPayLogRepository;
     }
 
-    public function task(Model $task){
+    public function task(Model $task = null){
         $this->task = $task;
         $this->setOrderNo();
-        if(!is_null($task->TaskFee)) {
+        if(!is_null($task) && !empty($task->TaskFee)) {
             $this->setMoney($task->TaskFee);
         }
 
@@ -78,19 +79,20 @@ class PaymentAbstract
     }
 
     private function log(int $pay_status, string $msg = null, $obj = null, int $error_code = null) : void{
-        if(is_null($this->task)) return ;
 
         try {
             $params = [
+                'pay_type' => $this->pay_type,
+                'task_id' => isset($this->task->id) ? $this->task->id : null,
                 'pay_status' => $pay_status,
-                'error_code' => (int)$error_code,
+                'error_code' => (int) $error_code,
                 'msg' => $msg,
                 'obj' => json_encode([$obj], JSON_UNESCAPED_UNICODE),
                 'OrderNo' => $this->getOrderNo(),
                 'amt' => $this->getMoney(),
                 'member_creditcard_id' => $this->getMemberCreditcardId(),
             ];
-            $this->taskPayLogRepository->insertByTask($this->task, $params);
+            $this->taskPayLogRepository->insertByParams($params);
         }catch (\Exception $e){
             Log::error('PaymentAbstract exception: ', [ 'params' => $params, $e->getMessage()]);
         }

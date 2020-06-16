@@ -94,7 +94,7 @@ class CallType3 extends AbstractCall implements InterfaceMatchCallType
     /*
      * 處理 params
      */
-    protected function processParams(array $params) : array{
+    public function processParams(array $params, array $other_params = []) : array{
         $params = parent::processParams($params);
 
         //--app呼叫且呼叫方式不為預約呼叫把TS改成

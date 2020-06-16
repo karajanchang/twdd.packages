@@ -17,6 +17,7 @@ use \Zhyu\Errors\CurlTimeout;
 class Spgateway extends PaymentAbstract implements PaymentInterface
 {
     use SpgatewayTrait;
+    protected $pay_type = 2;
 
 
     public function back(int $amt, bool $is_notify_member = false){

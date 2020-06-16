@@ -4,7 +4,6 @@
 namespace Twdd\Services\Match\CallTypes;
 
 
-use Twdd\Errors\TaskErrors;
 use Twdd\Services\Match\CallTypes\Traits\TraitAlwaysBlackList;
 use Twdd\Services\Match\CallTypes\Traits\TraitAppVer;
 use Twdd\Services\Match\CallTypes\Traits\TraitCallNoDuplicate;

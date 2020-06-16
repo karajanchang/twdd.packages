@@ -20,9 +20,7 @@ class TaskPayLogRepository extends Repository
         return TaskPayLog::class;
     }
 
-    public function insertByTask(Model $task, array $params = []){
-        $params['pay_type'] = $task->pay_type;
-        $params['task_id'] = $task->id;
+    public function insertByParams(array $params = []){
         $params['created_at'] = date('Y-m-d H:i:s');
         $params['updated_at'] = date('Y-m-d H:i:s');
         $params['member_creditcard_id'] = isset($params['member_creditcard_id']) && $params['member_creditcard_id']!=0 ? $params['member_creditcard_id'] : null;

@@ -8,6 +8,7 @@ use Twdd\Services\Match\CallTypes\Traits\TraitAlwaysBlackList;
 use Twdd\Services\Match\CallTypes\Traits\TraitAppVer;
 use Twdd\Services\Match\CallTypes\Traits\TraitCallNoDuplicate;
 use Twdd\Services\Match\CallTypes\Traits\TraitCanPrematchByTS;
+use Twdd\Services\Match\CallTypes\Traits\TraitCheckHaveBindCreditCard;
 use Twdd\Services\Match\CallTypes\Traits\TraitHaveNoRuningTask;
 use Twdd\Services\Match\CallTypes\Traits\TraitHavePrematch;
 use Twdd\Services\Match\CallTypes\Traits\TraitMemberCanMatch;
@@ -25,10 +26,11 @@ class CallType2 extends AbstractCall implements InterfaceMatchCallType
     use TraitHavePrematch;
     use TraitCanPrematchByTS;
     use TraitOnlyOnePrematch;
+    use TraitCheckHaveBindCreditCard;
 
 
     protected $call_type = 2;
-    public $tiltle = '預約';
+    public $title = '預約';
 
     /*
     * 這些是要不要檢查的,覆載用
@@ -43,6 +45,7 @@ class CallType2 extends AbstractCall implements InterfaceMatchCallType
         'HaveNoRuningTask' => 'success',
         'HavePrematch' => 'error',
         'CanPrematchByTS' => 'error',
+        'CheckHaveBindCreditCard' => 'error',
     ];
 
     /*
@@ -101,6 +104,13 @@ class CallType2 extends AbstractCall implements InterfaceMatchCallType
         if($res!==false && $this->OnlyOnePrematch()!==true){
 
             return $this->{$res}('預約代駕一次只允許一筆');
+        }
+
+        //--預約代駕一定要用信用卡
+        $res = $this->noCheckList('CheckHaveBindCreditCard');
+        if($res!==false && $this->CheckHaveBindCreditCard()!==true){
+
+            return $this->{$res}('預約代駕付款方式限定信用卡');
         }
 
         $params = $this->processParams($this->params, $other_params);

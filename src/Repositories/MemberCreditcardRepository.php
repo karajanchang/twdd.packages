@@ -30,4 +30,15 @@ class MemberCreditcardRepository extends Repository
 
         return $models->first();
     }
+
+    public function findByMemberId(int $member_id){
+
+        return $this->findby('member_id', $member_id);
+    }
+
+    public function numsByMemberId(int $member_id){
+
+        return $this->where('member_id', $member_id)->count();
+    }
+
 }

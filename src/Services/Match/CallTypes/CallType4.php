@@ -23,7 +23,7 @@ class CallType4 extends AbstractCall implements InterfaceMatchCallType
 
 
     protected $call_type = 4;
-    public $tiltle = '長途';
+    public $title = '長途';
 
     /*
     * 這些是要不要檢查的,覆載用
@@ -94,7 +94,7 @@ class CallType4 extends AbstractCall implements InterfaceMatchCallType
     /*
      * 處理 params
      */
-    protected function processParams(array $params) : array{
+    public function processParams(array $params, array $other_params = []) : array{
         $params = parent::processParams($params);
 
         //--app呼叫且呼叫方式不為預約呼叫把TS改成

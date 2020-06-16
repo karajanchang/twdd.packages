@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Twdd\Events\SpgatewayErrorEvent;
+use Twdd\Models\DriverMerchant;
+use Twdd\Models\MemberCreditcard;
 use Twdd\Repositories\DriverMerchantRepository;
 use Twdd\Repositories\MemberCreditcardRepository;
 use Zhyu\Facades\ZhyuCurl;
@@ -47,9 +49,11 @@ Trait SpgatewayTrait
     /**
      * @param mixed $driverMerchant
      */
-    public function setDriverMerchant(Model $driverMerchant): void
+    public function setDriverMerchant(Model $driverMerchant): DriverMerchant
     {
         $this->driverMerchant = $driverMerchant;
+
+        return $this;
     }
 
     /**
@@ -63,9 +67,11 @@ Trait SpgatewayTrait
     /**
      * @param mixed $memberCreditCard
      */
-    public function setMemberCreditCard(Model $memberCreditCard): void
+    public function setMemberCreditCard(Model $memberCreditCard): MemberCreditcard
     {
         $this->memberCreditCard = $memberCreditCard;
+
+        return $this;
     }
 
     private function spgateway_encrypt($str = "") {
