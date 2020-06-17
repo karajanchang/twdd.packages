@@ -7,6 +7,7 @@ namespace Twdd\Services\Payments;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Twdd\Errors\PaymentErrors;
+use Twdd\Facades\TaskNo;
 use Twdd\Repositories\TaskPayLogRepository;
 
 class PaymentAbstract
@@ -98,9 +99,14 @@ class PaymentAbstract
         }
     }
 
-    protected function setOrderNo(bool $is_random_serial = false){
-        $TaskNo = str_pad($this->task->id, 8, '0', STR_PAD_LEFT);
-        $OrderNo = $is_random_serial===false    ?   $TaskNo :   $TaskNo.'_'.rand(10, 99);
+    protected function setOrderNo($is_random_serial = false){
+        $OrderNo = $is_random_serial;
+        if(isset($this->task->id)) {
+            $TaskNo = TaskNo($this->task_id);
+            if(is_bool($is_random_serial)) {
+                $OrderNo = $is_random_serial === false ? $TaskNo : $TaskNo . '_' . rand(10, 99);
+            }
+        }
         $this->OrderNo = $OrderNo;
 
         return $OrderNo;

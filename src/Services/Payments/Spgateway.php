@@ -105,6 +105,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             $this->setDriverMerchant($driverMerchant);
             $this->setMoney($amount);
         }
+        $this->setOrderNo($OrderNo);
 
         if($this->checkIfDriverMerchantExists() === false){
 
@@ -260,6 +261,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
                     $url = env('SPGATEWAY_QUERY_URL', 'https://core.spgateway.com/API/QueryTradeInfo');
 
                     $MerchantOrderNo = isset($task->OrderNo) && strlen($this->task->OrderNo)>0 ? $this->task->OrderNo : TaskNo::make($this->task->id);
+                    $this->setOrderNo($MerchantOrderNo);
 
                     $datas = [
                         'MerchantID' => $this->driverMerchant->MerchantID,
