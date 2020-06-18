@@ -86,7 +86,7 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
         $calldriver = $this->getCalldriverServiceInstance()->create($params);
         if(isset($calldriver['error'])){
 
-            return $this->error($calldriver['error']->getMessage(), $calldriver);
+            return $this->error($calldriver['msg']->first(), $calldriver);
         }
 
         return $this->success('呼叫成功', $calldriver);

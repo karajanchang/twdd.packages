@@ -10,6 +10,6 @@ trait TraitCheckHaveBindCreditCard
 {
     private function CheckHaveBindCreditCard(){
 
-        return app(MemberCreditcardRepository::class)->numsByMemberId() > 0 ? true : false;
+        return app(MemberCreditcardRepository::class)->numsByMemberId($this->member->id) > 0 ? true : false;
     }
 }

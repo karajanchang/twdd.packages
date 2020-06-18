@@ -175,46 +175,8 @@ class AbstractCall extends ServiceAbstract
             $params['addr_det'] = str_replace($params['district_det'], '', $params['addr_det']);
         }
 
-        if(!empty($params['lat']) && !empty($params['lon'])){
-            $city = !empty($params['city']) ? trim($params['city']) : '';
-            $district = !empty($params['district']) ? trim($params['district']) : '';
-            $addr = !empty($params['addr']) ? trim($params['addr']) : '';
-            $address = $city.$district.$addr;
-            if(strlen($address)==0){
-                if(intval($params['lat'])!=0 && intval($params['lon'])!=0) {
-                    if(env('APP_DEBUG', false)===true && (bool) app(Request::class)->get('is_testing')===true){
-                        $params['city'] = '台北市';
-                        $params['city_id'] = 1;
-                        $params['district'] = '中正區';
-                        $params['district_id'] = 1;
-                        $params['zip'] = '100';
-                        $params['addr'] = '臨沂街51號';
-                        $params['address'] = '台北市中正區臨沂街51號';
-                    }else {
-                        $location = GoogleMap::latlon($params['lat'], $params['lon']);
-                        $params['city'] = $location['city'];
-                        $params['city_id'] = $location['city_id'];
-                        $params['district'] = $location['district'];
-                        $params['district_id'] = $location['district_id'];
-                        $params['zip'] = $location['zip'];
-                        $params['addr'] = $location['addr'];
-                        $params['address'] = $location['address'];
-                    }
-                }
+        $params = $this->parseAddressByParams($params);
 
-            }else{
-                if(intval($params['lat'])==0 && intval($params['lon'])==0) {
-                    $location = GoogleMap::address($address);
-                    $params['city'] = $location['city'];
-                    $params['city_id'] = $location['city_id'];
-                    $params['district'] = $location['district'];
-                    $params['district_id'] = $location['district_id'];
-                    $params['zip'] = $location['zip'];
-                    $params['addr'] = $address;
-                    $params['address'] = $location['address'];
-                }
-            }
-        }
         $params['addrKey'] = !empty($params['addrKey']) ? $params['addrKey'] :  $params['address'];
         $params['call_type'] = $this->call_type;
 
@@ -223,6 +185,56 @@ class AbstractCall extends ServiceAbstract
         $params['coupon_id'] = !empty($this->coupon->id) ? $this->coupon->id : null;
         $params['IsByUserKeyin'] = !empty($this->user->id) ? 1 : 0;
         $params['call_driver_id'] = !empty($this->callDriver->id) ? $this->callDriver->id : null;
+
+        return $params;
+    }
+
+    private function parseAddressByParams(array $params) : array{
+        $city = !empty($params['city']) ? trim($params['city']) : '';
+        $district = !empty($params['district']) ? trim($params['district']) : '';
+        $addr = !empty($params['addr']) ? trim($params['addr']) : '';
+        $address = $city.$district.$addr;
+
+        $is_have_transfer_success = false;
+        if(!empty($params['lat']) && !empty($params['lon'])){
+            if(intval($params['lat'])!=0 && intval($params['lon'])!=0) {
+                if (env('APP_DEBUG', false) === true && (bool)app(Request::class)->get('is_testing') === true) {
+                    $params['city'] = '台北市';
+                    $params['city_id'] = 1;
+                    $params['district'] = '中正區';
+                    $params['district_id'] = 1;
+                    $params['zip'] = '100';
+                    $params['addr'] = '臨沂街51號';
+                    $params['address'] = '台北市中正區臨沂街51號';
+                    $is_have_transfer_success = true;
+                } else {
+                    $location = GoogleMap::latlon($params['lat'], $params['lon']);
+                    $params['city'] = $location['city'];
+                    $params['city_id'] = $location['city_id'];
+                    $params['district'] = $location['district'];
+                    $params['district_id'] = $location['district_id'];
+                    $params['zip'] = $location['zip'];
+                    $params['addr'] = $location['addr'];
+                    $params['address'] = $location['address'];
+
+                    //--轉換成功
+                    if($location['district_id']>0) {
+                        $is_have_transfer_success = true;
+                    }
+                }
+            }
+        }
+        //--如果都沒有轉換成功再改用address來換換
+        if($is_have_transfer_success===false && strlen($address)>0) {
+            $location = GoogleMap::address($address);
+            $params['city'] = $location['city'];
+            $params['city_id'] = $location['city_id'];
+            $params['district'] = $location['district'];
+            $params['district_id'] = $location['district_id'];
+            $params['zip'] = $location['zip'];
+            $params['addr'] = $address;
+            $params['address'] = $location['address'];
+        }
 
         return $params;
     }

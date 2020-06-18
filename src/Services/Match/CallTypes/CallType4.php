@@ -85,7 +85,7 @@ class CallType4 extends AbstractCall implements InterfaceMatchCallType
         $calldriver = $this->getCalldriverServiceInstance()->create($params);
         if(isset($calldriver['error'])){
 
-            return $this->error($calldriver['error']->getMessage(), $calldriver);
+            return $this->error($calldriver['msg']->first(), $calldriver);
         }
 
         return $this->success('呼叫成功', $calldriver);
@@ -97,10 +97,6 @@ class CallType4 extends AbstractCall implements InterfaceMatchCallType
     public function processParams(array $params, array $other_params = []) : array{
         $params = parent::processParams($params);
 
-        //--app呼叫且呼叫方式不為預約呼叫把TS改成
-        if($params['type']==1){
-            $params['TS'] = time();
-        }
 
         return $params;
     }

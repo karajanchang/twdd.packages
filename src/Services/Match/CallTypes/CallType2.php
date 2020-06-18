@@ -86,7 +86,7 @@ class CallType2 extends AbstractCall implements InterfaceMatchCallType
 
         //--判斷此時段可不可以使用預約
         $res = $this->noCheckList('CanPrematchByTS');
-        if($res!==false && $this->CanPrematchByTS()!==true){
+        if($res!==false && $this->CanPrematchByTS($this->params)!==true){
 
             return $this->{$res}('此時段無法使用預約服務');
         }
@@ -117,7 +117,7 @@ class CallType2 extends AbstractCall implements InterfaceMatchCallType
         $calldriver = $this->getCalldriverServiceInstance()->create($params);
         if(isset($calldriver['error'])){
 
-            return $this->error($calldriver['error']->getMessage(), $calldriver);
+            return $this->error($calldriver['msg']->first(), $calldriver);
         }
 
         return $this->success('呼叫成功', $calldriver);
@@ -130,11 +130,6 @@ class CallType2 extends AbstractCall implements InterfaceMatchCallType
      */
     public function processParams(array $params, array $other_params = []) : array{
         $params = parent::processParams($params, $other_params);
-
-        //--app呼叫且呼叫方式不為預約呼叫把TS改成
-        if($params['type']==1){
-            $params['TS'] = time();
-        }
 
         return $params;
     }
