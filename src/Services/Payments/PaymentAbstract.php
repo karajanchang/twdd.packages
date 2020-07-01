@@ -102,7 +102,7 @@ class PaymentAbstract
     protected function setOrderNo($is_random_serial = false){
         $OrderNo = $is_random_serial;
         if(isset($this->task->id)) {
-            $TaskNo = TaskNo($this->task_id);
+            $TaskNo = TaskNo($this->task->id);
             if(is_bool($is_random_serial)) {
                 $OrderNo = $is_random_serial === false ? $TaskNo : $TaskNo . '_' . rand(10, 99);
             }
