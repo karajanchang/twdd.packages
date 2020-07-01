@@ -62,16 +62,16 @@ class MongoDriverLatLonRepository
     }
 
     private function insertByDriverId(){
-        $now = Carbon::now();
+        $dt = isset($this->params['ts']) ? Carbon::createFromTimestamp($this->params['ts']) : Carbon::now();
         $all = [
             'type' => $this->params['type'],
-            'ts' => $now->timestamp,
-            'time' => $now->format('Hi'),
-            'year' => $now->format('Y'),
-            'month' => $now->format('n'),
-            'day' => $now->format('j'),
-            'date' => $now->format('date'),
-            'created_at' => $now->toDateTimeString(),
+            'ts' => $dt->timestamp,
+            'time' => $dt->format('Hi'),
+            'year' => $dt->format('Y'),
+            'month' => $dt->format('n'),
+            'day' => $dt->format('j'),
+            'date' => $dt->format('date'),
+            'created_at' => $dt->toDateTimeString(),
             'city_id' => $this->params['city_id'],
             'district_id' => $this->params['district_id'],
             'latlon' => $this->params['lat'].','.$this->params['lon'],
