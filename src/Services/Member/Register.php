@@ -9,6 +9,7 @@
 namespace Twdd\Services\Member;
 
 
+use Carbon\Carbon;
 use Twdd\Errors\MemberErrors;
 use Twdd\Repositories\MemberRepository;
 use Twdd\Services\ServiceAbstract;
@@ -53,6 +54,10 @@ class Register extends ServiceAbstract
         }
         $params['createtime'] = date('Y-m-d H:i:s');
         $params['updatetime'] = date('Y-m-d H:i:s');
+
+        $params['is_registered'] = 1;
+        $params['registered_at'] = Carbon::now();
+
         $params['UserPassword'] = md5($params['UserPassword']);
 
         return $params;
@@ -60,6 +65,7 @@ class Register extends ServiceAbstract
 
     public function rules(){
         $UserPhoneRule = $this->is_verify_mobile===false ? 'required' : 'required|regex:/^09\d{2}-?\d{3}-?\d{3}$/';
+
         return [
             'UserName'              =>  'nullable',
             'UserGender'            =>  'nullable|integer|between:1,2',
