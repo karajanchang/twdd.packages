@@ -135,26 +135,31 @@ class DriverService extends ServiceAbstract
                 return $this->error->_('400');
             }
 
+            //--停權
             if ($this->driver->is_online != 1) {
 
                 return $this->error->_('1005');
             }
 
+            //--退出
             if ($this->driver->is_out == 1) {
 
                 return $this->error->_('1006');
             }
 
+            //--儲值金不足300元
             if ((int)$this->driver->DriverCredit < 300) {
 
                 return $this->error->_('1007');
             }
 
+            //--身份別不是司機
             if ($this->driver->DriverNew != 2) {
 
                 return $this->error->_('1008');
             }
 
+            //---尚未破冬
             if ($this->driver->is_pass_rookie == 0 && $this->driver->isARookie() === true) {
                 Log::info('driver', [$this->driver]);
 
@@ -163,6 +168,12 @@ class DriverService extends ServiceAbstract
                     'end' => env('OLDBIRD_HOUR_END', 5),
                     'nums' => ($this->driver->pass_rookie_times - $this->driver->DriverServiceTime),
                 ]);
+            }
+
+            //--暫時停權
+            if($this->driver->is_tmp_offline===true){
+
+                return $this->error->_('1010');
             }
 
             if ($this->driver->isPayForAccidentInsurance($this->driver->id) !== true) {
