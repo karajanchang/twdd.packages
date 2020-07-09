@@ -9,12 +9,14 @@ use Twdd\Services\Match\CallTypes\Traits\TraitCallNoDuplicate;
 use Twdd\Services\Match\CallTypes\Traits\TraitHaveNoRuningTask;
 use Twdd\Services\Match\CallTypes\Traits\TraitHavePrematch;
 use Twdd\Services\Match\CallTypes\Traits\TraitMemberCanMatch;
+use Twdd\Services\Match\CallTypes\Traits\TraitMemberCanNotCall;
 use Twdd\Services\Match\CallTypes\Traits\TraitServiceArea;
 
 class CallType4 extends AbstractCall implements InterfaceMatchCallType
 {
     use TraitAppVer;
     use TraitMemberCanMatch;
+    use TraitMemberCanNotCall;
     use TraitAlwaysBlackList;
     use TraitServiceArea;
     use TraitCallNoDuplicate;
@@ -31,6 +33,7 @@ class CallType4 extends AbstractCall implements InterfaceMatchCallType
     protected $check_lists = [
         'AppVer' => 'error',
         'MemberCanMatch' => 'error',
+        'MemberCanNotCall' => 'error',
         'AlwaysBlackList' => 'error',
         'ServiceArea' => 'error',
         'CheckParams' => 'error',

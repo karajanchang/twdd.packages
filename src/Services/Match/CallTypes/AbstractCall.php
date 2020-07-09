@@ -4,6 +4,7 @@
 namespace Twdd\Services\Match\CallTypes;
 
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Twdd\Facades\TaskService;
 use Twdd\Repositories\BlacklistMember4DriverRepository;
@@ -46,6 +47,7 @@ class AbstractCall extends ServiceAbstract
     protected $check_lists = [
         'AppVer' => 'error',
         'MemberCanMatch' => 'error',
+        'MemberCanNotCall' => 'error',
         'AlwaysBlackList' => 'error',
         'ServiceArea' => 'error',
         'CheckParams' => 'error',
@@ -103,6 +105,17 @@ class AbstractCall extends ServiceAbstract
 
             return $this->{$res}('你目前停權無法呼叫');
         }
+
+        //--暫時停止可以呼叫，得到endTS
+        $res = $this->noCheckList('MemberCanNotCall');
+        $endTS = $this->MemberCanNotCall();
+        if ($res!==false && $endTS > 0) {
+            $dt = Carbon::createFromTimestamp($endTS);
+
+            return $this->{$res}('取消多次服務，將於 '.$dt->format('m/d H:i:s').' 才能再次呼叫代駕 或 聯繫客服尋求協助」，按鈕點擊撥打 0800-005209');
+        }
+
+
 
         //--該會員是否為永久黑名單
         $res = $this->noCheckList('AlwaysBlackList');
