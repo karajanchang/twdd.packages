@@ -7,7 +7,6 @@ namespace Twdd\Subscribers;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Twdd\Facades\CouponService;
-use Twdd\Facades\TwddCache;
 use Twdd\Listeners\MultiCallCouponListener;
 use Twdd\Models\Task;
 use Twdd\Repositories\DriverDayNumsRepository;

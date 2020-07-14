@@ -12,6 +12,7 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Twdd\Errors\CouponErrors;
+use Twdd\Models\Member;
 use Twdd\Repositories\CouponRepository;
 use Twdd\Services\ServiceAbstract;
 use Twdd\Traits\AttributesArrayTrait;
@@ -75,7 +76,11 @@ class CouponService extends ServiceAbstract
 
     //--叩除這次的任務的nums7
     private function nums7ExceptTaskByMemberAndTask(Model $member = null, Model $task = null) : int{
-        if( is_null($member) || empty($member->nums7) ) return 0;
+        if( is_null($member)) return 0;
+
+        if(!isset($member->nums7)){
+            $member = Member::find($member->id, ['id', 'num7']);
+        }
 
         if(!empty($task->TaskState) && $task->TaskState==7){
 
