@@ -289,7 +289,7 @@ class AbstractCall extends ServiceAbstract
 
                 return ['status' => false, 'msg' => '指定司機錯誤: 此司機正在服務中'];
             }
-            if(app(CalldriverTaskMapRepository::class)->isInMatchingByDriverID()===true){
+            if(app(CalldriverTaskMapRepository::class)->isInMatchingByDriverID($callDriver->id)===true){
 
                 return ['status' => false, 'msg' => '指定司機錯誤: 此司機正在媒合中'];
             }
