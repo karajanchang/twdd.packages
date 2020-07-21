@@ -4,6 +4,8 @@
 namespace Twdd\Services\Match\CallTypes;
 
 
+use Twdd\Models\Calldriver;
+use Twdd\Repositories\CalldriverTaskMapRepository;
 use Twdd\Services\Match\CallTypes\Traits\TraitAlwaysBlackList;
 use Twdd\Services\Match\CallTypes\Traits\TraitAppVer;
 use Twdd\Services\Match\CallTypes\Traits\TraitCallNoDuplicate;
@@ -123,10 +125,17 @@ class CallType2 extends AbstractCall implements InterfaceMatchCallType
             return $this->error($calldriver['msg']->first(), $calldriver);
         }
 
-        return $this->success('呼叫成功', $calldriver);
+        $data = $this->getCallDriverData($calldriver);
+        return $this->success('呼叫成功', $data);
     }
 
+    /*
+     * 取得該會員預約中的map
+     */
+    private function getCallDriverData(Calldriver $calldriver){
 
+        return app(CalldriverTaskMapRepository::class)->prematchByCalldriverId($calldriver->id);
+    }
 
     /*
      * 處理 params

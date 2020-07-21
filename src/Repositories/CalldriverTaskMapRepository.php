@@ -98,4 +98,29 @@ class CalldriverTaskMapRepository extends Repository
             ->where('IsMatchFail', 0)
             ->count();
     }
+
+    /*
+     * 取得該會員預約中的map
+     */
+    public function prematchByCalldriverId(int $calldriver_id){
+
+        return $this->join('calldriver', 'calldriver_task_map.calldriver_id', '=', 'calldriver.id')
+            ->leftJoin('driver', 'calldriver_task_map.driver_id', '=', 'driver.id')
+            ->leftJoin('member', 'calldriver_task_map.member_id', '=', 'member.id')
+            ->leftJoin('task', 'calldriver_task_map.task_id', '=', 'task.id')
+            ->where('calldriver.IsDelete', '!=', 1)
+            ->where('calldriver_task_map.is_cancel', 0)
+            ->where('calldriver_task_map.is_done', 0)
+            ->where('calldriver_task_map.IsMatchFail', 0)
+            ->where('calldriver_task_map.call_type', 2)
+            ->where('calldriver_task_map.calldriver_id', $calldriver_id)
+            //->where('calldriver_task_map.is_push', 1)
+            ->select('calldriver_task_map.is_done', 'calldriver.id', DB::raw('calldriver_task_map.id as map_id'), 'calldriver_id','driver.DriverName', 'driver.DriverID', 'driver.DriverRating', 'driver.DriverPhoto', 'driver.DriverServiceTime', 'calldriver.UserRemark', 'calldriver.lat', 'calldriver.lon', 'calldriver.city', 'calldriver.district', 'calldriver.addr','calldriver.lat_det', 'calldriver.lon_det', 'calldriver.city_det', 'calldriver.district_det', 'calldriver.addr_det',
+                'calldriver_task_map.driver_id', 'calldriver_task_map.task_id', 'calldriver_task_map.is_push', 'calldriver_task_map.user_cancel_reason_id', 'calldriver.TS', DB::raw('CEILING((UNIX_TIMESTAMP()-UNIX_TIMESTAMP(Driver.DriverDrivingSeniorityDate))/3600/24/365) as DriverDrivingSeniorityYear'), 'DriverDrivingSeniorityDate', 'task.TaskState', 'calldriver_task_map.IsMatchFail', 'calldriver.createtime' , 'calldriver_task_map.is_cancel', 'calldriver.type', 'calldriver.pay_type',
+                'calldriver.call_type', 'calldriver_task_map.member_id', 'calldriver.UserCreditCode', 'calldriver.UserCreditValue', DB::raw('calldriver.addrKey as UserAddressKey'), DB::raw('calldriver.addrKey_det as DestAddressKey'), 'calldriver.extra_price', 'calldriver.zip', 'calldriver.zip_det', 'calldriver.DeviceTypeMember', 'calldriver.AppVerMember', 'calldriver.OSVerMember', 'calldriver.DeviceModelMember', 'calldriver.user_id', 'calldriver.callback_url', 'calldriver.IsApi', DB::raw('left(member.UserName, 1) as UserName')
+            )
+            ->get();
+    }
+
+
 }
