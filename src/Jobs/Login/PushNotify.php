@@ -43,7 +43,7 @@ class PushNotify extends Job
         if ($deviceType == 'android') {
             $pushNotification->android();
         }
-        $res = $pushNotification->action('PushMsg')->title($this->title)->body($this->body)->tokens([$push->PushToken])->send();
+        $res = $pushNotification->action('logout')->title($this->title)->body($this->body)->tokens([$push->PushToken])->send();
 
         //---通知成功
         if(isset($res['success']) && $res['success']=='ok' && !isset($res['logs'][0]['error'])){
