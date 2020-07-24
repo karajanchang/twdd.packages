@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Twdd\Events\SpgatewayErrorEvent;
-use Twdd\Models\DriverMerchant;
-use Twdd\Models\MemberCreditcard;
 use Twdd\Repositories\DriverMerchantRepository;
 use Twdd\Repositories\MemberCreditcardRepository;
 use Zhyu\Facades\ZhyuCurl;
@@ -132,7 +130,12 @@ Trait SpgatewayTrait
      */
     private function notifyExceptionAndLog($e, int $code, string $msg = '', bool $is_notify_member = false, bool $is_payment_timeout = false){
         Log::info($msg, [$e]);
-        Bugsnag::notifyException($e);
+        try {
+            \Bugsnag\BugsnagLaravel\Facades\Bugsnag::notifyException($e);
+        }catch (\Exception $e){
+
+        }
+
 
         if($is_notify_member===true) {
             event(new SpgatewayErrorEvent($this->task));
