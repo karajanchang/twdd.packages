@@ -73,7 +73,7 @@ class ServerviceArea extends ServiceAbstract
             return $this->error->_('1002');
         }
         $districts = $this->repository->allIsopen();
-        $district = $districts->where('zip', $zip);
+        $district = $districts->where('zip', $zip)->where('isopen', 1);
         if(count($district)==0){
 
             return $this->error->_('1003');
