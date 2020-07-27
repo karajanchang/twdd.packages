@@ -112,7 +112,7 @@ class AbstractCall extends ServiceAbstract
         if ($res!==false && $endTS > 0) {
             $dt = Carbon::createFromTimestamp($endTS);
 
-            return $this->{$res}('取消多次服務，將於 '.$dt->format('m/d H:i:s').' 才能再次呼叫代駕 或 聯繫客服尋求協助」，按鈕點擊撥打 0800-005209');
+            return $this->{$res}("請撥打客服呼叫代駕！\n此帳號多次取消，系統暫停呼叫權限，".$dt->addDay()->format('n月j號')."重新開啟");
         }
 
 
