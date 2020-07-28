@@ -27,9 +27,9 @@ class DistrictRepository extends Repository
         $this->pushCriteria($joinCity);
 //        $this->pushCriteria($whereIsopen);
         if(class_exists('Redis')) {
-            $all = $this->allCache(['district.id as district_id', 'city_id', 'district.name as district', 'zip', 'city.name as city', 'district.isopen'], 'AllDistrict', 3600);
+            $all = $this->allCache(['district.id as district_id', 'city_id', 'district.name as district', 'zip', 'city.name as city', 'district.isopen as isopen'], 'AllDistrict', 3600);
         }else{
-            $all = $this->all(['district.id as district_id', 'city_id', 'district.name as district', 'zip', 'city.name as city', 'district.isopen']);
+            $all = $this->all(['district.id as district_id', 'city_id', 'district.name as district', 'zip', 'city.name as city', 'district.isopen as isopen']);
         }
 
         return $all;
