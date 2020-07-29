@@ -40,7 +40,7 @@ class CouponFactory
         return $this;
     }
 
-    public function addMember(\stdClass $member){
+    public function addMember($member){
         if(!is_null($this->member)){
 
             throw new \Exception('only one method to use!');
