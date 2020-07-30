@@ -44,8 +44,10 @@ class TokenService
     }
 
 
-    public function login(){
-        $params = $this->getParams();
+    public function login(array $params = null){
+        if(is_null($params)) {
+            $params = $this->getParams();
+        }
 
         $res = $this->service->params($params)->login();
 
