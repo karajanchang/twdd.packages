@@ -9,6 +9,7 @@
 namespace Twdd\Repositories;
 
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Twdd\Criterias\Task\TaskStateInProcess;
 
@@ -201,5 +202,31 @@ class TaskRepository extends Repository
         }
 
         return $res;
+    }
+
+    /*
+     * 算到昨天中午的任務取消數量，若中間有呼叫成功則重置次數
+     */
+    public function numsOfCancelByMemberId(int $member_id) : int{
+        $dateStart = Carbon::now()->subDays(1)->format('Y-m-d 12:00:00');
+        $dateEnd = Carbon::now()->format('Y-m-d H:i:s');
+
+        $rows = $this->where('member_id', $member_id)->select('TaskState')
+                      ->whereBetween('createtime', [$dateStart, $dateEnd])
+                      ->whereIn('TaskState', [-1, 7])
+                      ->limit(3)
+                      ->orderby('id', 'desc')
+                      ->get();
+
+        $times = 0;
+        foreach($rows as $row){
+            if($row->TaskState==-1){
+                $times++;
+            }else{
+                $times = 0;
+            }
+        }
+
+        return $times;
     }
 }
