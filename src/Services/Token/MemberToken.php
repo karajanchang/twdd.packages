@@ -56,7 +56,7 @@ class MemberToken extends TokenAbstract implements InterfaceToken
         $this->setIdentity($identity);
         if(!isset($identity->id)){
 
-            return $this->error['2003'];
+            return $this->error->_('2003');
         }
 
         //---登入失敗
