@@ -145,7 +145,11 @@ class GoogleMapAbstract implements ArrayAccess
             }
         }
 
-        if(isset($data->results[0]->geometry->location->lat)){
+        if(
+            (empty($this->lat) || empty($this->lon))
+            &&
+            isset($data->results[0]->geometry->location->lat) && isset($data->results[0]->geometry->location->lng)
+        ){
             $this->offsetSet('lat', $data->results[0]->geometry->location->lat);
             $this->offsetSet('lon', $data->results[0]->geometry->location->lng);
         }

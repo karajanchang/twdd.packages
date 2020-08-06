@@ -7,8 +7,10 @@
  */
 namespace Twdd\Services\Task;
 
+use Illuminate\Support\Facades\Log;
 use Twdd\Errors\TaskErrors;
 use Twdd\Facades\GoogleMap;
+use Twdd\Facades\LatLonService;
 use Twdd\Repositories\DistrictRepository;
 use Twdd\Services\ServiceAbstract;
 use Twdd\Traits\AttributesArrayTrait;
@@ -34,6 +36,8 @@ class ServerviceArea extends ServiceAbstract
             return $this->error->_('1001');
         }
 
+        Log::info('ServiceArea::check params:', $params);
+
         $res = $this->checkZipIsOpen($params);
         if($res!==true){
             return $res;
@@ -58,8 +62,18 @@ class ServerviceArea extends ServiceAbstract
         return true;
     }
 
-    private function checkZipIsOpen(array $params){
-        if(!isset($params['zip'])){
+    private function getZipFromParams(array $params){
+        if(!isset($params['zip']) || empty($params['zip'])){
+            if(isset($params['city']) && isset($params['district'])) {
+                $location = LatLonService::citydistrictFromCityAndDistrict($params['city'], $params['district']);
+                try {
+                    $zip = $location['zip'];
+
+                    return $zip;
+                }catch(\Exception $e){
+
+                }
+            }
             $location = GoogleMap::latlon($params['lat'], $params['lon']);
             $zip = $location['zip'];
         }else{
@@ -68,6 +82,11 @@ class ServerviceArea extends ServiceAbstract
 
         $zip = substr($zip, 0, 3);
 
+        return $zip;
+    }
+
+    private function checkZipIsOpen(array $params){
+        $zip = $this->getZipFromParams($params);
         if(strlen($zip)!=3){
 
             return $this->error->_('1002');
@@ -83,6 +102,7 @@ class ServerviceArea extends ServiceAbstract
     }
 
     public function rules(){
+
         return [
             'lat'              =>  'required',
             'lon'              =>  'required',
