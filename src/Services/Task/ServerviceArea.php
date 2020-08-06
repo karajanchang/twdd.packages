@@ -25,7 +25,7 @@ class ServerviceArea extends ServiceAbstract
         $this->error = $taskErrors;
     }
 
-    public function check(array $params){
+    public function check(array $params, bool $is_skip_check_open_zip = false){
         $error = $this->validate($params);
         if($error!==true){
             return $error;
@@ -38,9 +38,13 @@ class ServerviceArea extends ServiceAbstract
 
         Log::info('ServiceArea::check params:', $params);
 
-        $res = $this->checkZipIsOpen($params);
-        if($res!==true){
-            return $res;
+        //--快速上單不用檢查開放區域，直接return true
+        if($is_skip_check_open_zip===false){
+            $res = $this->checkZipIsOpen($params);
+            if($res!==true){
+
+                return $res;
+            }
         }
 
         return true;
