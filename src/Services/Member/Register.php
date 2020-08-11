@@ -56,7 +56,11 @@ class Register extends ServiceAbstract
         $params['updatetime'] = date('Y-m-d H:i:s');
 
         $params['is_registered'] = 1;
-        $params['registered_at'] = Carbon::now();
+
+//        $params['registered_at'] = null;
+//        if($params['from_source']==1) {
+//            $params['registered_at'] = Carbon::now();
+//        }
 
         $params['UserPassword'] = md5($params['UserPassword']);
 
