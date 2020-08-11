@@ -240,6 +240,7 @@ class CalldriverService extends ServiceAbstract
         $paras = [];
         $members = $this->getMembers();
         $call_member_id = isset($params['call_member_id']) ? $params['call_member_id'] : 0;
+        $call_driver_id = isset($params['call_driver_id']) ? $params['call_driver_id'] : null;
         foreach($members as $member) {
             $pp = [
                 'member_id' => $member->id,
@@ -252,6 +253,7 @@ class CalldriverService extends ServiceAbstract
                 'MatchTimes' => 0,
                 'IsMatchFail' => 0,
                 'is_push' => 0,
+                'call_driver_id' => $call_driver_id,
             ];
             array_push($paras, $pp);
         }
