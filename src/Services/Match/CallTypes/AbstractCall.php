@@ -402,7 +402,7 @@ class AbstractCall extends ServiceAbstract
     /**
      * @param null $callMember
      */
-    public function setCallMember($callMember): AbstractCall
+    public function setCallMember(Model $callMember): AbstractCall
     {
         $this->getCalldriverServiceInstance()->setCallMember($callMember);
         $this->callMember = $callMember;
@@ -421,7 +421,7 @@ class AbstractCall extends ServiceAbstract
     /**
      * @param null $callDriver
      */
-    public function setCallDriver($callDriver): AbstractCall
+    public function setCallDriver(Model $callDriver): AbstractCall
     {
         $this->callDriver = $callDriver;
 

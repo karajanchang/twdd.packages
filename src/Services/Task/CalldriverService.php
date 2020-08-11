@@ -215,10 +215,13 @@ class CalldriverService extends ServiceAbstract
         }
         $params['call_member_id'] = $call_member_id;
 
-        $params['call_driver_id'] = !empty($this->call_driver->id) ? $this->call_driver->id : null;
-        if(is_null($params['call_driver_id'])) {
+        $params['call_driver_id'] = null;
+        if(isset($this->call_driver->id) && !empty($this->call_driver->id)){
+            $params['call_driver_id'] = $this->call_driver->id;
+        }else{
             $params['call_driver_id'] = !empty($params['call_driver_id']) ? $params['call_driver_id'] : null;
         }
+
         $params['createtime'] = date('Y-m-d H:i:s');
         $params['IsMatch'] = 0;
         $params['IsByUserKeyin'] = 0;
@@ -232,6 +235,8 @@ class CalldriverService extends ServiceAbstract
         $params['is_push'] = 0;
         $params['is_receive_money_first'] = isset($params['is_receive_money_first']) ? (int) $params['is_receive_money_first'] : 0;
         $params['user_id'] = isset($this->user->id) ? $this->user->id : null;
+
+        Log::info(__CLASS__.'::'.__METHOD__.': ', $params);
 
         return $params;
     }
@@ -253,7 +258,7 @@ class CalldriverService extends ServiceAbstract
                 'MatchTimes' => 0,
                 'IsMatchFail' => 0,
                 'is_push' => 0,
-                'call_driver_id' => $call_driver_id,
+                'call_driver_id' => $params['call_driver_id'],
             ];
             array_push($paras, $pp);
         }
@@ -314,9 +319,11 @@ class CalldriverService extends ServiceAbstract
     /**
      * @param null $call_driver
      */
-    public function setCallDriver($call_driver): void
+    public function setCallDriver($call_driver): CalldriverService
     {
         $this->call_driver = $call_driver;
+
+        return $this;
     }
 
 
