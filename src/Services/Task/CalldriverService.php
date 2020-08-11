@@ -10,6 +10,7 @@ namespace Twdd\Services\Task;
 
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Twdd\Errors\TaskErrors;
@@ -245,7 +246,6 @@ class CalldriverService extends ServiceAbstract
         $paras = [];
         $members = $this->getMembers();
         $call_member_id = isset($params['call_member_id']) ? $params['call_member_id'] : 0;
-        $call_driver_id = isset($params['call_driver_id']) ? $params['call_driver_id'] : null;
         foreach($members as $member) {
             $pp = [
                 'member_id' => $member->id,
@@ -319,7 +319,7 @@ class CalldriverService extends ServiceAbstract
     /**
      * @param null $call_driver
      */
-    public function setCallDriver($call_driver): CalldriverService
+    public function setCallDriver(Model $call_driver = null): CalldriverService
     {
         $this->call_driver = $call_driver;
 
