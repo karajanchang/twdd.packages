@@ -276,16 +276,22 @@ class TwddCache
     }
 
     /**
+     * @param $tags
      * @return $this
      */
     public function flush(array $tags = []){
+        if(count($tags)==0){
+            $tags = $this->getTags();
+        }
         if(count($tags)) {
+            $this->clearTags();
             Log::info('TwddCache flush: ', $tags);
             Cache::tags($tags)->flush();
 
             return $this;
         }
 
+        Log::info('Warning......................    TwddCache flush no Cache: ');
         Cache::flush();
 
         return $this;
