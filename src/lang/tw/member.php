@@ -7,5 +7,6 @@ return [
     'no_user_phone' => '沒有輸入電話',
     'member_can_not_online' => '此帳號已被停權，無法上線',
     'this_member_doesnot_exist' => '此會員並不存在',
+    'login_fail' => '手機號碼或密碼輸入錯誤',
 ];
 

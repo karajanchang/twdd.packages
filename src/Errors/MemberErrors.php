@@ -44,7 +44,7 @@ class MemberErrors extends ErrorAbstract
 
     public function error1011(){
 
-        return trans('twdd::errors.login_fail');
+        return trans('twdd::member.login_fail');
     }
 
     public function error2003(){
