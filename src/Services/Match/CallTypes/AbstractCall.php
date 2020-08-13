@@ -111,7 +111,7 @@ class AbstractCall extends ServiceAbstract
         if ($res!==false && $endTS > 0) {
             $dt = Carbon::createFromTimestamp($endTS);
 
-            return $this->{$res}("請撥打客服呼叫代駕！\n此帳號多次取消，系統暫停呼叫權限，".$dt->addDay()->format('n月j號')."重新開啟");
+            return $this->{$res}("\n此帳號多次取消，系統暫停呼叫權限，".$dt->addDay()->format('n月j號')."重新開啟\n\n");
         }
 
 
