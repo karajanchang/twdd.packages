@@ -161,7 +161,7 @@ class GoogleMapAbstract implements ArrayAccess
 
         $this->serial++;
 
-        if($this->serial<5 && strlen($this->zip)==0){
+        if($this->serial<5 && (strlen($this->zip)==0 || strlen($this->addr)==0)){
             $this->locationFromLatLon($data);
         }
         $addr = $this->attributes['route'].$this->attributes['street_number'];
