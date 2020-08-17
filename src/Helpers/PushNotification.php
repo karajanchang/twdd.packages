@@ -94,6 +94,7 @@ class PushNotification
         $data->action = $this->action;
         $data->title = isset($service['title']) ? $service['title'] : '';
         $data->msg = isset($service['msg']) ? $service['msg'] : '';
+        $data->body = isset($service['msg']) ? $service['msg'] : '';
         if(count($params)){
             $data->data = $params;
             Log::info('Helpers PushNotification data: ', [$data]);
@@ -164,7 +165,7 @@ class PushNotification
 
         $data = $this->makeData($params);
 
-        dump('sendTesters', ['sound' => $sound, 'params' => $params, 'type' => $type]);
+        //dump('sendTesters', ['sound' => $sound, 'params' => $params, 'type' => $type]);
         if(!is_null($sound)){
             $this->service->sound($sound);
         }
