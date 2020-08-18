@@ -40,6 +40,15 @@ class CalPriceService
     public function trial() : array{
         $location = GoogleMap::address($this->startAddr);
 
+        if(empty($location->city_id)){
+
+            return [
+                'normal' => 0,
+                'plus' => 0,
+                'extra_price' => 0,
+            ];
+        }
+
         $prices = [
             'normal' => $this->calPrice($this->distance, $this->duration, $location),
             'plus' => $this->calPrice($this->distance*1.3, $this->duration*1.3, $location),
