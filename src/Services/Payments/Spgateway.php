@@ -152,13 +152,13 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             return $this->returnError( 2006, '智付通驗證錯誤 - 司機沒有啓用商店. 任務單號： ('.$this->task->id.')', null, true);
         }
 
-        $memberCreditCard = $this->getMemberCreditCard();
-        $this->setMemberCreditcardId($memberCreditCard->id);
-
         if($this->checkIfMemberCreditcardExists() === false){
 
             return $this->returnError( 2007, '智付通驗證錯誤 - 會員該張信用卡已移除或不存在. 任務單號： ('.$this->task->id.')', null, true);
         }
+
+        $memberCreditCard = $this->getMemberCreditCard();
+        $this->setMemberCreditcardId($memberCreditCard->id);
 
         $payer_email = isset($params['payer_email']) ? $params['payer_email'] : $memberCreditCard->CardHolder;
         $is_random_serial = isset($params['is_random_serial']) ? $params['is_random_serial'] : false;
