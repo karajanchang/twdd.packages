@@ -67,7 +67,8 @@ class SettingPriceServiceHelper
         return $this;
     }
 
-    public function fetchByHour(int $city_id = 1, int $hour = null){
+    public function fetchByHour(int $city_id = null, int $hour = null){
+        $city_id = is_int($city_id) ? $city_id : 1;
 
         return $this->app->fetchByHour($city_id, $hour);
     }

@@ -127,8 +127,9 @@ class AbstractCall extends ServiceAbstract
         if($this->noCheckList('ServiceArea')!==false) {
             $serviceArea = $this->ServiceArea($params);
             if ($serviceArea !== true) {
+                $msg = isset($serviceArea['error']) ? (string) $serviceArea['error']->getMessage() : '不在服務區內';
 
-                return $this->{$res}($serviceArea['error']->getMessage(), $serviceArea);
+                return $this->{$res}($msg, $serviceArea);
             }
         }
 
