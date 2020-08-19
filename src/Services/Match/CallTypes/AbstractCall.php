@@ -124,7 +124,8 @@ class AbstractCall extends ServiceAbstract
         }
 
         //2.檢查有沒有在服務區域
-        if($this->noCheckList('ServiceArea')!==false) {
+        $res = $this->noCheckList('ServiceArea');
+        if($res!==false) {
             $serviceArea = $this->ServiceArea($params);
             if ($serviceArea !== true) {
                 $msg = isset($serviceArea['error']) ? (string) $serviceArea['error']->getMessage() : '不在服務區內';
