@@ -236,6 +236,10 @@ class CalldriverService extends ServiceAbstract
         $params['is_push'] = 0;
         $params['is_receive_money_first'] = isset($params['is_receive_money_first']) ? (int) $params['is_receive_money_first'] : 0;
         $params['user_id'] = isset($this->user->id) ? $this->user->id : null;
+        $params['DeviceTypeMember'] = isset($params['DeviceType']) ? $params['DeviceType'] : null;
+        $params['AppVerMember'] = isset($params['AppVer']) ? $params['AppVer'] : null;
+        $params['OSVerMember'] = isset($params['OSVer']) ? $params['OSVer'] : null;
+        $params['DeviceModelMember'] = isset($params['DeviceModel']) ? $params['DeviceModel'] : null;
 
         Log::info(__CLASS__.'::'.__METHOD__.': ', $params);
 
