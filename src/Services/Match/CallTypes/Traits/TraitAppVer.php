@@ -4,6 +4,8 @@
 namespace Twdd\Services\Match\CallTypes\Traits;
 
 
+use Zhyu\Facades\ZhyuTool;
+
 trait TraitAppVer
 {
     /*
@@ -22,6 +24,9 @@ trait TraitAppVer
 
                 return false;
             }
+
+            //--因為true代表過期，所以這邊要反過來
+            return !ZhyuTool::versionOutOfDate($AppVer, $mini_ver);
         }
 
         return true;
