@@ -109,7 +109,11 @@ class CalPriceService
     {
         $dt = Carbon::createFromTimestamp($this->TS);
         $hour = $dt->format('G');
-        if($hour>=0 && $hour<=6){
+        if($hour>=19 && $hour<=23){
+
+            return true;
+        }
+        if($hour>=0 && $hour<=7){
 
             return true;
         }
