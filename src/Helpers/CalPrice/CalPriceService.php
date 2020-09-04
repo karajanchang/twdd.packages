@@ -102,12 +102,27 @@ class CalPriceService
         $this->price = $price;
     }
 
+    /*
+     * 檢查此時段是否沒有長途代駕
+     */
+    private function isNoLongTerm() : bool
+    {
+        $dt = Carbon::createFromTimestamp($this->TS);
+        $hour = $dt->format('G');
+        if($hour>=0 && $hour<=6){
+
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * @return mixed
      */
     public function setCallTypeByDistance(float $distance)
     {
-        $call_type = $distance > self::longterm_start_mile  ? 4 : 1;
+        $call_type = ($distance > self::longterm_start_mile) && $this->isNoLongTerm()===false  ? 4 : 1;
 
         return $call_type;
     }
