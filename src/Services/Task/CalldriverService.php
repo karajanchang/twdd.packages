@@ -18,6 +18,7 @@ use Twdd\Facades\LatLonService;
 use Twdd\Models\Member;
 use Twdd\Repositories\CalldriverRepository;
 use Twdd\Repositories\CalldriverTaskMapRepository;
+use Twdd\Repositories\MemberPayTokenRepository;
 use Twdd\Services\ServiceAbstract;
 use Twdd\Traits\AttributesArrayTrait;
 use Twdd\Models\Calldriver;
@@ -186,6 +187,8 @@ class CalldriverService extends ServiceAbstract
             $params = $this->filter($params);
             $calldriver = $this->repository->create($params);
 
+            $this->insertMemberPayToken($calldriver, $params);
+
             if($do_not_create_map===false) {
                 $this->insertMap($calldriver, $params);
             }
@@ -199,6 +202,15 @@ class CalldriverService extends ServiceAbstract
             return $this->error->_('500');
         }
 
+    }
+
+    /*
+     * 塞入apple pay / line pay 或其他付款方式的token
+     */
+    private function insertMemberPayToken(Calldriver $calldriver, array $params = []){
+        if(!isset($params['pay_token']) || empty($params['pay_token']) || empty($calldriver->member_id)) return ;
+
+        return app(MemberPayTokenRepository::class)->createByMemberId($calldriver->member_id, $params['pay_token'], $params['pay_type']);
     }
 
     private function insertMap(Calldriver $calldriver, array $params){
