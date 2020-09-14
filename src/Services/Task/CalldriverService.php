@@ -208,9 +208,21 @@ class CalldriverService extends ServiceAbstract
      * 塞入apple pay / line pay 或其他付款方式的token
      */
     private function insertMemberPayToken(Calldriver $calldriver, array $params = []){
-        if(!isset($params['pay_token']) || empty($params['pay_token']) || empty($calldriver->member_id)) return ;
+        $members = $this->getMembers();
+        Log::info(__CLASS__.'::'.__METHOD__.' members: ', [$members]);
+        if(!isset($params['pay_token']) || empty($params['pay_token'])) return ;
 
-        return app(MemberPayTokenRepository::class)->createByMemberId($calldriver->member_id, $params['pay_token'], $params['pay_type']);
+        $res = false;
+        if(count($members)) {
+            foreach ($this->members as $member) {
+                if(isset($member->id) && !empty($member->id)) {
+                    $res = app(MemberPayTokenRepository::class)->createByMemberId($member->id, $params['pay_token'], $params['pay_type']);
+                }
+                break;
+            }
+        }
+
+        return $res;
     }
 
     private function insertMap(Calldriver $calldriver, array $params){

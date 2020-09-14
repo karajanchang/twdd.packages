@@ -81,4 +81,8 @@ class PaymentErrors extends ErrorAbstract
     }
 
 
+    public function error4004(){
+
+        return trans('twdd::payment.payment_error');
+    }
 }

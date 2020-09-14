@@ -4,6 +4,7 @@
 namespace Twdd\Services\Match\CallTypes;
 
 
+use Illuminate\Support\Facades\Log;
 use Twdd\Services\Match\CallTypes\Traits\TraitAlwaysBlackList;
 use Twdd\Services\Match\CallTypes\Traits\TraitAppVer;
 use Twdd\Services\Match\CallTypes\Traits\TraitCallNoDuplicate;
@@ -88,8 +89,10 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
         $params = $this->processParams($this->params, $other_params);
         $calldriver = $this->getCalldriverServiceInstance()->setCallDriver($this->callDriver)->create($params);
         if(isset($calldriver['error'])){
+            $msg = !is_null($calldriver['msg']) ? $calldriver['msg']->first() : '系統發生錯誤';
+            Log::info(__CLASS__.'::'.__METHOD__.'error: ', [$calldriver]);
 
-            return $this->error($calldriver['msg']->first(), $calldriver);
+            return $this->error($msg, $calldriver);
         }
 
         return $this->success('呼叫成功', $calldriver);

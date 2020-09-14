@@ -10,6 +10,9 @@ class MemberPayToken extends Model
 {
     protected $table = 'member_pay_tokens';
 
-    protected $guarded = ['id', 'created_at'];
+    protected $guarded = ['id'];
 
+    public $timestamps = true;
+
+    const UPDATED_AT = null;
 }
