@@ -91,7 +91,7 @@ class TaskRepository extends Repository
             ->where('task.id', '=', $id)
             ->select(DB::raw('calldriver_task_map.id as map_id'), DB::raw('LPAD(LTRIM(CAST(task.id AS CHAR)), 8, \'0\') as TaskNo'), 'task.id', 'task.TaskState', 'task.createtime', 'task.TaskFee', 'task.TaskDistance', 'task.TaskRideTS', 'TaskArriveTS' ,'TaskStartTS', 'TaskEndTS', 'TaskWaitInterval',
                 'UserLat', 'UserLon', 'TaskStartAddress', 'TaskEndAddress', 'TaskWaitTimeFee', 'TaskStartFee','TaskDistanceFee', 'UserCreditCode', 'UserCreditValue', 'type', 'task.pay_type', 'task.call_type', 'task.UserRemark', 'task.matchDistance',
-                'task.call_far_driver', DB::raw('driver.id as driver_id'), DB::raw('member.id as member_id'), 'DriverID', 'DriverName', 'UserCity', 'UserDistrict', 'UserAddress', 'UserAddressKey', 'driver.DriverPhoto', 'driver.DriverServiceTime',
+                'task.call_far_driver', DB::raw('driver.id as driver_id'), DB::raw('member.id as member_id'), 'DriverID', 'DriverName', 'UserCity', 'UserDistrict', 'UserAddress', 'UserAddressKey', 'driver.DriverPhoto', 'driver.DriverPhone', 'driver.DriverServiceTime',
                 'driver.DriverRating', DB::raw('CEILING((UNIX_TIMESTAMP()-UNIX_TIMESTAMP(driver.DriverDrivingSeniorityDate))/3600/24/365) as DriverDrivingSeniorityYear'), 'driver.DriverDrivingSeniorityDate', 'DriverLat', 'DriverLon', 'DestCity', 'DestDistrict', 'DestAddress', 'DestAddressKey', 'extra_price', 'calldriver_task_map.call_driver_id',
                 'calldriver_task_map.is_cancel', DB::raw('member_score.id as experience_id'), 'task.depot_user_id', 'task.is_receive_money_first', 'cash_fee_discount', 'creditcard_fee_discount', 'can_not_use_coupon', 'task.is_used_gold', 'task.is_quick_match_by_driver'
                 , 'TaskCreditCode', DB::raw('left(member.UserName, 1) as UserName'), 'member.UserGender', 'member.UserPhone', 'member.UserEmail', 'member.member_grade_id', 'calldriver_id'
@@ -150,6 +150,7 @@ class TaskRepository extends Repository
             'DriverName',
             'DriverGender',
             'DriverPhoto',
+            'DriverPhone',
             'driver.DriverServiceTime',
             'driver.DriverRating',
             'DriverDrivingSeniorityDate',
