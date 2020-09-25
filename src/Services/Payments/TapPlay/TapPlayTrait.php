@@ -22,8 +22,8 @@ trait TapPlayTrait
 
             if(!empty($driverMerchant->MerchantID)) {
                 $merchant = new Merchant($driverMerchant->MerchantID, $driverMerchant->MerchantHashKey, $driverMerchant->MerchantIvKey);
+                array_push($merchants, $merchant->toArray());
             }
-            array_push($merchants, $merchant->toArray());
         }
 
         if(count($merchants)==0) return false;

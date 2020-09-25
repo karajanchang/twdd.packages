@@ -45,16 +45,22 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
             'email' => $member->UserEmail,
         ];
         $res = $this->createMerchants([$this->task->driver_id]);
-        $merchants = $res['merchants'];
-        $merchantArray = $merchants[0];
-        Log::info(__CLASS__.'::'.__METHOD__.': ', $merchantArray);
+        $merchant_id = 0;
+        if($res===false){
+            Log::info(__CLASS__.'::'.__METHOD__.' ...ApplePay Merchant失敗');
+        }else {
+            $merchants = $res['merchants'];
+            $merchantArray = $merchants[0];
+            $merchant_id = $merchantArray['merchant_id'];
+            Log::info(__CLASS__ . '::' . __METHOD__ . ': ', $merchantArray);
+        }
 
 
         return [
             'prime' => $memberPayToken->token,
             'order_number' => $OrderNo,
             'partner_key' => $this->partner_key,
-            'merchant_id' => $merchantArray['merchant_id'],
+            'merchant_id' => $merchant_id,
             'details' => $this->details,
             'amount' => $this->getMoney(),
             'cardholder' => $cardholder,
@@ -68,10 +74,15 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
         $params = $this->initParams($params);
 
         try {
+            if($params['merchant_id']==0){
+                $msg = '無法取得merchant';
+
+                return $this->returnError(500, $msg, null, true);
+            }
+
             $default_url = (bool) env('APP_DEBUG') === true ? self::post_url_sandbox : self::post_url;
             $url = env('APPLEPAY_URL', $default_url);
             $res = $this->post($url, $params);
-
 
             if (isset($res['status']) && $res['status'] > 0) {
                 $msg = 'ApplePay付款失敗 (單號：' . $this->task->id . ')';
