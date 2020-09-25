@@ -57,7 +57,7 @@ if (!function_exists('ClearTaskCache')) {
                 app(\Twdd\Helpers\TwddCache::class)->driver($task->driver->id)->MonthMoneyDriver($task->driver->id)->key('MonthMoneyDriver', $task->driver->id)->forget();
             }
             if (!empty($task->member->id)) {
-
+                app(\Twdd\Helpers\TwddCache::class)->member($task->member->id)->MemberProfile()->key('MemberProfile', $task->member->id)->forget();
             }
             app(\Twdd\Helpers\TwddCache::class)->DriverTask()->key('Task', $task->id)->forget();
         }
