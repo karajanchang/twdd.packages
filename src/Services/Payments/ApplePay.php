@@ -74,8 +74,9 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
         $params = $this->initParams($params);
 
         try {
-            if($params['merchant_id']==0){
+            if(empty($params['merchant_id'])){
                 $msg = '無法取得merchant';
+                Log::info($msg, [$params]);
 
                 return $this->returnError(500, $msg, null, true);
             }
