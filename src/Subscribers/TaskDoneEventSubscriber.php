@@ -17,6 +17,7 @@ use Twdd\Repositories\TaskRepository;
 
 class TaskDoneEventSubscriber
 {
+    /*
     private function gotHawkCoupon(Task $task){
         Log::info('TaskDoneEventSubscriber gotHawkCoupon');
         $hawkVersion2LogRepository = app(HawkVersion2LogRepository::class);
@@ -45,6 +46,7 @@ class TaskDoneEventSubscriber
 
         return $coupon;
     }
+    */
 
     private function  couponSetUsed(Task $task){
         Log::info('TaskDoneEventSubscriber couponSetUsed');
@@ -118,7 +120,6 @@ class TaskDoneEventSubscriber
 
     public function taskDone($event){
         $this->couponSetUsed($event->task);
-        $this->gotHawkCoupon($event->task);
         $this->updateDriverDayNums($event->task);
         $this->updateMonthMoneyDriver($event->task);
         $this->clearCache($event->task);
