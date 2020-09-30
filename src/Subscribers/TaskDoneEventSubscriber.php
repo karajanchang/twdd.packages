@@ -120,6 +120,7 @@ class TaskDoneEventSubscriber
 
     public function taskDone($event){
         $this->couponSetUsed($event->task);
+        $this->gotHawkCoupon($event->task);
         $this->updateDriverDayNums($event->task);
         $this->updateMonthMoneyDriver($event->task);
         $this->clearCache($event->task);
