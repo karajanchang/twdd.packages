@@ -17,17 +17,17 @@ use Twdd\Repositories\TaskRepository;
 
 class TaskDoneEventSubscriber
 {
-    /*
     private function gotHawkCoupon(Task $task){
         Log::info('TaskDoneEventSubscriber gotHawkCoupon');
         $hawkVersion2LogRepository = app(HawkVersion2LogRepository::class);
         $hawkVersion2Log = $hawkVersion2LogRepository->fetchHaveNotGotHawkVersion2CouopnByMemberId($task->member_id);
         if(!is_null($hawkVersion2Log)){
-            $coupon = $this->createHawkCoupon($task);
-            $hawkVersion2LogRepository->logGetCouponInfoByMemberId($task->id, (int) $coupon->id, $hawkVersion2Log);
+            //$coupon = $this->createHawkCoupon($task);
+            $hawkVersion2LogRepository->logGetCouponInfoByMemberId($task->id, $hawkVersion2Log);
         }
     }
 
+    /*
     private function createHawkCoupon(Task $task){
         $now = Carbon::now();
         $params = [

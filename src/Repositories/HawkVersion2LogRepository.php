@@ -20,19 +20,17 @@ class HawkVersion2LogRepository extends Repository
      */
     public function fetchHaveNotGotHawkVersion2CouopnByMemberId(int $member_id){
 
-        return $this->where('member_id', $member_id)->whereNull('take_coupon_id')->first();
+        return $this->where('member_id', $member_id)->whereNull('first_task_id_after_register')->first();
 
     }
 
     /*
-     * 記錄用戶拿到邀請優惠
+     * 記錄用戶拿到邀請優惠的第一筆任務
      */
-    public function logGetCouponInfoByMemberId(int $task_id, int $coupon_id, HawkVersion2Log $hawkVersion2Log = null){
-        if(is_null($hawkVersion2Log) || $coupon_id==0) return ;
+    public function logGetCouponInfoByMemberId(int $task_id, HawkVersion2Log $hawkVersion2Log = null){
+        if(is_null($hawkVersion2Log)) return ;
 
-        $hawkVersion2Log->take_coupon_by_task_id = $task_id;
-        $hawkVersion2Log->take_coupon_id = $coupon_id;
-        $hawkVersion2Log->take_coupon_at = Carbon::now();
+        $hawkVersion2Log->first_task_id_after_register = $task_id;
         $hawkVersion2Log->save();
     }
 
