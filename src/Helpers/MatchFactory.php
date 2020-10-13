@@ -14,17 +14,19 @@ use Twdd\Services\Match\CallTypes\InterfaceMatchCallType;
 class MatchFactory
 {
     private $lut = null;
-    const cache_key = 'MatchFactoryCacheLut';
+    private $cache_key = 'MatchFactoryCacheLut';
 
     public function __construct()
     {
-        $this->lut = $this->cacheLut();
+        $this->cache_key = $this->cache_key.md5(env('APP_URL'));
     }
 
     public function bind(int $call_type = 1, bool $clear_lut_cache = false){
         if($clear_lut_cache===true){
-            Cache::forget(self::cache_key);
+            Cache::forget($this->cache_key);
         }
+
+        $this->lut = $this->cacheLut();
         $className = $this->lut->get($call_type);
         App::bind(InterfaceMatchCallType::class, $className);
     }
@@ -33,9 +35,9 @@ class MatchFactory
         $lut_file_user =  base_path('/config/lut_call_types.php');
         $lut_file_twdd =  base_path('/vendor/twdd/packages/src/config/lut_call_types.php');
 
-        if(Cache::has(self::cache_key)){
+        if(Cache::has($this->cache_key)){
 
-            return Cache::get(self::cache_key);
+            return Cache::get($this->cache_key);
         }
 
         $lut_file = $lut_file_user;
@@ -50,7 +52,7 @@ class MatchFactory
         $content = Collection::make($luts);
 
         $now = Carbon::now();
-        Cache::put(static::cache_key, $content, $now->addDays(1));
+        Cache::put($this->cache_key, $content, $now->addDays(1));
 
         return $content;
     }

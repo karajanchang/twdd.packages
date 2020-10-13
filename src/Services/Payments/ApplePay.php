@@ -41,8 +41,8 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
         $OrderNo = $this->setOrderNo($is_random_serial);
         $cardholder = [
             'phone_number' => $member->UserPhone,
-            'name' => $member->UserName,
-            'email' => $member->UserEmail,
+            'name' => (string) $member->UserName,
+            'email' => (string) $member->UserEmail,
         ];
         $res = $this->createMerchants([$this->task->driver_id]);
         $merchant_id = 0;
@@ -87,7 +87,7 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
 
             if (isset($res['status']) && $res['status'] > 0) {
                 $msg = 'ApplePay付款失敗 (單號：' . $this->task->id . ')';
-                Log::info($msg, [$res]);
+                Log::info($msg, ['params' => $params, 'res' => $res]);
 
                 if($is_notify_member===true) {
                     event(new ApplePayFailEvent($this->task, $res));
@@ -95,7 +95,7 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
 
                 return $this->returnError(4004, $msg, $res, true);
             }
-            Log::info(__CLASS__.'::'.__METHOD__.': ', [$res]);
+            Log::info(__CLASS__.'::'.__METHOD__.': ', ['params' => $params, 'res' => $res]);
 
             return $this->returnSuccess($msg, null, true);
         }catch (\Exception $e){
