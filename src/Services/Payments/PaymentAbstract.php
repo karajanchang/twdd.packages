@@ -76,6 +76,8 @@ class PaymentAbstract
             'result' => $result,
             'amt' => $this->getMoney(),
             'member_creditcard_id' => $this->getMemberCreditcardId(),
+            'rec_trade_id' => isset($obj['rec_trade_id']) ? $obj['rec_trade_id'] : null,
+            'bank_transaction_id' => isset($obj['bank_transaction_id']) ? $obj['bank_transaction_id'] : null,
         ];
     }
 
@@ -92,6 +94,8 @@ class PaymentAbstract
                 'OrderNo' => $this->getOrderNo(),
                 'amt' => $this->getMoney(),
                 'member_creditcard_id' => $this->getMemberCreditcardId(),
+                'rec_trade_id' => null,
+                'bank_transaction_id' => isset($obj['bank_transaction_id']) ? $obj['bank_transaction_id'] : null,
             ];
             $this->taskPayLogRepository->insertByParams($params);
         }catch (\Exception $e){
