@@ -76,27 +76,27 @@ class PaymentAbstract
             'result' => $result,
             'amt' => $this->getMoney(),
             'member_creditcard_id' => $this->getMemberCreditcardId(),
-            'rec_trade_id' => isset($obj['rec_trade_id']) ? $obj['rec_trade_id'] : null,
-            'bank_transaction_id' => isset($obj['bank_transaction_id']) ? $obj['bank_transaction_id'] : null,
+            'rec_trade_id' => is_array($result) && isset($result['rec_trade_id']) ? $result['rec_trade_id'] : null,
+            'bank_transaction_id' => is_array($result) && isset($result['bank_transaction_id']) ? $result['bank_transaction_id'] : null,
         ];
     }
 
-    private function log(int $pay_status, string $msg = null, $obj = null, int $error_code = null) : void{
+    private function log(int $pay_status, string $msg = null, $result = null, int $error_code = null) : void{
+        $params = [
+            'pay_type' => $this->pay_type,
+            'task_id' => isset($this->task->id) ? $this->task->id : null,
+            'pay_status' => $pay_status,
+            'error_code' => (int) $error_code,
+            'msg' => $msg,
+            'obj' => json_encode([$result], JSON_UNESCAPED_UNICODE),
+            'OrderNo' => $this->getOrderNo(),
+            'amt' => $this->getMoney(),
+            'member_creditcard_id' => $this->getMemberCreditcardId(),
+            'rec_trade_id' => null,
+            'bank_transaction_id' => is_array($result) && isset($result['bank_transaction_id']) ? $result['bank_transaction_id'] : null,
+        ];
 
         try {
-            $params = [
-                'pay_type' => $this->pay_type,
-                'task_id' => isset($this->task->id) ? $this->task->id : null,
-                'pay_status' => $pay_status,
-                'error_code' => (int) $error_code,
-                'msg' => $msg,
-                'obj' => json_encode([$obj], JSON_UNESCAPED_UNICODE),
-                'OrderNo' => $this->getOrderNo(),
-                'amt' => $this->getMoney(),
-                'member_creditcard_id' => $this->getMemberCreditcardId(),
-                'rec_trade_id' => null,
-                'bank_transaction_id' => isset($obj['bank_transaction_id']) ? $obj['bank_transaction_id'] : null,
-            ];
             $this->taskPayLogRepository->insertByParams($params);
         }catch (\Exception $e){
             Log::error('PaymentAbstract exception: ', [ 'params' => $params, $e->getMessage()]);
