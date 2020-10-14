@@ -76,8 +76,6 @@ class PaymentAbstract
             'result' => $result,
             'amt' => $this->getMoney(),
             'member_creditcard_id' => $this->getMemberCreditcardId(),
-            'rec_trade_id' => is_array($result) && isset($result['rec_trade_id']) ? $result['rec_trade_id'] : null,
-            'bank_transaction_id' => is_array($result) && isset($result['bank_transaction_id']) ? $result['bank_transaction_id'] : null,
         ];
     }
 
@@ -92,7 +90,7 @@ class PaymentAbstract
             'OrderNo' => $this->getOrderNo(),
             'amt' => $this->getMoney(),
             'member_creditcard_id' => $this->getMemberCreditcardId(),
-            'rec_trade_id' => null,
+            'rec_trade_id' => is_array($result) && isset($result['rec_trade_id']) ? $result['rec_trade_id'] : null,
             'bank_transaction_id' => is_array($result) && isset($result['bank_transaction_id']) ? $result['bank_transaction_id'] : null,
         ];
 

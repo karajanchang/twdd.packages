@@ -97,7 +97,7 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
             }
             Log::info(__CLASS__.'::'.__METHOD__.': ', ['params' => $params, 'res' => $res]);
 
-            return $this->returnSuccess($msg, null, true);
+            return $this->returnSuccess($msg, $res, true);
         }catch (\Exception $e){
             $msg = 'ApplePay付款timeout (單號：' . $this->task->id . '): '.$e->getMessage();
             Log::error(__CLASS__.'::'.__METHOD__.' exception: ', [$e]);
