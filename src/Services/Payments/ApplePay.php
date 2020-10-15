@@ -7,7 +7,9 @@ namespace Twdd\Services\Payments;
 use Illuminate\Support\Facades\Log;
 use Twdd\Events\ApplePayFailEvent;
 use Twdd\Repositories\MemberPayTokenRepository;
+use Twdd\Repositories\TaskPayLogRepository;
 use Twdd\Services\Payments\TapPlay\TapPlayTrait;
+use Zhyu\Facades\ZhyuTool;
 
 class ApplePay extends PaymentAbstract implements PaymentInterface
 {
@@ -18,17 +20,62 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
 
     const post_url = 'https://prod.tappaysdk.com/tpc/payment/pay-by-prime';
     const post_url_sandbox = 'https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime';
+    const post_refund_url = 'https://prod.tappaysdk.com/tpc/transaction/refund';
+    const post_refund_url_sandbox = 'https://sandbox.tappaysdk.com/tpc/transaction/refund';
 
 
     public function back(int $amt, bool $is_notify_member = false){
         $this->setMoney($amt);
         $msg = 'apple pay退回成功 (單號：' . $this->task->id . ')';
 
-        return $this->returnSuccess($msg, null, true);
+
+        $params = $this->initBackParams($this->task);
+
+        try {
+            $default_url = (bool) env('APP_DEBUG') === true ? self::post_refund_url_sandbox : self::post_refund_url;
+            $url = env('APPLEPAY_REFUND_URL', $default_url);
+            $res = $this->post($url, $params);
+
+            if (isset($res['status']) && $res['status'] > 0) {
+                $msg = 'ApplePay退款失敗 (單號：' . $this->task->id . ')';
+                Log::info($msg, ['params' => $params, 'res' => $res]);
+
+                if($is_notify_member===true) {
+                    event(new ApplePayFailEvent($this->task, $res));
+                }
+
+                return $this->returnError(4004, $msg, $res, true);
+            }
+            Log::info(__CLASS__.'::'.__METHOD__.': ', ['params' => $params, 'res' => $res]);
+
+            return $this->returnSuccess($msg, $res, true);
+        }catch (\Exception $e){
+            $msg = 'ApplePay退款timeout (單號：' . $this->task->id . '): '.$e->getMessage();
+            Log::error(__CLASS__.'::'.__METHOD__.' exception: ', [$e]);
+
+            return $this->returnError(500, $msg, $e, true);
+        }
     }
 
     public function cancel(string $OrderNo = null, int $amount = null){
 
+    }
+
+    /*
+     * 取得退款params
+     */
+    private function initBackParams() : array{
+        //---1.從task_pay_logs去抓 rec_trade_id
+        $taskPayLog = app(TaskPayLogRepository::class)->findByTaskId($this->task->id);
+        $money = (int) $this->getMoney();
+        if($money < 0) {
+            $amount = ZhyuTool::plusMinusConvert($money);
+        }
+        return [
+            'partner_key' => $this->partner_key,
+            'rec_trade_id' => isset($taskPayLog->rec_trade_id) && !empty($taskPayLog->rec_trade_id) ? $taskPayLog->rec_trade_id : null,
+            'amount' => $amount,
+        ];
     }
 
     private function initParams(array $params): array{
