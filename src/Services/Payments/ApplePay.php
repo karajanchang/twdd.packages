@@ -92,6 +92,7 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
             'email' => (string) $member->UserEmail,
         ];
         $res = $this->createMerchants([$this->task->driver_id]);
+        sleep(3);
         $merchant_id = 0;
         if($res===false){
             Log::info(__CLASS__.'::'.__METHOD__.' ...ApplePay Merchant失敗');
