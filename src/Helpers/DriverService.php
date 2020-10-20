@@ -119,9 +119,16 @@ class DriverService extends ServiceAbstract
     }
 
     /*
+     * 快速上單上線
+     */
+    public function onlineFast(array $params = []){
+
+        return $this->online($params, 0, true);
+    }
+    /*
      * @param $is_online_by_others = 1 阁用戶上線 2 被客服上線
      */
-    public function online(array $params = [], int $is_online_by_others = 0){
+    public function online(array $params = [], int $is_online_by_others = 0, bool $is_fast_match = false){
         if($is_online_by_others==0) {
             try {
                 $res = $this->validateAttributesAndParams($params);
@@ -159,8 +166,8 @@ class DriverService extends ServiceAbstract
                 return $this->error->_('1008');
             }
 
-            //---尚未破冬
-            if ($this->driver->is_pass_rookie == 0 && $this->driver->isARookie() === true) {
+            //---尚未破冬不能上線，但不包含快速上單
+            if ($is_fast_match===false && $this->driver->is_pass_rookie == 0 && $this->driver->isARookie() === true) {
                 Log::info('driver', [$this->driver]);
 
                 return $this->error->_('1009', [
