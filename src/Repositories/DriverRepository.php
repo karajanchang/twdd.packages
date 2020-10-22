@@ -80,6 +80,11 @@ class DriverRepository extends Repository
     //---叩掉金牌
     public function reduceGoldenNums(int $id, bool $autoClose = false){
         $driver = $this->find($id, ['id', 'driver_gold_nums', 'is_used_gold']);
+        if($driver->driver_gold_nums==0){
+            Log::info('叩掉司機金牌==>不叩因為已為0張 '.$driver->id.': ', ['driver_golden_nums' => $driver->driver_gold_nums]);
+
+            return false;
+        }
         Log::info('叩掉司機金牌 '.$driver->id.': ', ['driver_golden_nums' => $driver->driver_gold_nums]);
         $driver->driver_gold_nums = $driver->driver_gold_nums - 1;
 

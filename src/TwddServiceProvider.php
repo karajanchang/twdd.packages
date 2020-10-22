@@ -45,6 +45,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\DriverService::class);
         });
 
+        $this->app->bind('DriverGoldenService', function()
+        {
+            return app()->make(\Twdd\Services\Driver\DriverGoldenService::class);
+        });
+
         $this->app->bind('GoogleMap', function()
         {
             return app()->make(\Twdd\Helpers\GoogleMap::class);
@@ -232,6 +237,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('CouponService', \Twdd\Facades\CouponService::class);
             $loader->alias('CouponValid', \Twdd\Facades\CouponValid::class);
             $loader->alias('DriverService', \Twdd\Facades\DriverService::class);
+            $loader->alias('DriverGlodenService', \Twdd\Facades\DriverGoldenService::class);
             $loader->alias('GoogleMap', \Twdd\Facades\GoogleMap::class);
             $loader->alias('Infobip', \Twdd\Facades\Infobip::class);
             $loader->alias('LastCall', \Twdd\Facades\LastCall::class);

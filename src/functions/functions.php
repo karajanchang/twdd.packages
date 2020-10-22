@@ -4,6 +4,7 @@ use Illuminate\Support\Carbon;
 use Twdd\Facades\LatLonService;
 use Twdd\Facades\SettingPriceService;
 use Twdd\Facades\TokenService;
+use Twdd\Facades\TwddCache;
 
 if (!function_exists('BankAccount')) {
     function BankAccount($DriverID){
@@ -61,6 +62,15 @@ if (!function_exists('ClearTaskCache')) {
             }
             app(\Twdd\Helpers\TwddCache::class)->DriverTask()->key('Task', $task->id)->forget();
         }
+    }
+}
+
+/*
+ * 清除DriverProfile的Cache
+ */
+if (!function_exists('ClearDriverProfileCache')) {
+    function ClearDriverProfileCache(int $driver_id){
+        TwddCache::driver($driver_id)->DriverProfile()->key('DriverProfile', $driver_id)->forget();
     }
 }
 

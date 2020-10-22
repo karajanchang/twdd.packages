@@ -25,6 +25,9 @@ class TaskRepository extends Repository
         return Task::class;
     }
 
+    /*
+     * 依member_id檢查是否沒有進行中的任務
+     */
     public function checkNotHaveInProcessTaskByMemberId($member_id) : bool{
         $taskStateUnder3 = app()->make(TaskStateInProcess::class);
         $this->pushCriteria($taskStateUnder3);
@@ -40,6 +43,9 @@ class TaskRepository extends Repository
         return true;
     }
 
+    /*
+     * 依driver_id檢查是否沒有進行中的任務
+     */
     public function checkNotHaveInProcessTaskByDriverId($driver_id) : bool{
         $taskStateUnder3 = app()->make(TaskStateInProcess::class);
         $this->pushCriteria($taskStateUnder3);

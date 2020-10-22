@@ -87,9 +87,12 @@ class DriverService extends ServiceAbstract
 
             //---強制下線時就不用檢查了
             if($force_offline===false) {
+                //--若司機DriverState是2，但有進行中的任務才返回1012錯誤
                 if ($this->driver->DriverState == 2) {
+                    if(app(TaskRepository::class)->checkNotHaveInProcessTaskByDriverId($this->driver->id)===false){
 
-                    return $this->error->_('1012');
+                        return $this->error->_('1012');
+                    }
                 }
 
                 //---有在進行中的任務，無法上下線
