@@ -104,6 +104,8 @@ class CalldriverService extends ServiceAbstract
         $task = InitalObject::parseTaskFromCall($call);
 
         return [
+            'calldriver_id' => $call->calldriver_id,
+            'member_id' => $call->member_id,
             'DriverID' => $driver->DriverID,
             'DriverName' => $driver->DriverName,
             'DriverPhoto' => $driver->DriverPhoto,
