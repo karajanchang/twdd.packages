@@ -59,6 +59,7 @@ if (!function_exists('ClearTaskCache')) {
             }
             if (!empty($task->member->id)) {
                 app(\Twdd\Helpers\TwddCache::class)->member($task->member->id)->MemberProfile()->key('MemberProfile', $task->member->id)->forget();
+                app(\Twdd\Helpers\TwddCache::class)->member($task->member->id)->LastCoupon()->key('LastCoupon', $task->member->id)->forget();
             }
             app(\Twdd\Helpers\TwddCache::class)->DriverTask()->key('Task', $task->id)->forget();
         }
