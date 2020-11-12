@@ -23,8 +23,14 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     protected $sound = 'default';
     protected $is_send_test = false;
 
+    public function isAppleClip(){
+        $this->port = env('GORUSH_CLIP_PORT', 7792);
+        $this->port_dev = env('GORUSH_CLIP_PORT_DEV', 7793);
+        $this->topic = env('IOS_USER_CLIP_TOPIC', 'com.rich.app.DesignedDrivingClient.Clip');
+    }
+
     public function platform(string $type = 'ios'){
-        if(strtolower($type)=='ios'){
+        if(strtolower($type)=='ios' || strtolower($type)=='iphone'){
             $this->platform = 1;
         }else{
             $this->platform = 2;
@@ -59,6 +65,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         $this->title = $title;
         return $this;
     }
+
     public function body(string $body){
         $this->alert->body = $body;
         $this->msg = $body;
