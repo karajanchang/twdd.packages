@@ -99,6 +99,12 @@ class DriverRepository extends Repository
     }
 
     //--從DriverID得到model
+    public function findGoldenById(int $id){
+
+        return $this->find($id, ['id', 'driver_gold_nums', 'is_used_gold']);
+    }
+
+    //--從DriverID得到model
     public function findByDriverID(string $DriverID, array $columns = ['*']){
         $qb = $this->where('DriverID', $DriverID);
 

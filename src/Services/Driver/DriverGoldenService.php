@@ -30,17 +30,36 @@ class DriverGoldenService extends ServiceAbstract
         $this->driverGoldAlterRecordRepository = $driverGoldAlterRecordRepository;
     }
 
-    public function minusOneByTask(Model $task = null, bool $is_minus_by_member_rated = false) : bool{
+    /*
+     * 叩取駕駛的金牌
+     * $is_minus_by_member_rated 是否因為被用戶評為一星而叩金牌
+     * $is_auto_close_driver_gold 是否要關閉駕駛的使用金牌
+     */
+    public function minusOneByTask(Model $task = null, bool $is_minus_by_member_rated = false, bool $is_auto_close_driver_gold = false) : bool{
         if(is_null($task) || !isset($task->driver_id)) return false;
+
+        $driver = $this->driverRepository->findGoldenById($task->driver_id);
+        if($driver->driver_gold_nums==0) {
+
+            return false;
+        }
+
+        /*
+        $isReduce = $this->driverRepository->reduceGoldenNums($task->driver_id, true);
+        //--已經0張的，就不要再叩下去了
+        if($isReduce===false){
+            return false;
+        }
+        */
 
         DB::beginTransaction();
         try{
-            $isReduce = $this->driverRepository->reduceGoldenNums($task->driver_id, true);
-            //--已經0張的，就不要再叩下去了
-            if($isReduce===false){
-
-                return false;
+            $driver->driver_gold_nums = $driver->driver_gold_nums - 1;
+            if($is_auto_close_driver_gold === true) {
+                $driver->is_used_gold = 0;
             }
+            $driver->save();
+
             $res = $this->driverGoldAlterRecordRepository->insertMinusRecordByTask($task, $is_minus_by_member_rated);
             if($res) {
                 Log::info(__CLASS__ . '::' . __METHOD__ . ' 叩除成功: ', [$res]);
