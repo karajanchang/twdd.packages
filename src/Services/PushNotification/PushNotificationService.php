@@ -27,6 +27,10 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         $this->port = env('GORUSH_CLIP_PORT', 7792);
         $this->port_dev = env('GORUSH_CLIP_PORT_DEV', 7793);
         $this->topic = env('IOS_USER_CLIP_TOPIC', 'com.rich.app.DesignedDrivingClient.Clip');
+
+        if((bool) env('APP_DEBUG')===true){
+            $this->port = $this->port_dev;
+        }
     }
 
     public function platform(string $type = 'ios'){
@@ -186,6 +190,8 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
             //dump($this->is_send_test);
             if(count($this->tokens)==1 || $this->is_send_test===true){
                 $this->iosPortDynamicChangeByToken($this->tokens[0]);
+                $send = $this->getSend();
+                Log::info('PushNotification send.............', ['send' => $send, 'port' => $this->port, 'port_dev' => $this->port_dev]);
                 $res = ZhyuCurl::url($url)->json($send, true);
             }
         }
