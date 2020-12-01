@@ -180,8 +180,10 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         //dump($url);
         //dd('send ... send... send ...', $send);
         //--正式機才發推播
-        if(env('APP_ENV')=='production') {
-            $res = ZhyuCurl::url($url)->json($send, true);
+        //if(env('APP_ENV')=='production') {
+        $res = ZhyuCurl::url($url)->json($send, true);
+
+            /*
         }else{
             $res = [
                 'counts' => 0,
@@ -195,6 +197,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
                 $res = ZhyuCurl::url($url)->json($send, true);
             }
         }
+        */
 
         $send = null;
         $this->tokens = [];
