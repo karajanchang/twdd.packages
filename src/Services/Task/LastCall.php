@@ -9,6 +9,7 @@ use Twdd\Errors\MemberErrors;
 use Twdd\Errors\TaskErrors;
 use Twdd\Events\CancelCall;
 use Twdd\Events\CancelTask;
+use Twdd\Events\DriverOffline;
 use Twdd\Events\DriverOnline;
 use Twdd\Models\CalldriverTaskMap;
 use Twdd\Repositories\CalldriverTaskMapRepository;
@@ -110,8 +111,8 @@ class LastCall extends ServiceAbstract
             //---取消Task event
             event(new CancelTask($task, $user_cancel_reason_id));
 
-            //--司機上線
-            event(new DriverOnline($task->driver));
+            //--司機下線
+            event(new DriverOffline($task->driver));
         }
 
         return $call;
