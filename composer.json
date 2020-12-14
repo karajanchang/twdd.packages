@@ -52,7 +52,6 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require-dev": {
-     "phpunit/phpunit": "^8",
-    "barryvdh/laravel-ide-helper": "^2.7"
+    "barryvdh/laravel-ide-helper": "^2.8"
   }
 }
