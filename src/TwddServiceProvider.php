@@ -42,7 +42,7 @@ class TwddServiceProvider extends ServiceProvider
 
         $this->app->bind('CreditcardBind', function()
         {
-            return app()->make(\Twdd\Services\Spgaetway\CreditcardBind::class);
+            return app()->make(\Twdd\Services\Spgateway\CreditcardBind::class);
         });
 
         $this->app->bind('DriverService', function()

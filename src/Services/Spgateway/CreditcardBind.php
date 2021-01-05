@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Twdd\Services\Spgaetway;
+namespace Twdd\Services\Spgateway;
 
 
 use Illuminate\Support\Facades\Cache;
