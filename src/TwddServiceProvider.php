@@ -40,6 +40,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\CouponValid::class);
         });
 
+        $this->app->bind('CreditcardBind', function()
+        {
+            return app()->make(\Twdd\Service\Spgateway\CreditcardBind::class);
+        });
+
         $this->app->bind('DriverService', function()
         {
             return app()->make(\Twdd\Helpers\DriverService::class);
@@ -218,7 +223,7 @@ class TwddServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            Twdd\TwddServiceProvider::class,
+            TwddServiceProvider::class,
         ];
     }
 
@@ -236,6 +241,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('CouponFactory', \Twdd\Facades\CouponFactory::class);
             $loader->alias('CouponService', \Twdd\Facades\CouponService::class);
             $loader->alias('CouponValid', \Twdd\Facades\CouponValid::class);
+            $loader->alias('CreditcardBind', \Twdd\Facades\CreditcardBind::class);
             $loader->alias('DriverService', \Twdd\Facades\DriverService::class);
             $loader->alias('DriverGlodenService', \Twdd\Facades\DriverGoldenService::class);
             $loader->alias('GoogleMap', \Twdd\Facades\GoogleMap::class);

@@ -41,4 +41,10 @@ class MemberCreditcardRepository extends Repository
         return $this->where('member_id', $member_id)->count();
     }
 
+    //--把所有卡設為is_default=0, 再塞入資料
+    public function createAndSetOthersNoDefault(int $member_id, array $params){
+        $this->where('member_id', $member_id)->update(['is_default' => 0]);
+
+        return  $this->create($params);
+    }
 }
