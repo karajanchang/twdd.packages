@@ -20,6 +20,8 @@ class CreditcardBind extends ServiceAbstract
 {
     use AttributesArrayTrait;
     use SpgatewayTrait;
+
+
     private $MerchantOrderNo = null;
     private $types = [ 'member' => Member::class, 'car_factory' => CarFactory::class];
     private $cardHolder = null;
@@ -54,7 +56,8 @@ class CreditcardBind extends ServiceAbstract
         //--檢查是否有預設商店
         if($this->checkIfDriverMerchantExists() === false){
 
-            return $this->error('沒有設定預設的商店');
+            //return $this->error('沒有設定預設的商店');
+            return $this->error->_('0001');
         }
 
         $key = env('APP_ENV') . 'SpgatewayBind' . $params['CardNo'];
@@ -80,7 +83,7 @@ class CreditcardBind extends ServiceAbstract
                     Log::info(__CLASS__.'::'.__METHOD__, [$res]);
                     $msg = isset($res->Message) ? $res->Message : '';
 
-                    return $this->error('操作失敗，請稍後再試: '.$msg, $res);
+                    return $this->error->_('500');
                 }
             }
             return $this->error('多次執行，請過'.($this->seconds-time()-(int) Cache::get($key)).'秒後再試');
@@ -88,7 +91,7 @@ class CreditcardBind extends ServiceAbstract
             $msg = '綁卡異常 (會員：'.$params['PayerEmail'].'): '.$e->getMessage();
             Log::info(__CLASS__.'::'.__METHOD__.' exception: ', [$msg, $e]);
 
-            return $this->error('操作失敗，請稍後再試');
+            return $this->error->_('500');
         }
     }
 
