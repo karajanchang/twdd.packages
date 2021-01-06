@@ -40,4 +40,15 @@ class CouponRepository extends Repository
 
         return $this->update($id, $params);
     }
+
+    /*
+     * 返回預約先用掉的coupon
+     */
+    public function setUnUsed(int $member_id, string $UserCreditCode){
+
+        return $this->where('member_id', $member_id)->where('UserCreditCode', $UserCreditCode)->update([
+            'isUsed' => 0,
+            'usedtime' => null,
+        ]);
+    }
 }

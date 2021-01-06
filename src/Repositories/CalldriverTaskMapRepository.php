@@ -122,5 +122,12 @@ class CalldriverTaskMapRepository extends Repository
             ->get();
     }
 
+    /*
+     * 從task_id去拿到calldriverTaskMap
+     */
+    public function firstFromTaskId(int $task_id){
+
+        return $this->where('task_id', $task_id)->first();
+    }
 
 }
