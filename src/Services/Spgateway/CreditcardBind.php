@@ -6,6 +6,7 @@ namespace Twdd\Services\Spgateway;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Twdd\Errors\CreditcardError;
 use Twdd\Facades\PayService;
 use Twdd\Models\CarFactory;
 use Twdd\Models\DriverMerchant;
@@ -20,15 +21,17 @@ class CreditcardBind extends ServiceAbstract
 {
     use AttributesArrayTrait;
     use SpgatewayTrait;
+    protected $error;
 
 
     private $MerchantOrderNo = null;
     private $types = [ 'member' => Member::class, 'car_factory' => CarFactory::class];
     private $cardHolder = null;
 
-    public function __construct()
+    public function __construct(CreditcardError $error)
     {
         $this->getDriverMerchant();
+        $this->error = $error;
     }
 
     public function getDriverMerchant(){
@@ -66,7 +69,7 @@ class CreditcardBind extends ServiceAbstract
             $lock = Cache::lock($key, $this->seconds);
             if($lock->get()) {
                 $key = env('APP_ENV'). 'SpagetwayBindTimestamp'.$params['CardNo'];
-                Cache::put($key, time(), 30);
+                Cache::put($key, time(), 60);
                 $url = env('SPGATEWAY_URL', 'https://core.spgateway.com/API/CreditCard');
                 $datas = $this->prepareBindPostData($params);
                 $res = $this->post($url, $datas);
@@ -86,7 +89,8 @@ class CreditcardBind extends ServiceAbstract
                     return $this->error->_('500');
                 }
             }
-            return $this->error('多次執行，請過'.($this->seconds-time()-(int) Cache::get($key)).'秒後再試');
+
+            return $this->error->_('1002');
         }catch(\Exception $e){
             $msg = '綁卡異常 (會員：'.$params['PayerEmail'].'): '.$e->getMessage();
             Log::info(__CLASS__.'::'.__METHOD__.' exception: ', [$msg, $e]);
