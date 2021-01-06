@@ -17,10 +17,10 @@ class CancelService extends Facade
 
 /*
  * 檢查看是否可以取消
- * CancelService::by($member|$driver|$user|$car_factory)->map($map)->task($task)->check();
+ * CancelService::by($member|$driver|$user|$car_factory)->calldriverTaskMap($map)->task($task)->check();
  *
  * 被誰取消 1客人 member 2駕駛 driver 3客服 user 4車廠 car_factory
- * CancelService::by($member|$driver|$user|$car_factory)->map($map)->task($task)->init([
+ * CancelService::by($member|$driver|$user|$car_factory)->calldriverTaskMap($map)->task($task)->cancel([
  *      'cancel_reason_id' => 1,
  *      'cancel_reason' => '今天我不爽所以要取消',
  * ]);

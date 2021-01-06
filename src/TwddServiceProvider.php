@@ -25,6 +25,11 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\Bank::class);
         });
 
+        $this->app->bind('CancelService', function()
+        {
+            return app()->make(\Twdd\Services\Match\CancelService::class);
+        });
+
         $this->app->bind('CouponFactory', function()
         {
             return app()->make(\Twdd\Helpers\CouponFactory::class);
@@ -238,6 +243,7 @@ class TwddServiceProvider extends ServiceProvider
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
 
             $loader->alias('Bank', \Twdd\Facades\Bank::class);
+            $loader->alias('CancelService', \Twdd\Facades\CancelService::class);
             $loader->alias('CouponFactory', \Twdd\Facades\CouponFactory::class);
             $loader->alias('CouponService', \Twdd\Facades\CouponService::class);
             $loader->alias('CouponValid', \Twdd\Facades\CouponValid::class);
