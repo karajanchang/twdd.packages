@@ -17,6 +17,8 @@ class User implements InterfaceCancelBy
 
     public function cancelCalldriverTaskMap(array $params = null){
         $this->calldriverTaskMap->IsMatchFail = 1;
+        $this->calldriverTaskMap->cancel_by = $this->cancel_by;
+        $this->calldriverTaskMap->cancel_reason_id = $params['cancel_reason_id'];
         $this->calldriverTaskMap->save();
 
         $calldriver = $this->calldriverTaskMap->calldriver;
@@ -40,7 +42,7 @@ class User implements InterfaceCancelBy
     public function processParams(array $params){
 
         return [
-            'task_id' => $this->task->id,
+            'task_id' => $this->task->id ?? null,
             'cancel_by' => $this->cancel_by,
             'cancel_reason_id' => $params['cancel_reason_id'] ?? null,
             'cancel_reason' => $params['cancel_reason'] ?? null,

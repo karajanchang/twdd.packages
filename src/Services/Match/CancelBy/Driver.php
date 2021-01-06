@@ -30,7 +30,7 @@ class Driver implements InterfaceCancelBy
     public function processParams(array $params){
 
         return [
-            'task_id' => $this->task->id,
+            'task_id' => $this->task->id ?? null,
             'cancel_by' => $this->cancel_by,
             'cancel_reason_id' => $params['user_cancel_reason_id'] ?? null,
             'cancel_reason' => $params['TaskCancelReason'] ?? null,
