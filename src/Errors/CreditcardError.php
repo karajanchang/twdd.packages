@@ -12,4 +12,9 @@ class CreditcardError extends ErrorAbstract
 
         return trans('twdd::creditcard.no_valid_drivermerchant');
     }
+
+    public function error1002(){
+
+        return trans('twdd::creditcard.duplicate_job');
+    }
 }

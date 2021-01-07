@@ -4,14 +4,14 @@
 namespace Twdd\Repositories;
 
 
-use Twdd\Models\CarFactory;
+use Twdd\Models\CarFactoryCreditcard;
 use Zhyu\Repositories\Eloquents\Repository;
 
 class CarFactoryCreditcardRepository extends Repository
 {
     public function model()
     {
-        return CarFactory::class;
+        return CarFactoryCreditcard::class;
     }
 
     public function findByTask(int $task){

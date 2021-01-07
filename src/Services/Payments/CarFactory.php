@@ -4,7 +4,9 @@
 namespace Twdd\Services\Payments;
 
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Twdd\Models\DriverMerchant;
 
 class CarFactory extends PaymentAbstract implements PaymentInterface
 {
@@ -20,7 +22,50 @@ class CarFactory extends PaymentAbstract implements PaymentInterface
     }
 
     public function cancel(string $OrderNo = null, int $amount = null){
+        if(is_null($OrderNo)){
+            $OrderNo = $this->task->OrderNo;
+            if(empty($OrderNo)) return false;
+        }else{
+            $driverMerchant = DriverMerchant::find(env('SPGATEWAY_BIND_DRIVER_MERCHANT_ID', 1443));
+            $this->setDriverMerchant($driverMerchant);
+            $this->setMoney($amount);
+        }
+        $this->setOrderNo($OrderNo);
 
+        if($this->checkIfDriverMerchantExists() === false){
+
+            return $this->returnError( 2006, '智付通驗證錯誤 - 司機沒有啓用商店. 刷卡單號： ('.$OrderNo.')', null, true);
+        }
+
+        try{
+            $lock = Cache::lock(env('APP_ENV') . 'SpgatewayPayment' . $OrderNo, $this->seconds);
+            $res = null;
+            $key = env('APP_ENV'). 'SpagetwayCancelTimestamp'.$OrderNo;
+            if($lock->get()) {
+                Cache::put($key, time(), 30);
+                $url = env('SPGATEWAY_CANCEL_URL', 'https://core.spgateway.com/API/CreditCard/Cancel');
+                $datas = $this->prepareCancelPostData($OrderNo, $amount);
+                $res = $this->post($url, $datas);
+
+                if (isset($res->Status) && $res->Status == 'SUCCESS') {
+
+                    return $this->returnSuccess('成功', $res, true);
+                } else {
+
+                    return $this->returnError(2008, '取消授權失敗，請稍後再試', $res, true);
+                }
+            }
+
+            $reverse_seconds =  $this->cacheReserveSeconds($key);
+            $this->error->setReplaces('try_seconds', $reverse_seconds);
+
+            return $this->returnError(2004, '取消授權多次，請過'.$reverse_seconds.'秒後再試');
+        }catch(\Exception $e){
+            $msg = '取消授權異常 商店訂單編號(：'.$OrderNo.'): '.$e->getMessage();
+            Log::info(__CLASS__.'::'.__METHOD__.' exception: ', [$msg, $e]);
+
+            return $this->returnError(3004, '操作失敗，請稍後再試', $res, true);
+        }
     }
 
     public function pay(array $params = [], bool $is_notify_member = true){

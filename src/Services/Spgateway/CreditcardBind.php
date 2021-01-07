@@ -51,7 +51,7 @@ class CreditcardBind extends ServiceAbstract
 
 
     public function init(array $params){
-        if(empty($this->cardHolder->id)) throw new Exception('請先執行 method type()');
+        if(empty($this->cardHolder->id)) throw new \Exception('請先執行 method type()');
 
         //--檢查參數
         $this->validate($params);
@@ -73,29 +73,32 @@ class CreditcardBind extends ServiceAbstract
                 $url = env('SPGATEWAY_URL', 'https://core.spgateway.com/API/CreditCard');
                 $datas = $this->prepareBindPostData($params);
                 $res = $this->post($url, $datas);
+//                dump('11111111111111111111111', $res);
+                Log::info('111111111111111111111', [$res]);
 
                 if (isset($res->Status) && $res->Status == 'SUCCESS') {
                     //--寫入到資料表
-                    $this->write2db($params, $res);
+                    $this->write2db($params, $res->Result);
 
                     //--退刷1元
                     $this->bindCancel1Dollor();
-
+//                    dump('AAAAAAAAAAAAAAAAAAAAAAAAAAa');
                     return $this->success('操作成功', $res);
                 } else {
                     Log::info(__CLASS__.'::'.__METHOD__, [$res]);
                     $msg = isset($res->Message) ? $res->Message : '';
+//                    dump('BBBBBBBBBBBBBBBBBBBBBBBBB', $res);
 
-                    return $this->error->_('500');
+                    return $this->error($res->Message, $res);
                 }
             }
 
-            return $this->error->_('1002');
+            return $this->error('請稍後再試');
         }catch(\Exception $e){
             $msg = '綁卡異常 (會員：'.$params['PayerEmail'].'): '.$e->getMessage();
             Log::info(__CLASS__.'::'.__METHOD__.' exception: ', [$msg, $e]);
 
-            return $this->error->_('500');
+            return $this->error($msg);
         }
     }
 
@@ -112,7 +115,8 @@ class CreditcardBind extends ServiceAbstract
         if($this->cardHolder instanceof CarFactory){
             $params['car_factory_id'] = $this->cardHolder->id;
 
-            return app(CarFactoryCreditcardRepository::class)->crate($params);
+            app(CarFactoryCreditcardRepository::class)->crate($params);
+
         }
 
     }
@@ -136,7 +140,11 @@ class CreditcardBind extends ServiceAbstract
     }
 
     private function bindCancel1Dollor() : bool{
-        $res = PayService::by(2)->cancel($this->MerchantOrderNo, 1);
+        $type = 1;
+        if($this->cardHolder instanceof CarFactory){
+            $type = 2;
+        }
+        $res = PayService::by($type)->cancel($this->MerchantOrderNo, 1);
         if(isset($res['error'])){
             Log::info(__CLASS__.'::'.__METHOD__.' error: ', $res['error']);
 

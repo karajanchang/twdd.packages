@@ -284,25 +284,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
         return $postData;
     }
 
-    private function prepareCancelPostData(string $OrderNo, int $amount){
-        $array = [
-            'RespondType'         =>  'JSON',
-            'Version'           =>  '1.0',
-            'Amt'               =>  $amount,
-            'MerchantOrderNo'   =>  $OrderNo,
-            'TimeStamp'         =>  time(),
-            'IndexType'         =>  1,
-        ];
-        $post_data_str = http_build_query($array);
-        $encrypt_data = $this->spgateway_encrypt($post_data_str);
 
-        $postData = [
-            'MerchantID_'   =>  $this->driverMerchant->MerchantID,
-            'PostData_' =>  $encrypt_data,
-        ];
-
-        return $postData;
-    }
 
 
 }
