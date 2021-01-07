@@ -19,6 +19,7 @@ class PaymentAbstract
     protected $pay_type = 1;
     protected $OrderNo = null;
     protected $member_creditcard_id = null;
+    protected $car_factory_creditcard_id = null;
 
     public function __construct(PaymentErrors $error, TaskPayLogRepository $taskPayLogRepository)
     {
@@ -138,6 +139,21 @@ class PaymentAbstract
         $this->member_creditcard_id = $member_creditcard_id;
     }
 
+    /**
+     * @return null
+     */
+    public function getCarFactoryCreditcardId()
+    {
+        return $this->car_factory_creditcard_id;
+    }
+
+    /**
+     * @param null $car_factory_creditcard_id
+     */
+    public function setCarFactoryCreditcardId($car_factory_creditcard_id): void
+    {
+        $this->car_factory_creditcard_id = $car_factory_creditcard_id;
+    }
 
 
 }

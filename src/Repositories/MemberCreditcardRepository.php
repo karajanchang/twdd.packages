@@ -20,7 +20,7 @@ class MemberCreditcardRepository extends Repository
         return MemberCreditcard::class;
     }
 
-    public function findByTaskId(Model $task){
+    public function findByTask(Model $task){
         $models = $this->findWhereCache(['member_id' => $task->member_id], ['*'], 'MemberCreditcardRepository'.$task->member_id, 600);
         $model = $models->where('is_default', 1)->first();
         if(!empty($model->id)){

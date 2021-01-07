@@ -20,7 +20,7 @@ class DriverMerchantRepository extends Repository
         return DriverMerchant::class;
     }
 
-    public function findByTaskId(Model $task){
+    public function findByTask(Model $task){
         $model = $this->findby('driver_id', $task->driver_id);
 
         return $model;
