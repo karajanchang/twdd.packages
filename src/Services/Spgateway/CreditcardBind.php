@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Twdd\Errors\CreditcardError;
 use Twdd\Facades\PayService;
 use Twdd\Models\CarFactory;
+use Twdd\Models\CarFactoryCreditcard;
 use Twdd\Models\DriverMerchant;
 use Twdd\Models\Member;
 use Twdd\Repositories\CarFactoryCreditcardRepository;
@@ -16,6 +17,7 @@ use Twdd\Repositories\MemberCreditcardRepository;
 use Twdd\Services\Payments\SpgatewayTrait;
 use Twdd\Services\ServiceAbstract;
 use Twdd\Traits\AttributesArrayTrait;
+use Zhyu\Facades\Ip;
 
 class CreditcardBind extends ServiceAbstract
 {
@@ -114,8 +116,12 @@ class CreditcardBind extends ServiceAbstract
 
         if($this->cardHolder instanceof CarFactory){
             $params['car_factory_id'] = $this->cardHolder->id;
-
-            app(CarFactoryCreditcardRepository::class)->crate($params);
+            try {
+//                app(CarFactoryCreditcardRepository::class)->crate($params);
+                CarFactoryCreditcard::create($params);
+            }catch (\Exception $e){
+                Log::error('CarFactoryCreditcardRepository create error: ', [$e]);
+            }
 
         }
 
@@ -130,12 +136,10 @@ class CreditcardBind extends ServiceAbstract
             'Card6No' => substr($params['CardNo'], 0, 6),
             'Card4No' => substr($params['CardNo'], 12, 4),
             'Exp' => $params['Exp'],
-            'CVC' => $params['CVC'],
             'TokenValue' => $Result->TokenValue,
             'TokenLife' => $Result->TokenLife,
-            'IP' => $Result->TokenLife,
-            'EscrowBank' => $Result->TokenLife,
-            'is_default' => 1,
+            'IP' => Ip::get(),
+            'EscrowBank' => $Result->EscrowBank,
         ];
     }
 
