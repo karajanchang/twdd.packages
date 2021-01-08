@@ -9,7 +9,7 @@ return [
     'driver_is_out' => '此帳號已退出，無法上線',
     'driver_credit_is_under_300' => '你的儲值餘額不足300元，無法上線',
     'driver_is_not_driver' => '你尚未具有正式夥伴身份',
-    'driver_is_rookie' => '你的服務次數不足，:start ~ :end 時段不可上線，再努力 :nums 趙任務即可',
+    'driver_is_rookie' => '你的服務次數不足，:start ~ :end 點期間無法上線，再努力 :nums 趙即可解除',
     'driver_is_temp_offline' => '你目前被暫時停權，無法上線',
     'this_driver_doesnot_exist' => '此帳號並不存在',
     'driver_online_fail' => '上線失敗',
