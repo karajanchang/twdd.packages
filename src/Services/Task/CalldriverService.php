@@ -284,7 +284,7 @@ class CalldriverService extends ServiceAbstract
                 'is_done' => 0,
                 'is_cancel' => 0,
                 'call_type' => $params['call_type'],
-                'TS' => time(),
+                'TS' => $params['TS'],
                 'MatchTimes' => 0,
                 'IsMatchFail' => 0,
                 'is_push' => 0,
