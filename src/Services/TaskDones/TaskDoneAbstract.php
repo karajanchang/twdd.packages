@@ -134,7 +134,7 @@ class TaskDoneAbstract
 
     private function updateTaskDone(){
 
-        return $this->taskRepository->isPay($this->task->id, $this->TaskFee, $this->twddFee, $this->is_first_use, $this->member_creditcard_id);
+        return $this->taskRepository->isPay($this->task, $this->TaskFee, $this->twddFee, $this->is_first_use, $this->member_creditcard_id);
     }
 
     private function doCalucate(){

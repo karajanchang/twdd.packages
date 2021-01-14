@@ -71,7 +71,7 @@ class TaskRepository extends Repository
         return $qb->count();
     }
 
-    public function isPay(int $id, int $TaskFee, int $twddFee, int $is_first_use = 0, int $member_creditcard_id = 0){
+    public function isPay($task, int $TaskFee, int $twddFee, int $is_first_use = 0, int $member_creditcard_id = 0){
         $params = [
             'is_pay' => 1,
             'is_first_use' => $is_first_use,
@@ -79,6 +79,10 @@ class TaskRepository extends Repository
             'TaskFee' => $TaskFee,
             'member_creditcard_id' => $member_creditcard_id,
         ];
+        //--如果是車廠的話把pay_type維持在4
+        if(isset($task->car_factory_id) && !empty($task->car_factory_id)){
+            $params['pay_type'] = 4;
+        }
 
         return $this->update($id, $params);
     }
