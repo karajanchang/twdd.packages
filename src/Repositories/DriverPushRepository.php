@@ -16,7 +16,7 @@ class DriverPushRepository extends Repository
 
     public function checkIfIsByPushEnv(string $PushToken){
         //--正式機不切換IOS port
-        if(env('APP_DEBUG', true)===false){
+        if(env('APP_TYPE', 'development')=='production'){
 
             return false;
         }

@@ -43,11 +43,11 @@ class EcpayInvoice
 			$this->EcpayType = app()->make($config['type']);
 		}
 
-        if(env('APP_DEBUG')===true){
+        if(env('APP_TYPE', 'development')=='production'){
+            $this->production();
+        }else{
             $this->EcpayType->testing();
             $this->testing();
-        }else{
-            $this->production();
         }
 
 	    if(isset($config['checkmac'])) {

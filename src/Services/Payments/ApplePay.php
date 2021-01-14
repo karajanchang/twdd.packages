@@ -32,7 +32,7 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
         $params = $this->initBackParams($this->task);
 
         try {
-            $default_url = (bool) env('APP_DEBUG') === true ? self::post_refund_url_sandbox : self::post_refund_url;
+            $default_url = env('APP_TYPE', 'development') !='production' ? self::post_refund_url_sandbox : self::post_refund_url;
             $url = env('APPLEPAY_REFUND_URL', $default_url);
             $res = $this->post($url, $params);
 
@@ -129,7 +129,7 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
                 return $this->returnError(500, $msg, null, true);
             }
 
-            $default_url = (bool) env('APP_DEBUG') === true ? self::post_url_sandbox : self::post_url;
+            $default_url = env('APP_TYPE', 'development') =='production' ? self::post_url : self::post_url_sandbox;
             $url = env('APPLEPAY_URL', $default_url);
             $res = $this->post($url, $params);
 

@@ -32,10 +32,10 @@ class Merchant
         $this->setSpgatewayiv($spgatewayiv);
         $this->setAcquirer($acquirer);
 
-        if((bool) env('APP_DEBUG') === true) {
-            $this->debug();
-        }else{
+        if( env('APP_TYPE', 'development') =='production') {
             $this->prod();
+        }else{
+            $this->debug();
         }
 
         $this->setUrl();
