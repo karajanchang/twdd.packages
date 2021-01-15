@@ -48,7 +48,7 @@ class Driver extends Model
 
     public function isARookie(){
         $GG = intval(date('G'));
-        if( $GG >= env('OLDBIRD_HOUR_START', 1) &&  $GG <= env('OLDBIRD_HOUR_END', 6) && $this->is_pass_rookie==false){
+        if( $GG >= env('OLDBIRD_HOUR_START', 1) &&  $GG < env('OLDBIRD_HOUR_END', 6) && $this->is_pass_rookie==false){
 
             return true;
 
