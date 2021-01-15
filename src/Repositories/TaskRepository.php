@@ -84,7 +84,7 @@ class TaskRepository extends Repository
             $params['pay_type'] = 4;
         }
 
-        return $this->update($id, $params);
+        return $this->update($task->id, $params);
     }
 
     public function view4push2member($id){
