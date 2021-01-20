@@ -71,6 +71,16 @@ class TaskRepository extends Repository
         return $qb->count();
     }
 
+    public function nums7ByUserCreditCode(string $UserCreditCode, int $task_id = null){
+
+        $qb = $this->where('UserCreditCode', $UserCreditCode)->where('TaskState', 7);
+        if(!is_null($task_id)){
+            $qb->where('id', '!=', $task_id);
+        }
+
+        return $qb->count();
+    }
+
     public function isPay($task, int $TaskFee, int $twddFee, int $is_first_use = 0, int $member_creditcard_id = 0){
         $params = [
             'is_pay' => 1,

@@ -57,4 +57,9 @@ class CouponErrors extends ErrorAbstract
 
         return trans('twdd::coupon.black_card_can_not_use_coupon');
     }
+
+    public function error4009(){
+
+        return trans('twdd::coupon.coupon_nums_reached_the_limit');
+    }
 }

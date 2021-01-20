@@ -67,6 +67,7 @@ class CouponwordService extends ServiceAbstract
             return $this->error->_('4003');
         }
 
+        $task_id = empty($task->id) ? null : $task->id;
         if(isset($member->id) && $member->id>0){
             $nums7 = $this->nums7ExceptTaskByMemberAndTask($member, $task);
             if($couponword->only_first_use==1 && $nums7>0){
@@ -74,15 +75,23 @@ class CouponwordService extends ServiceAbstract
                 return $this->error->_('4004');
             }
 
-            $task_id = empty($task->id) ? null : $task->id;
             $nums = $this->taskRepository->nums7ByUserCreditCodeAndMemberId($code, $member->id, $task_id);
 
-            if($nums>0){
+            if($nums>0 && !($couponword->is_reuse ?? 0)){
 
                 return $this->error->_('4007');
             }
 
 
+        }
+
+        if(($couponword->nums ?? 0) > 0){
+            $nums = $this->taskRepository->nums7ByUserCreditCode($code, $task_id);
+
+            if($nums >= $couponword->nums){
+
+                return $this->error->_('4009');
+            }
         }
 
         return $couponword;
