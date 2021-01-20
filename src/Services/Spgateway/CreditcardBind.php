@@ -14,7 +14,7 @@ use Twdd\Models\DriverMerchant;
 use Twdd\Models\Member;
 use Twdd\Repositories\CarFactoryCreditcardRepository;
 use Twdd\Repositories\MemberCreditcardRepository;
-use Twdd\Services\Payments\SpgatewayTrait;
+use Twdd\Services\Payments\Traits\SpgatewayTrait;
 use Twdd\Services\ServiceAbstract;
 use Twdd\Traits\AttributesArrayTrait;
 use Zhyu\Facades\Ip;
