@@ -147,3 +147,31 @@ if (!function_exists('MemberLogout')) {
         TokenService::member()->forget('member', $member_id);
     }
 }
+
+//-- 取得底層 twdd config
+// twdd_config('task.type')->search('電話'); // 取得 2
+// twdd_config('task.type')->get(2); // 取得 電話
+if (!function_exists('twdd_config')) {
+    function twdd_config($_key, $_default = null)
+    {
+        $config = new \Illuminate\Config\Repository();
+
+        $files = [];
+
+        $configPath = base_path().DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR,['vendor', 'twdd', 'packages', 'src', 'config']);
+
+        foreach (\Symfony\Component\Finder\Finder::create()->files()->name('*.php')->in($configPath) as $file) {
+            $files[basename($file->getRealPath(), '.php')] = $file->getRealPath();
+        }
+
+        ksort($files, SORT_NATURAL);
+
+        if ($files) {
+            foreach ($files as $key => $path) {
+                $config->set($key, require $path);
+            }
+        }
+
+        return $config->get($_key, $_default);
+    }
+}
