@@ -9,4 +9,5 @@ return [
     'coupon_exception' => '優惠券操作發生問題',
     'coupon_only_for_custom_member' => '此優惠券儘限指定會員使用',
     'black_card_can_not_use_coupon' => '黑卡會員無法使用優惠卷',
+    'coupon_nums_reached_the_limit' => '此優惠券兌換人數已達上限',
 ];
