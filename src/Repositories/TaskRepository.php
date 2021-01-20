@@ -79,12 +79,28 @@ class TaskRepository extends Repository
             'TaskFee' => $TaskFee,
             'member_creditcard_id' => $member_creditcard_id,
         ];
-        //--如果是車廠的話把pay_type維持在4
+
+        //--如果是車廠的話把pay_type維持在4, 若最後付款方式因信用卡失敗改成現金，那也要更改 car_factory_pay_type
         if(isset($task->car_factory_id) && !empty($task->car_factory_id)){
             $params['pay_type'] = 4;
+
+            //$original_car_factory_pay_type = $this->getCalldriverCarFactoryPayType($task->id);
+//            $params['car_factory_pay_type'] = isset($task->pay_type) ? $task->car_factory_pay_type : ;
         }
 
+
         return $this->update($task->id, $params);
+    }
+
+    /*
+     * 原始的car_factory_pay_type
+     */
+    public function getCalldriverCarFactoryPayType(int $task_id){
+
+        return $this
+            ->join('calldriver_task_map','task.id', '=', 'calldriver_task_map.task_id')
+            ->join('calldriver','calldriver_task_map.calldriver_id', '=', 'calldriver.id')
+            ->select('calldriver.car_factory_pay_type')->first();
     }
 
     public function view4push2member($id){

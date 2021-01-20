@@ -5,6 +5,7 @@ namespace Twdd\Helpers;
 
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Twdd\Http\Traits\ValidateTrait;
 use Twdd\Services\Price\SettingLongtermPriceService;
 use Twdd\Services\Price\SettingServicePriceService;
@@ -28,7 +29,12 @@ class SettingPriceServiceHelper
     }
 
     public function latlonzip($lat, $lon, string $zip = null){
-        $city_id = $this->getCityId($lat, $lon, $zip);
+        $city_id = 1;
+        try {
+            $city_id = $this->getCityId($lat, $lon, $zip);
+        }catch (\Exception $e){
+            Log::error(__CLASS__.'::'.__METHOD__.' 發生錯誤: ', [$e]);
+        }
         $prices = [];
 
         $prices['common_price'] = $this->common($city_id);

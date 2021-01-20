@@ -3,13 +3,15 @@
 
 namespace Twdd\Services\Payments;
 
-
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Twdd\Events\SpgatewayErrorEvent;
 use Twdd\Events\SpgatewayFailEvent;
 use Twdd\Facades\TaskNo;
 use Twdd\Models\DriverMerchant;
+use Twdd\Repositories\TaskPayLogRepository;
+use Twdd\Services\Payments\Traits\CarFactoryTrait;
 use Zhyu\Facades\ZhyuTool;
 
 class CarFactory extends PaymentAbstract implements PaymentInterface
@@ -97,13 +99,16 @@ class CarFactory extends PaymentAbstract implements PaymentInterface
 
     public function cancel(string $OrderNo = null, int $amount = null){
         if(is_null($OrderNo)){
-            $OrderNo = $this->task->OrderNo;
+            $taskPayLog = app(TaskPayLogRepository::class)->findByTaskId($this->task->id);
+            $OrderNo = $taskPayLog->OrderNo;
             if(empty($OrderNo)) return false;
-        }else{
-            $driverMerchant = DriverMerchant::find(env('SPGATEWAY_BIND_DRIVER_MERCHANT_ID', 1443));
-            $this->setDriverMerchant($driverMerchant);
-            $this->setMoney($amount);
+
+            $amount = $this->task->TaskFee;
         }
+
+        $driverMerchant = DriverMerchant::find($this->task->driver_id);
+        $this->setMoney($amount);
+        $this->setDriverMerchant($driverMerchant);
         $this->setOrderNo($OrderNo);
 
         if($this->checkIfDriverMerchantExists() === false){
@@ -144,7 +149,8 @@ class CarFactory extends PaymentAbstract implements PaymentInterface
 
     public function pay(array $params = [], bool $is_notify_member = true){
         if($this->task->car_factory_pay_type==1) {
-            $msg = '現金付款成功 (單號：' . $this->task->id . ')';
+            $msg = '車廠現金付款成功 (單號：' . $this->task->id . ')';
+            Log::info($msg);
 
             return $this->returnSuccess($msg, null, true);
         }
@@ -191,15 +197,61 @@ class CarFactory extends PaymentAbstract implements PaymentInterface
             'TokenTerm'         =>  $this->task->car_factory_id,
             'TokenSwitch'       =>  'on',
         ];
-        $msg = '刷卡資料 (單號：' . $this->task->id . ')';
+        $msg = '車廠刷卡資料 (單號：' . $this->task->id . ')';
         Log::info($msg, $datas);
 
-
-        $msg = '信用卡付款成功 (單號：' . $this->task->id . ')';
-        return $this->returnSuccess($msg, null, true);
+        //--車廠第二個值要設為false，不能通知使用者，因為要刷卡的是車廠
+        return $this->firePay($datas, false);
     }
 
     public function query(){
+        $this->preInit();
+        $carFactoryCreditCard = $this->getCarFactoryCreditCard();
+        $this->setCarFactoryCreditcardId($carFactoryCreditCard->id);
+        if (isset($this->task->car_factory_id) && isset($this->task->pay_type) && $this->task->car_factory_id > 0 && $this->task->car_factory_pay_type == 2) {
+            $key = env('APP_ENV') . 'CarFactoryQueryTimestamp' . $this->task->id;
+            try {
+                $lock = Cache::lock(env('APP_ENV') . 'carfactoryPayment' . $this->task->id, $this->seconds);
+                if ($lock->get()) {
+                    Cache::put($key, time(), 30);
+                    $url = env('SPGATEWAY_QUERY_URL', 'https://core.spgateway.com/API/QueryTradeInfo');
 
+                    $MerchantOrderNo = isset($task->OrderNo) && strlen($this->task->OrderNo)>0 ? $this->task->OrderNo : TaskNo::make($this->task->id);
+                    $this->setOrderNo($MerchantOrderNo);
+
+                    $datas = [
+                        'MerchantID' => $this->driverMerchant->MerchantID,
+                        'MerchantOrderNo' => $MerchantOrderNo,
+                        'Amt' => $this->task->TaskFee,
+                    ];
+                    $res = $this->post($url, $this->preparePostDataQuery($datas));
+                    Log::info('CarFactory Query: ', [$res]);
+
+                    if (isset($res->Status) && $res->Status == 'SUCCESS') {
+                        $msg = '智付通查詢: 狀態成功';
+
+                        return $this->returnSuccess($msg, $res);
+                    }else{
+                        $msg = '智付通查詢: 狀態失敗';
+
+                        return $this->returnSuccess($msg, $res);
+                    }
+                }
+
+                $cache_timestamp = Cache::get($key);
+                $seconds = empty($cache_timestamp) ? 1 : 30 - (time() - $cache_timestamp);
+
+                $this->error->setReplaces('try_seconds', $seconds);
+                return $this->returnError(3001, '查詢智付通，請過 ' . $seconds . ' 秒後再試');
+            } catch (\Exception $e) {
+                $msg = '查詢智付通異常 (單號：' . $this->task->id . '): ' . $e->getMessage();
+                Log::info($msg, [$e]);
+                Bugsnag::notifyException($e);
+
+                return $this->returnError(3002, $msg);
+            }
+        }
+
+        return $this->returnError(3003, '此單非信用卡付款，無法查詢');
     }
 }

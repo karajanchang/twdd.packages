@@ -1,18 +1,15 @@
 <?php
 
 
-namespace Twdd\Services\Payments;
+namespace Twdd\Services\Payments\Traits;
 
 
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Twdd\Events\SpgatewayErrorEvent;
 use Twdd\Repositories\CarFactoryCreditcardRepository;
 use Twdd\Repositories\DriverMerchantRepository;
 
 trait CarFactoryTrait
 {
-    use SpgateCreditCardTrait;
+    use CarFactoryCreditCardTrait;
 
     private $carFactoryCreditCard;
     private $seconds = 30;
@@ -49,6 +46,8 @@ trait CarFactoryTrait
 
         return true;
     }
+
+
 
 
 

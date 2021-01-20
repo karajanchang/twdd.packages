@@ -27,8 +27,19 @@ class TaskDoneHelper
         return $this;
     }
 
+    private function determinePayType() : int{
+        //---車廠為4
+       if(isset($this->task->car_factory_id)){
+
+           return 4;
+       }
+
+       return $this->task->pay_type;
+    }
+
     public function done(){
-        $taskDone = app(Collection::make($this->lut)->get($this->task->pay_type));
+
+        $taskDone = app(Collection::make($this->lut)->get($this->determinePayType()));
         $taskDone->setTask($this->task, $this->member_creditcard_id);
         $taskDone->done();
 

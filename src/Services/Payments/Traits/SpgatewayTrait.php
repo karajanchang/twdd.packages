@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Twdd\Services\Payments;
+namespace Twdd\Services\Payments\Traits;
 
 
 use Illuminate\Database\Eloquent\Model;

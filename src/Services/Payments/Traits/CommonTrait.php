@@ -1,18 +1,16 @@
 <?php
 
 
-namespace Twdd\Services\Payments;
+namespace Twdd\Services\Payments\Traits;
 
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Twdd\Events\SpgatewayErrorEvent;
-use Twdd\Events\SpgatewayFailEvent;
-use Zhyu\Errors\CurlTimeout;
 use Zhyu\Facades\ZhyuCurl;
 
-trait SpgateCreditCardTrait
+trait CommonTrait
 {
     private $driverMerchant;
     private $seconds = 30;
@@ -26,6 +24,20 @@ trait SpgateCreditCardTrait
             'Pos_'   =>  'JSON',
             'PostData_' =>  $encrypt_data,
         ];
+        Log::info('付款最後送出的資料：', $postData);
+
+        return $postData;
+    }
+
+    private function preparePostDataQuery(array $postData){
+        ksort($postData);
+        $check_str = http_build_query($postData);
+        $CheckCodeStr = "IV=".$this->driverMerchant->MerchantIvKey.'&'.$check_str."&Key=".$this->driverMerchant->MerchantHashKey;
+        $CheckValue = strtoupper(hash("sha256", $CheckCodeStr));
+        $postData['Version'] = '1.1';
+        $postData['RespondType'] = 'JSON';
+        $postData['TimeStamp'] = time();
+        $postData['CheckValue'] = $CheckValue;
 
         return $postData;
     }
@@ -52,53 +64,6 @@ trait SpgateCreditCardTrait
         $res = ZhyuCurl::url($url)->post($postData, (int)env('SPGATEWAY_TIMEOUT', 50));
 
         return json_decode($res);
-    }
-
-    function firePay(array $datas, bool $is_notify_member = true){
-        $key = env('APP_ENV'). 'SpagetwayPayTimestamp'.$this->task->id;
-
-        try{
-            $lock = Cache::lock(env('APP_ENV') . 'SpgatewayPayment' . $this->task->id, $this->seconds);
-            Cache::put($key, time(), 30);
-            if($lock->get()) {
-                $url = env('SPGATEWAY_URL', 'https://core.spgateway.com/API/CreditCard');
-                try {
-                    $res = $this->post($url, $this->preparePostData($datas));
-                }catch(CurlTimeout $e){
-                    $msg = '刷卡timeout (單號：' . $this->task->id . ')';
-
-                    return $this->notifyExceptionAndLog($e, 2005, $msg, $is_notify_member, true);
-                }
-
-                if (isset($res->Status) && $res->Status == 'SUCCESS') {
-                    $msg = '刷卡成功 (單號：' . $this->task->id . ')';
-                    Log::info($msg . ': ', [$res]);
-
-                    return $this->returnSuccess($msg, $res, true);
-                } else {
-                    $msg = '刷卡失敗 (單號：' . $this->task->id . ')';
-                    Log::info($msg . ': ', [$res]);
-                    //$this->mail(new InfoAdminMail('［系統通知］智付通，刷卡失敗', $msg, $res));
-
-                    if($is_notify_member===true) {
-                        event(new SpgatewayFailEvent($this->task, $res));
-                    }
-
-                    app(SpgatewayErrorDectect::class)->init($this->memberCreditCard, $res->Status, $res->Message);
-
-                    return $this->returnError(2003, $msg, $res, true);
-                }
-            }
-            $reverse_seconds =  $this->cacheReserveSeconds($key);
-            $this->error->setReplaces('try_seconds', $reverse_seconds);
-
-            return $this->returnError(2004, '刷卡付款，請過 '.$reverse_seconds.' 秒後再試', null, true);
-        }catch(\Exception $e){
-            $msg = '刷卡異常 (單號：'.$this->task->id.'): '.$e->getMessage();
-
-            //$this->mail(new InfoAdminMail('［系統通知］!!!智付通，刷卡異常!!!', $msg));
-            return $this->notifyExceptionAndLog($e, 2005, $msg, $is_notify_member);
-        }
     }
 
     private function prepareCancelPostData(string $OrderNo, int $amount){
@@ -176,4 +141,5 @@ trait SpgateCreditCardTrait
 
         return $this->returnError( 2005, $msg, null, true, $is_payment_timeout);
     }
+
 }

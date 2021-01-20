@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\Log;
 use Twdd\Events\SpgatewayErrorEvent;
 use Twdd\Events\SpgatewayFailEvent;
 use Twdd\Models\DriverMerchant;
+use Twdd\Repositories\TaskPayLogRepository;
+use Twdd\Services\Payments\Traits\SpgatewayTrait;
 use Zhyu\Facades\ZhyuTool;
 use TaskNo;
-use \Zhyu\Errors\CurlTimeout;
 
 class Spgateway extends PaymentAbstract implements PaymentInterface
 {
@@ -99,13 +100,15 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
     public function cancel(string $OrderNo = null, int $amount = null){
         if(is_null($OrderNo)){
-            $OrderNo = $this->task->OrderNo;
+            $taskPayLog = app(TaskPayLogRepository::class)->findByTaskId($this->task->id);
+            $OrderNo = $taskPayLog->OrderNo;
             if(empty($OrderNo)) return false;
-        }else{
-            $driverMerchant = DriverMerchant::find(env('SPGATEWAY_BIND_DRIVER_MERCHANT_ID', 1443));
-            $this->setDriverMerchant($driverMerchant);
-            $this->setMoney($amount);
+
+            $amount = $this->task->TaskFee;
         }
+        $driverMerchant = DriverMerchant::find($this->task->driver_id);
+        $this->setMoney($amount);
+        $this->setDriverMerchant($driverMerchant);
         $this->setOrderNo($OrderNo);
 
         if($this->checkIfDriverMerchantExists() === false){
@@ -256,35 +259,5 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
         return $this->returnError(3003, '此單非信用卡付款，無法查詢');
     }
-
-
-    private function preparePostData(array $datas){
-        $post_data_str = http_build_query($datas);
-        $encrypt_data = $this->spgateway_encrypt($post_data_str);
-
-        $postData = [
-            'MerchantID_'   =>  $this->driverMerchant->MerchantID,
-            'Pos_'   =>  'JSON',
-            'PostData_' =>  $encrypt_data,
-        ];
-
-        return $postData;
-    }
-
-    private function preparePostDataQuery(array $postData){
-        ksort($postData);
-        $check_str = http_build_query($postData);
-        $CheckCodeStr = "IV=".$this->driverMerchant->MerchantIvKey.'&'.$check_str."&Key=".$this->driverMerchant->MerchantHashKey;
-        $CheckValue = strtoupper(hash("sha256", $CheckCodeStr));
-        $postData['Version'] = '1.1';
-        $postData['RespondType'] = 'JSON';
-        $postData['TimeStamp'] = time();
-        $postData['CheckValue'] = $CheckValue;
-
-        return $postData;
-    }
-
-
-
 
 }

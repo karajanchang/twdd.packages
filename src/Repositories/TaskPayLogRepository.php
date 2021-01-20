@@ -31,7 +31,7 @@ class TaskPayLogRepository extends Repository
     public function findByTaskId($task_id = null){
         if(is_null($task_id)) return null;
 
-        return $this->where('task_id', $task_id)->first();
+        return $this->where('task_id', $task_id)->orderby('id', 'desc')->first();
     }
 
 }
