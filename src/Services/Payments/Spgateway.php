@@ -106,7 +106,11 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
             $amount = $this->task->TaskFee;
         }
-        $driverMerchant = DriverMerchant::find($this->task->driver_id);
+        if(isset($this->task->driver_id) && !empty($this->task->driver_id)) {
+            $driverMerchant = DriverMerchant::find($this->task->driver_id);
+        }else{
+            $driverMerchant = DriverMerchant::find(env('SPGATEWAY_BIND_DRIVER_MERCHANT_ID', 1933));
+        }
         $this->setMoney($amount);
         $this->setDriverMerchant($driverMerchant);
         $this->setOrderNo($OrderNo);

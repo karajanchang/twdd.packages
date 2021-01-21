@@ -37,7 +37,7 @@ class CreditcardBind extends ServiceAbstract
     }
 
     public function getDriverMerchant(){
-        $this->driverMerchant = DriverMerchant::find(env('SPGATEWAY_BIND_DRIVER_MERCHANT_ID', 1443));
+        $this->driverMerchant = DriverMerchant::find(env('SPGATEWAY_BIND_DRIVER_MERCHANT_ID', 1933));
     }
 
     public function type(string $type, int $id){
@@ -143,16 +143,16 @@ class CreditcardBind extends ServiceAbstract
         ];
     }
 
-    private function bindCancel1Dollor() : bool{
+    private function bindCancel1Dollor(){
         $type = 2;
         if($this->cardHolder instanceof CarFactory){
             $type = 4;
         }
         $res = PayService::by($type)->cancel($this->MerchantOrderNo, 1);
+        Log::info(__CLASS__.'::'.__METHOD__.' error: ', [$res]);
         if(isset($res['error'])){
-            Log::info(__CLASS__.'::'.__METHOD__.' error: ', $res['error']);
 
-            return false;
+            return $res;
         }
 
         return true;

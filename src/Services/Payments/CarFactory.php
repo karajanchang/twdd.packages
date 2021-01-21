@@ -105,8 +105,12 @@ class CarFactory extends PaymentAbstract implements PaymentInterface
 
             $amount = $this->task->TaskFee;
         }
+        if(isset($this->task->driver_id) && !empty($this->task->driver_id)) {
+            $driverMerchant = DriverMerchant::find($this->task->driver_id);
+        }else{
+            $driverMerchant = DriverMerchant::find(env('SPGATEWAY_BIND_DRIVER_MERCHANT_ID', 1933));
+        }
 
-        $driverMerchant = DriverMerchant::find($this->task->driver_id);
         $this->setMoney($amount);
         $this->setDriverMerchant($driverMerchant);
         $this->setOrderNo($OrderNo);
