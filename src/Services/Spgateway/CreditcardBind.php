@@ -144,6 +144,7 @@ class CreditcardBind extends ServiceAbstract
     }
 
     private function bindCancel1Dollor() : bool{
+        $type = 2;
         if($this->cardHolder instanceof CarFactory){
             $type = 4;
         }
