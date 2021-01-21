@@ -16,5 +16,5 @@ class CreditcardBind extends Facade
 }
 
 /*
- * Bank::account($DriverID);
+ * CreditcardBind::account($DriverID);
  */

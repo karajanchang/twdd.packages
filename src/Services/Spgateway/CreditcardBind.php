@@ -144,9 +144,8 @@ class CreditcardBind extends ServiceAbstract
     }
 
     private function bindCancel1Dollor() : bool{
-        $type = 1;
         if($this->cardHolder instanceof CarFactory){
-            $type = 2;
+            $type = 4;
         }
         $res = PayService::by($type)->cancel($this->MerchantOrderNo, 1);
         if(isset($res['error'])){
