@@ -175,3 +175,16 @@ if (!function_exists('twdd_config')) {
         return $config->get($_key, $_default);
     }
 }
+
+/*
+ * http 產生錯誤
+ */
+if(!function_exists('responseError')){
+    function responseError(string $message, int $code){
+        return ['error' => [
+                            'message' => $message,
+                            'code' => $code,
+                        ]
+                ];
+    }
+}
