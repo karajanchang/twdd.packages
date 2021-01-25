@@ -180,11 +180,29 @@ if (!function_exists('twdd_config')) {
  * http 產生錯誤
  */
 if(!function_exists('responseError')){
-    function responseError(string $message, int $code){
-        return ['error' => [
-                            'message' => $message,
-                            'code' => $code,
-                        ]
+    function responseError($message, int $code){
+        if(!function_exists('response')) {
+            if(is_string($message)) {
+                return ['error' => [
+                    'message' => $message,
+                    'code' => $code,
+                ]
                 ];
+            }else{
+                $array = (array) $message;
+                $code = ['code' => $code];
+                return ['error' =>
+                    array_merge($array, $code)
+                ];
+            }
+        }else{
+            if(is_string($message)) {
+
+                return response()->json(compact('message'))->setStatusCode($code);
+            }else{
+
+                return response()->json($message)->setStatusCode($code);
+            }
+        }
     }
 }
