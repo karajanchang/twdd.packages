@@ -53,7 +53,7 @@ trait TapPlayTrait
                                 ->auth([
                                     'x-api-key ' => $this->partner_key
                                 ])
-                                ->json($postData, true, (int) env('APPLEPAY_TIMEOUT', 30));
+                                ->post($postData, (int) env('APPLEPAY_TIMEOUT', 30));
 
         Log::info(__CLASS__.'::'.__METHOD__.' : ', [$res]);
 
