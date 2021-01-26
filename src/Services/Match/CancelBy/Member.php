@@ -41,6 +41,11 @@ class Member implements InterfaceCancelBy
     }
 
     public function check(){
+        if(isset($this->task->TaskState) && $this->task->TaskState >=4 ){
 
+            return false;
+        }
+
+        return true;
     }
 }
