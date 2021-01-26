@@ -63,7 +63,7 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
         $res = $this->noCheckList('CallNoDuplicate');
         if($res!==false && $this->CallNoDuplicate()!==true){
 
-            return $this->{$res}('重覆呼叫，諘等候上一呼叫結束');
+            return $this->{$res}('重覆呼叫，請等候上一呼叫結束');
         }
 
         //---檢查有沒有進行中任務
