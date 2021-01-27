@@ -21,7 +21,7 @@ class Member implements InterfaceCancelBy
 
         $this->task->isCancelByUser = 1;
         $this->task->TaskCancelTS = time();
-        $this->task->user_cancel_reason_id = $params['user_cancel_reason_id'];
+        $this->task->user_cancel_reason_id = $params['user_cancel_reason_id'] ?? null;
 
         $this->task->save();
 
