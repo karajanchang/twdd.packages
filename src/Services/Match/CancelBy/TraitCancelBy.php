@@ -30,7 +30,7 @@ trait TraitCancelBy
 
         //--檢查是否可以取消
         $res = $this->check();
-        if($res !== true){
+        if($res === false){
 
             return $res;
         }
@@ -119,7 +119,9 @@ trait TraitCancelBy
      * 預約要返回coupon
      */
     private function unUsedCoupon(){
-        app(CouponRepository::class)->setUnUsed($this->task->member_id, $this->task->UserCreditCode);
+        if(!is_null($this->task->UserCreditCode)) {
+            app(CouponRepository::class)->setUnUsed($this->task->member_id, $this->task->UserCreditCode);
+        }
     }
 
     /*
