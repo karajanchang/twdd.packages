@@ -4,6 +4,8 @@
 namespace Twdd\Services\Match\CancelBy;
 
 
+use Twdd\Repositories\TaskRepository;
+
 class Driver implements InterfaceCancelBy
 {
     use TraitCancelBy;
@@ -16,12 +18,14 @@ class Driver implements InterfaceCancelBy
     }
 
     public function cancelTask(array $params = null){
-        $this->task->TaskState = -1;
+        $all = [
+            'TaskState' => -1,
+            'isCancelByDriver' => 1,
+            'TaskCancelTS' => time(),
+            'user_cancel_reason_id' => $params['cancel_reason_id'] ?? null,
 
-        $this->task->isCancelByDriver = 1;
-        $this->task->TaskCancelTS = time();
-
-        $this->task->save();
+        ];
+        app(TaskRepository::class)->where('id', $this->task->id)->update($all);
 
         //--把coupon還給用戶，但預約call_type=2的要還
         $this->unUsedCoupon();

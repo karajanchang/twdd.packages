@@ -8,6 +8,7 @@ namespace Twdd\Services\Match\CancelBy;
  */
 
 use Twdd\Repositories\TaskCancelLogRepository;
+use Twdd\Repositories\TaskRepository;
 
 class User implements InterfaceCancelBy
 {
@@ -27,13 +28,14 @@ class User implements InterfaceCancelBy
     }
 
     public function cancelTask(array $params = null){
-        $this->task->TaskState = -1;
+        $all = [
+            'TaskState' => -1,
+            'isCancelByService' => 1,
+            'TaskCancelTS' => time(),
+            'is_admin_edit' => 1,
 
-        $this->task->isCancelByService = 1;
-        $this->task->TaskCancelTS = time();
-        $this->task->is_admin_edit = 1;
-
-        $this->task->save();
+        ];
+        app(TaskRepository::class)->where('id', $this->task->id)->update($all);
 
         $this->unUsedCoupon();
 
