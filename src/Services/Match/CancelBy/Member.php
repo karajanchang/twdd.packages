@@ -12,7 +12,7 @@ class Member implements InterfaceCancelBy
 
     public function cancelCalldriverTaskMap(array $params = null){
         $this->calldriverTaskMap->is_cancel = 1;
-        $this->calldriverTaskMap->user_cancel_reason_id = $params['user_cancel_reason_id'];
+        $this->calldriverTaskMap->user_cancel_reason_id = $params['cancel_reason_id'];
         $this->calldriverTaskMap->save();
     }
 
@@ -21,7 +21,7 @@ class Member implements InterfaceCancelBy
 
         $this->task->isCancelByUser = 1;
         $this->task->TaskCancelTS = time();
-        $this->task->user_cancel_reason_id = $params['user_cancel_reason_id'] ?? null;
+        $this->task->user_cancel_reason_id = $params['cancel_reason_id'] ?? null;
 
         $this->task->save();
 
