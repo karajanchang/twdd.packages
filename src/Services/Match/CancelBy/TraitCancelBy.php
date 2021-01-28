@@ -119,7 +119,7 @@ trait TraitCancelBy
      * 預約要返回coupon
      */
     private function unUsedCoupon(){
-        if(!is_null($this->task->UserCreditCode)) {
+        if(!is_null($this->task->UserCreditCode) && $this->task->UserCreditCode != '') {
             app(CouponRepository::class)->setUnUsed($this->task->member_id, $this->task->UserCreditCode);
         }
     }
