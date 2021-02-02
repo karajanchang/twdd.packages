@@ -4,6 +4,7 @@
 namespace Twdd\Services;
 
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Twdd\Facades\TwddCache;
 use Twdd\Repositories\SettingExtraPriceRepository;
@@ -36,7 +37,9 @@ class SettingExtraPriceService extends ServiceAbstract
             $all = TwddCache::key('SettingExtraPriceAll')->get();
             Log::info('SettingExtraPriceAll 從快取拿', [$all]);
         }
+        $TS = Carbon::now()->timestamp;
+        $filters = $all->where('startTS', '<=', $TS)->where('endTS', '>=', $TS);
 
-        return $all;
+        return $filters;
     }
 }
