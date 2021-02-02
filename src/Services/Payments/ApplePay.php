@@ -113,6 +113,7 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
             'amount' => $this->getMoney(),
             'cardholder' => $cardholder,
             'remember' => true,
+            'bank_transaction_id' => $OrderNo,
         ];
     }
 
