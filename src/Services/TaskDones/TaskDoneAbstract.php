@@ -173,7 +173,11 @@ class TaskDoneAbstract
 
         $back = $this->task->UserCreditValue > $TotalFee ? $TotalFee : $this->task->UserCreditValue;
         if($back>0){
-            $credit = $back * $this->price_share;
+            $credit = $back;
+            //---不收系統費時完全回補
+            if($this->chargeTwddFee()===true) {
+                $credit = $back * $this->price_share;
+            }
             $this->doCreditChange(9, $credit);
         }
     }
