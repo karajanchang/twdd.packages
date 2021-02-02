@@ -22,12 +22,11 @@ class SettingExtraPriceServiceHelper
     public function getByLatLonOrZip($lat, $lon, $zip = null){
         $location = LatLonService::citydistrictFromLatlonOrZip($lat, $lon, $zip);
 
-        if(isset($location['city_id'])){
-
-            return $this->service->getByCity($location['city_id']);
+        if(!isset($location['city_id'])){
+            $location['city_id'] = 1;
         }
 
-        return $location;
+        return $this->service->getByCity($location['city_id']);
     }
 
     public function clearCache(){

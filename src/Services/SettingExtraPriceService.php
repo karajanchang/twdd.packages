@@ -4,6 +4,7 @@
 namespace Twdd\Services;
 
 
+use Illuminate\Support\Facades\Log;
 use Twdd\Facades\TwddCache;
 use Twdd\Repositories\SettingExtraPriceRepository;
 
@@ -30,8 +31,10 @@ class SettingExtraPriceService extends ServiceAbstract
         if(TwddCache::key('SettingExtraPriceAll')->has()===false){
             $all = $this->repository->allOpen();
             TwddCache::key('SettingExtraPriceAll')->put($all);
+            Log::info('SettingExtraPriceAll 從資料庫拿', [$all]);
         }else{
             $all = TwddCache::key('SettingExtraPriceAll')->get();
+            Log::info('SettingExtraPriceAll 從快取拿', [$all]);
         }
 
         return $all;
