@@ -7,6 +7,7 @@ namespace Twdd\Services\Payments\Traits;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Twdd\Events\SpgatewayFailEvent;
+use Twdd\Services\Payments\SpgatewayErrorDectect;
 use Zhyu\Errors\CurlTimeout;
 
 trait SpgateCreditCardTrait
@@ -43,7 +44,6 @@ trait SpgateCreditCardTrait
                     if($is_notify_member===true) {
                         event(new SpgatewayFailEvent($this->task, $res));
                     }
-
                     app(SpgatewayErrorDectect::class)->init($this->memberCreditCard, $res->Status, $res->Message);
 
                     return $this->returnError(2003, $msg, $res, true);

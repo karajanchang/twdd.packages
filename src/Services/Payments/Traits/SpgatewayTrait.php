@@ -16,7 +16,6 @@ Trait SpgatewayTrait
 
 
 
-
     protected function preInit(){
         $this->driverMerchant = app(DriverMerchantRepository::class)->findByTask($this->task);
         $this->memberCreditCard = app(MemberCreditcardRepository::class)->findByTask($this->task);
