@@ -29,6 +29,10 @@ class SettingExtraPriceServiceHelper
         return $this->service->getByCity($location['city_id']);
     }
 
+    public function getByCity(int $city_id){
+        return $this->service->getByCity($city_id);
+    }
+
     public function clearCache(){
 
         return TwddCache::key('SettingExtraPriceAll')->forget();
