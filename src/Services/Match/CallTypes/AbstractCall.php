@@ -6,6 +6,7 @@ namespace Twdd\Services\Match\CallTypes;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Twdd\Facades\SettingExtraPriceService;
 use Twdd\Facades\TaskService;
 use Twdd\Repositories\CalldriverTaskMapRepository;
 use Twdd\Repositories\DriverRepository;
@@ -200,6 +201,7 @@ class AbstractCall extends ServiceAbstract
         $params['IsByUserKeyin'] = !empty($this->user->id) ? 1 : 0;
         $params['call_driver_id'] = !empty($this->callDriver->id) ? $this->callDriver->id : null;
 
+
         return $params;
     }
 
@@ -248,6 +250,12 @@ class AbstractCall extends ServiceAbstract
             $params['zip'] = $location['zip'];
             $params['addr'] = $address;
             $params['address'] = $location['address'];
+        }
+
+        //--從城市去拿加價資訊
+        if(isset($location['city_id'])) {
+            $extra_price = SettingExtraPriceService::getByCity($location['city_id']);
+            $params['extra_price'] = $extra_price['sum'];
         }
 
         return $params;
