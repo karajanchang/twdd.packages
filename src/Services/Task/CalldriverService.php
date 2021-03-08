@@ -261,7 +261,11 @@ class CalldriverService extends ServiceAbstract
         $params['extra_price'] = isset($params['extra_price']) ? (int) $params['extra_price'] : 0;
         $params['is_push'] = 0;
         $params['is_receive_money_first'] = isset($params['is_receive_money_first']) ? (int) $params['is_receive_money_first'] : 0;
-        $params['user_id'] = isset($this->user->id) ? $this->user->id : null;
+        if(isset($this->user->id) && !empty($this->user->id)){
+            $params['user_id'] = $this->user->id;
+        }else{
+            $params['user_id'] = !empty($params['user_id']) ? $params['user_id'] : null;
+        }
         $params['DeviceTypeMember'] = isset($params['DeviceType']) ? $params['DeviceType'] : null;
         $params['AppVerMember'] = isset($params['AppVer']) ? $params['AppVer'] : null;
         $params['OSVerMember'] = isset($params['OSVer']) ? $params['OSVer'] : null;
