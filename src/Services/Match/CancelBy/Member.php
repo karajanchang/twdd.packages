@@ -34,11 +34,12 @@ class Member implements InterfaceCancelBy
     }
 
     public function processParams(array $params){
+        $cancel_reason_id = isset($params['cancel_reason_id']) ? $params['cancel_reason_id'] : ($params['user_cancel_reason_id'] ?? null);
 
         return [
             'task_id' => $this->task->id ?? null,
             'cancel_by' => $this->cancel_by,
-            'cancel_reason_id' => $params['user_cancel_reason_id'] ?? null,
+            'cancel_reason_id' => $cancel_reason_id,
             'cancel_reason' => $params['cancel_reason'] ?? null,
         ];
     }

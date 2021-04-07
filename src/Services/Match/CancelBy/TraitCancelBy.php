@@ -128,6 +128,7 @@ trait TraitCancelBy
      * 塞入 task_cancel_logs
      */
     private function writeLog(array $params = null){
+        Log::info(__CLASS__.'::'.__METHOD__.' params: ', $params);
 
         return app(TaskCancelLogRepository::class)->create($params);
     }
