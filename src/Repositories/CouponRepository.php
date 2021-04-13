@@ -46,7 +46,7 @@ class CouponRepository extends Repository
      */
     public function setUnUsed(int $member_id, string $UserCreditCode){
 
-        return $this->where('member_id', $member_id)->where('UserCreditCode', $UserCreditCode)->update([
+        return $this->where('member_id', $member_id)->where('code', $UserCreditCode)->update([
             'isUsed' => 0,
             'usedtime' => null,
         ]);
