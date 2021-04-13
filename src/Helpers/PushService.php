@@ -209,8 +209,7 @@ class PushService
         }
 
         $this->setDeviceType($driver->driverpush->DeviceType);
-        array_push($this->push_tokens, $driver->driverpush->PushToken);
-
+        $this->push_tokens = [$driver->driverpush->PushToken];
 
         if(!empty($this->task->id)) {
             $task = $this->taskRepository->view4push2driver($this->task->id);
@@ -250,7 +249,7 @@ class PushService
         }
 
         $this->setDeviceType($member->memberpush->DeviceType);
-        array_push($this->push_tokens, $member->memberpush->PushToken);
+        $this->push_tokens = [$member->memberpush->PushToken];
 
         if(!empty($this->task->id)) {
             $task = $this->taskRepository->view4push2member($this->task->id);
