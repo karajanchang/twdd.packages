@@ -130,9 +130,13 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
                 $datas = $this->prepareCancelPostData($OrderNo, $amount);
                 $res = $this->post($url, $datas);
 
+                //---取消成功的話希望在記錄TaskPayLogs裡看到的是 負的數字
+                $amount = ZhyuTool::plusMinusConvert($amount);
+                $this->setMoney($amount);
+
                 if (isset($res->Status) && $res->Status == 'SUCCESS') {
 
-                    return $this->returnSuccess('成功', $res, true);
+                    return $this->returnSuccess('取消授權成功', $res, true);
                 } else {
 
                     return $this->returnError(2008, '取消授權失敗，請稍後再試', $res, true);

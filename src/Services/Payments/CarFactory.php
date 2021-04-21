@@ -130,6 +130,10 @@ class CarFactory extends PaymentAbstract implements PaymentInterface
                 $datas = $this->prepareCancelPostData($OrderNo, $amount);
                 $res = $this->post($url, $datas);
 
+                //---取消成功的話希望在記錄TaskPayLogs裡看到的是 負的數字
+                $amount = ZhyuTool::plusMinusConvert($amount);
+                $this->setMoney($amount);
+
                 if (isset($res->Status) && $res->Status == 'SUCCESS') {
 
                     return $this->returnSuccess('成功', $res, true);
