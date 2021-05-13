@@ -23,6 +23,9 @@ class CarFactory extends TaskDoneAbstract implements TaskDoneInterface
             //---優惠回補
             $this->calucateBackUserCreditValue();
 
+            //--擴大媒合回補
+            $this->calcFarTaskCreditReward();
+
             $this->lastProcess();
 
             DB::commit();

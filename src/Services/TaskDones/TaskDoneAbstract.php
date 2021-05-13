@@ -14,12 +14,14 @@ use Twdd\Facades\SettingPriceService;
 use Twdd\Repositories\DriverCreditChangeRepository;
 use Twdd\Repositories\DriverRepository;
 use Twdd\Repositories\TaskRepository;
+use Twdd\Services\Price\SettingServicePriceService;
 
 class TaskDoneAbstract
 {
     protected $DriverCredit;
     protected $driverCreditChangeRepository;
     protected $driverRepository;
+    protected $settingServicePriceService;
     protected $is_first_use = 0;
     protected $task;
     protected $TaskFee = 0;
@@ -29,10 +31,12 @@ class TaskDoneAbstract
     protected $member_creditcard_id = null;
 
 
-    public function __construct(DriverCreditChangeRepository $driverCreditChangeRepository, DriverRepository $driverRepository, TaskRepository $taskRepository)
+    public function __construct(DriverCreditChangeRepository $driverCreditChangeRepository, DriverRepository $driverRepository,
+                                TaskRepository $taskRepository, SettingServicePriceService $settingServicePriceService)
     {
         $this->driverCreditChangeRepository = $driverCreditChangeRepository;
         $this->driverRepository = $driverRepository;
+        $this->settingServicePriceService = $settingServicePriceService;
         $this->taskRepository = $taskRepository;
     }
 
@@ -180,6 +184,32 @@ class TaskDoneAbstract
             }
             $this->doCreditChange(9, $credit);
         }
+    }
+
+    /*
+     * APIUSR-191 擴大媒合優惠回補
+     * */
+    protected function calcFarTaskCreditReward()
+    {
+        if ($this->task->call_far_driver == 0) {
+            return ;
+        }
+
+        $cityId = $this->task->city_id ?? 1;
+        $hour = Carbon::parse($this->task->TaskRideTS)->hour;
+        $settingServicePrice = $this->settingServicePriceService->fetchByHour($cityId, $hour);
+        if (empty($settingServicePrice)) {
+            return ;
+        }
+
+        // 最大回饋公里
+        $extraMatchDistanceDiff = min($this->task->matchDistance - $settingServicePrice->max_match_range , $settingServicePrice->extra_match_reward_max_distance);
+        // 總單位回饋%數
+        $rewardPercentage = floor($extraMatchDistanceDiff / $settingServicePrice->extra_match_reward_unit_distance) * $settingServicePrice->extra_match_reward_unit_percentage;
+        $reward = floor($rewardPercentage * $this->task->TaskFee);
+        $comment = '遠程津貼;單號:' . $this->task->id;
+        $this->doCreditChange(9, $reward, $comment);
+        Log::info('遠程津貼回補:' . $reward . ';單號:' . $this->task->id);
     }
 
     //---檢查是否要收系統費
