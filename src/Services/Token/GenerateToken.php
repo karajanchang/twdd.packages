@@ -75,7 +75,7 @@ class GenerateToken
         $loginIdentify['type'] = $type;
         $key = $this->getKey($loginIdentify);
 
-        $token = $this->request->header('token');
+        $token = app(Request::class)->header('token');
         $keyToken = env('APP_TYPE').'Token'.$token;
 
         Cache::put($key, $token, $expiredAt);
@@ -92,7 +92,7 @@ class GenerateToken
     }
 
     public function id(){
-        $token = $this->request->header('token');
+        $token = app(Request::class)->header('token');
         $keyToken = env('APP_TYPE').'Token'.$token;
         Log::info('---------------token: '.$token);
 
