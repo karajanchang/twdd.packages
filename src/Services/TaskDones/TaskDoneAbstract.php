@@ -206,7 +206,7 @@ class TaskDoneAbstract
         $extraMatchDistanceDiff = min($this->task->matchDistance - $settingServicePrice->max_match_range , $settingServicePrice->extra_match_reward_max_distance);
         // 總單位回饋%數
         $rewardPercentage = ceil($extraMatchDistanceDiff / $settingServicePrice->extra_match_reward_unit_distance) * $settingServicePrice->extra_match_reward_unit_percentage;
-        $reward = floor($rewardPercentage * ($this->task->TaskFee + (int) $this->task->UserCreditValue));
+        $reward = round($rewardPercentage * ($this->task->TaskFee + (int) $this->task->UserCreditValue));
         $comment = '遠程津貼';
         $this->doCreditChange(9, $reward, $comment);
         Log::info('遠程津貼回補:' . $reward . ';單號:' . $this->task->id);
