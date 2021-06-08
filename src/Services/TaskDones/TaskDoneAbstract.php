@@ -195,6 +195,11 @@ class TaskDoneAbstract
             return ;
         }
 
+        // 指定呼叫不優惠回補
+        if (isset($this->task->call_driver_id) && $this->task->call_driver_id > 0) {
+            return ;
+        }
+
         $cityId = $this->task->city_id ?? 1;
         $hour = Carbon::parse($this->task->TaskRideTS)->hour;
         $settingServicePrice = $this->settingServicePriceService->fetchByHour($cityId, $hour);
