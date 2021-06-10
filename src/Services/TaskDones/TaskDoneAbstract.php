@@ -214,7 +214,7 @@ class TaskDoneAbstract
         $reward = round($rewardPercentage * ($this->task->TaskFee + (int) $this->task->UserCreditValue));
         $comment = '遠程津貼';
         $this->doCreditChange(9, $reward, $comment);
-        Log::info('遠程津貼回補:' . $reward . ';單號:' . $this->task->id);
+        Log::info('遠程津貼回補:' . $reward . ';單號:' . $this->task->id, [$settingServicePrice]);
     }
 
     //---檢查是否要收系統費
