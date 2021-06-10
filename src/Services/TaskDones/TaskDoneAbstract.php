@@ -200,7 +200,7 @@ class TaskDoneAbstract
             return ;
         }
 
-        $cityId = $this->task->city_id ?? 1;
+        $cityId = $this->task->start_city_id ?? 1;
         $hour = Carbon::createFromTimestamp($this->task->TaskRideTS)->hour;
         $settingServicePrice = $this->settingServicePriceService->fetchByHour($cityId, $hour);
         if (empty($settingServicePrice)) {
