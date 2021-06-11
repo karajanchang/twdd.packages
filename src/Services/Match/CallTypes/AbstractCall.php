@@ -6,13 +6,13 @@ namespace Twdd\Services\Match\CallTypes;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Jyun\Mapsapi\TwddMap\Geocoding;
 use Twdd\Facades\SettingExtraPriceService;
 use Twdd\Facades\TaskService;
 use Twdd\Repositories\CalldriverTaskMapRepository;
 use Twdd\Repositories\DriverRepository;
 use Twdd\Repositories\MemberRepository;
 use Twdd\Facades\CouponValid;
-use Twdd\Facades\GoogleMap;
 use Twdd\Services\ServiceAbstract;
 
 class AbstractCall extends ServiceAbstract
@@ -224,14 +224,15 @@ class AbstractCall extends ServiceAbstract
                     $params['address'] = '台北市中正區臨沂街51號';
                     $is_have_transfer_success = true;
                 } else {
-                    $location = GoogleMap::latlon($params['lat'], $params['lon']);
-                    $params['city'] = $location['city'];
-                    $params['city_id'] = $location['city_id'];
-                    $params['district'] = $location['district'];
-                    $params['district_id'] = $location['district_id'];
-                    $params['zip'] = $location['zip'];
-                    $params['addr'] = $location['addr'];
-                    $params['address'] = $location['address'];
+                    $lat_lon = $params['lat'].','.$params['lon'];
+                    $location = Geocoding::reverseGeocode($lat_lon)['data'] ?? [];
+                    $params['city'] = $location['city'] ?? null;
+                    $params['city_id'] = $location['city_id'] ?? null;
+                    $params['district'] = $location['district'] ?? null;
+                    $params['district_id'] = $location['district_id'] ?? null;
+                    $params['zip'] = $location['zip'] ?? null;
+                    $params['addr'] = $location['addr'] ?? null;
+                    $params['address'] = $location['address'] ?? null;
 
                     //--轉換成功
                     if($location['district_id']>0) {
@@ -242,14 +243,14 @@ class AbstractCall extends ServiceAbstract
         }
         //--如果都沒有轉換成功再改用address來換換
         if($is_have_transfer_success===false && strlen($address)>0) {
-            $location = GoogleMap::address($address);
-            $params['city'] = $location['city'];
-            $params['city_id'] = $location['city_id'];
-            $params['district'] = $location['district'];
-            $params['district_id'] = $location['district_id'];
-            $params['zip'] = $location['zip'];
+            $location = Geocoding::geocode($address)['data'] ?? [];
+            $params['city'] = $location['city'] ?? null;
+            $params['city_id'] = $location['city_id'] ?? null;
+            $params['district'] = $location['district'] ?? null;
+            $params['district_id'] = $location['district_id'] ?? null;
+            $params['zip'] = $location['zip'] ?? null;
             $params['addr'] = $address;
-            $params['address'] = $location['address'];
+            $params['address'] = $location['address'] ?? null;
         }
 
         //--從城市去拿加價資訊

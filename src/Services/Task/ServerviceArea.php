@@ -8,8 +8,8 @@
 namespace Twdd\Services\Task;
 
 use Illuminate\Support\Facades\Log;
+use Jyun\Mapsapi\TwddMap\Geocoding;
 use Twdd\Errors\TaskErrors;
-use Twdd\Facades\GoogleMap;
 use Twdd\Facades\LatLonService;
 use Twdd\Repositories\DistrictRepository;
 use Twdd\Services\ServiceAbstract;
@@ -78,8 +78,9 @@ class ServerviceArea extends ServiceAbstract
 
                 }
             }
-            $location = GoogleMap::latlon($params['lat'], $params['lon']);
-            $zip = $location['zip'];
+            $lat_lon = $params['lat'].','.$params['lon'];
+            $location = Geocoding::reverseGeocode($lat_lon)['data'] ?? [];
+            $zip = $location['zip'] ?? 0;
         }else{
             $zip = $params['zip'];
         }
