@@ -5,7 +5,7 @@ namespace Twdd\Helpers;
 
 use ArrayAccess;
 use Illuminate\Support\Facades\Log;
-use Jyun\Mapsapi\TwddMap\Geocoding;
+use Twdd\Facades\GoogleMap;
 use Twdd\Repositories\DistrictRepository;
 
 class LatLonService implements ArrayAccess
@@ -147,17 +147,16 @@ class LatLonService implements ArrayAccess
             return $this;
         }
 
-        $lat_lon = $lat.','.$lon;
-        $location = Geocoding::reverseGeocode($lat_lon)['data'] ?? [];
-        if ((int)($location['city_id'] ?? 0) > 0 && (int)($location['district_id'] ?? 0) > 0) {
+        $location = GoogleMap::latlon($lat, $lon);
+        if((int)($location->city_id) > 0 && (int) $location->district_id >0 ){
             $all = [
                 'lat' => $lat,
                 'lon' => $lon,
-                'city_id' => $location['city_id'] ?? null,
-                'city' => $location['city'] ?? null,
-                'district_id' => $location['district_id'] ?? null,
-                'district' => $location['district'] ?? null,
-                'zip' => $location['zip'] ?? null,
+                'city_id' => $location->city_id,
+                'city' => $location->city,
+                'district_id' => $location->district_id,
+                'district' => $location->district,
+                'zip' => $location->zip,
             ];
         }
 

@@ -6,7 +6,7 @@ namespace Twdd\Helpers\CalPrice;
 
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Jyun\Mapsapi\TwddMap\Geocoding;
+use Twdd\Facades\GoogleMap;
 use Twdd\Facades\SettingExtraPriceService;
 use Twdd\Facades\SettingPriceService;
 use Twdd\Facades\TwoPointDistance;
@@ -38,7 +38,7 @@ class CalPriceService
     }
 
     public function trial() : array{
-        $location = Geocoding::geocode($this->startAddr)['data'] ?? [];
+        $location = GoogleMap::address($this->startAddr);
 
         if(empty($location['city_id'])){
 
