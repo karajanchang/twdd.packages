@@ -31,7 +31,7 @@ class DriverOfflineListener
         $driver->DriverState = 0;
 
         $driver->save();
-        Log::info('司機下線: '.$driver->id);
+        Log::info('駕駛下線: '.$driver->id);
     }
 }
 

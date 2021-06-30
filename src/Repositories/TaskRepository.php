@@ -120,9 +120,9 @@ class TaskRepository extends Repository
             ->join('driver_location', 'driver.id', '=', 'driver_location.driver_id')
             ->leftJoin('calldriver_task_map','task.id', '=', 'calldriver_task_map.task_id')
             ->leftJoin('member_grade', 'member.member_grade_id', '=', 'member_grade.id')
-            //---客人評價司機
+            //---客人評價駕駛
             ->leftJoin('DriverTaskExperience', 'task.id', '=', 'DriverTaskExperience.task_id')
-            //---司機評價客人
+            //---駕駛評價客人
             ->leftJoin('member_score', 'task.id', '=', 'member_score.task_id')
             ->where('task.id', '=', $id)
             ->select(DB::raw('calldriver_task_map.id as map_id'), DB::raw('LPAD(LTRIM(CAST(task.id AS CHAR)), 8, \'0\') as TaskNo'), 'task.id', 'task.TaskState', 'task.createtime', 'task.TaskFee', 'task.TaskDistance', 'task.TaskRideTS', 'TaskArriveTS' ,'TaskStartTS', 'TaskEndTS', 'TaskWaitInterval',

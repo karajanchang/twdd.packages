@@ -27,7 +27,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
         if($this->checkIfDriverMerchantExists() === false){
 
-            return $this->returnError( 2006, '智付通驗證錯誤 - 司機沒有啓用商店. 任務單號： ('.$this->task->id.')', null, true);
+            return $this->returnError( 2006, '智付通驗證錯誤 - 駕駛沒有啓用商店. 任務單號： ('.$this->task->id.')', null, true);
         }
 
         $memberCreditCard = $this->getMemberCreditCard();
@@ -117,7 +117,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
         if($this->checkIfDriverMerchantExists() === false){
 
-            return $this->returnError( 2006, '智付通驗證錯誤 - 司機沒有啓用商店. 刷卡單號： ('.$OrderNo.')', null, true);
+            return $this->returnError( 2006, '智付通驗證錯誤 - 駕駛沒有啓用商店. 刷卡單號： ('.$OrderNo.')', null, true);
         }
 
         try{
@@ -161,7 +161,7 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
 
         if($this->checkIfDriverMerchantExists() === false){
 
-            return $this->returnError( 2006, '智付通驗證錯誤 - 司機沒有啓用商店. 任務單號： ('.$this->task->id.')', null, true);
+            return $this->returnError( 2006, '智付通驗證錯誤 - 駕駛沒有啓用商店. 任務單號： ('.$this->task->id.')', null, true);
         }
 
         if($this->checkIfMemberCreditcardExists() === false){

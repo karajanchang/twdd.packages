@@ -15,11 +15,11 @@ class DriverService extends Facade {
     protected static function getFacadeAccessor() { return 'DriverService'; }
 }
 
-//----讓司機任務中
+//----讓駕駛任務中
 //DriverService::driver($driver)->intask();
 
-//----讓司機上線
+//----讓駕駛上線
 //DriverService::driver($driver)->online();
 
-//----讓司機下線
+//----讓駕駛下線
 //DriverService::driver($driver)->offline();

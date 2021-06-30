@@ -24,7 +24,7 @@ class AbstractCall extends ServiceAbstract
 
     protected $user = null;
 
-    //指定司機
+    //指定駕駛
     protected $callDriver = null;
 
     //邀請會員
@@ -151,7 +151,7 @@ class AbstractCall extends ServiceAbstract
             return $this->error('優惠券輸入有誤');
         }
 
-        //--檢查 DriverID  指定司機
+        //--檢查 DriverID  指定駕駛
         if (!empty($params['DriverID'])) {
             $check = $this->checkDriverIDIsValid($params['DriverID']);
             if ($check['status'] === false) {
@@ -282,26 +282,26 @@ class AbstractCall extends ServiceAbstract
     }
 
     /*
-    * 檢查 DriverID  指定司機
+    * 檢查 DriverID  指定駕駛
     */
     public function checkDriverIDIsValid(string $DriverID = null, string $type = 'CallDriver') : array{
         if(!empty($DriverID)){
             $callDriver = app(DriverRepository::class)->findByDriverID($DriverID, ['id', 'is_online', 'DriverState']);
             if(empty($callDriver->id)){
 
-                return ['status' => false, 'msg' => '指定司機錯誤: 無此位司機'];
+                return ['status' => false, 'msg' => '指定駕駛錯誤: 無此位駕駛'];
             }
             if($callDriver->DriverState==0){
 
-                return ['status' => false, 'msg' => '指定司機錯誤: 此司機並未上線'];
+                return ['status' => false, 'msg' => '指定駕駛錯誤: 此駕駛並未上線'];
             }
             if($callDriver->DriverState==2){
 
-                return ['status' => false, 'msg' => '指定司機錯誤: 此司機正在服務中'];
+                return ['status' => false, 'msg' => '指定駕駛錯誤: 此駕駛正在服務中'];
             }
             if(app(CalldriverTaskMapRepository::class)->isInMatchingByDriverID($callDriver->id)===true){
 
-                return ['status' => false, 'msg' => '指定司機錯誤: 此司機正在媒合中'];
+                return ['status' => false, 'msg' => '指定駕駛錯誤: 此駕駛正在媒合中'];
             }
             if($type=='BindDriver') {
                 $this->bindDriver = $callDriver;
@@ -309,11 +309,11 @@ class AbstractCall extends ServiceAbstract
                 $this->callDriver = $callDriver;
             }
 
-            return ['status' => true, 'msg' => '可以指定此司機'];
+            return ['status' => true, 'msg' => '可以指定此駕駛'];
         }
 
 
-        return ['status' => true, 'msg' => '沒有指定司機'];
+        return ['status' => true, 'msg' => '沒有指定駕駛'];
     }
 
     /*

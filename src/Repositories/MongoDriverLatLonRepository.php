@@ -28,7 +28,7 @@ class MongoDriverLatLonRepository
     //---下線
     public function offline(Model $driver, array $params){
         $params['type'] = 2;
-        //--以司機下線的狀況為driver_state
+        //--以駕駛下線的狀況為driver_state
         $params['driver_state'] = 0;
         $this->driver = $driver;
         $this->params = $params;
@@ -40,7 +40,7 @@ class MongoDriverLatLonRepository
     //---上線
     public function online(Model $driver, array $params){
         $params['type'] = 1;
-        //--以司機上線的狀況為driver_state
+        //--以駕駛上線的狀況為driver_state
         $params['driver_state'] = 1;
         $this->driver = $driver;
         $this->params = $params;
@@ -52,7 +52,7 @@ class MongoDriverLatLonRepository
     //---更新位置
     public function updateLocation(Model $driver, array $params){
         $params['type'] = 3;
-        //--以司機目前的狀況為driver_state
+        //--以駕駛目前的狀況為driver_state
         $params['driver_state'] = $driver->DriverState;
         $this->driver = $driver;
         $this->params = $params;

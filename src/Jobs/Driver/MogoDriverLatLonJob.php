@@ -16,7 +16,7 @@ class MogoDriverLatLonJob extends Job
     private $type = 1;
     /*
      * 從哪裡執行此job  從  $is_offline_by_others 代過來的
-     *   0司機自己  1被客人下線 2被客服下線
+     *   0駕駛自己  1被客人下線 2被客服下線
      */
     private $by_source = 0;
 

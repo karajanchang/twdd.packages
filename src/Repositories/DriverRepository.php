@@ -45,7 +45,7 @@ class DriverRepository extends Repository
 
         $text = $res==1 ? '成功' : '失敗';
 
-        Log::info('司機'.$this->stateText($DriverState).'：'.$text, [$res]);
+        Log::info('駕駛'.$this->stateText($DriverState).'：'.$text, [$res]);
 
         return $res;
     }
@@ -81,11 +81,11 @@ class DriverRepository extends Repository
     public function reduceGoldenNums(int $id, bool $autoClose = false){
         $driver = $this->find($id, ['id', 'driver_gold_nums', 'is_used_gold']);
         if($driver->driver_gold_nums==0){
-            Log::info('叩掉司機金牌==>不叩因為已為0張 '.$driver->id.': ', ['driver_golden_nums' => $driver->driver_gold_nums]);
+            Log::info('叩掉駕駛金牌==>不叩因為已為0張 '.$driver->id.': ', ['driver_golden_nums' => $driver->driver_gold_nums]);
 
             return false;
         }
-        Log::info('叩掉司機金牌 '.$driver->id.': ', ['driver_golden_nums' => $driver->driver_gold_nums]);
+        Log::info('叩掉駕駛金牌 '.$driver->id.': ', ['driver_golden_nums' => $driver->driver_gold_nums]);
         $driver->driver_gold_nums = $driver->driver_gold_nums - 1;
 
         #達成任務後關閉金牌

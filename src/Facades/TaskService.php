@@ -29,7 +29,7 @@ class TaskService extends Facade {
 ##2. 檢查該會員是否有重覆呼叫
     bool TaskService::calldriver($member)->checkIfDuplicate();
 
-##3. 檢查該司機是否有在進行中的任務中
+##3. 檢查該駕駛是否有在進行中的任務中
     bool TaskService::task()->checkNotHaveInProcessTaskStateByDriver($driver)
 
 ##4. 檢查該會員是否有在進行中的任務

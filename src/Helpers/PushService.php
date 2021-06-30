@@ -1,6 +1,6 @@
 <?php
 /*
- * 更改司機或個人的PushToken DeviceType
+ * 更改駕駛或個人的PushToken DeviceType
  */
 
 namespace Twdd\Helpers;

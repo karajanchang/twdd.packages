@@ -95,7 +95,7 @@ class DriverService extends ServiceAbstract
 
             //---強制下線時就不用檢查了
             if($force_offline===false) {
-                //--若司機DriverState是2，但有進行中的任務才返回1012錯誤
+                //--若駕駛DriverState是2，但有進行中的任務才返回1012錯誤
                 if ($this->driver->DriverState == 2) {
                     if(app(TaskRepository::class)->checkNotHaveInProcessTaskByDriverId($this->driver->id)===false){
 
@@ -122,7 +122,7 @@ class DriverService extends ServiceAbstract
             //---寫入到mongodb
             dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attrs, 2));
         }else{
-            Log::info('司機被下線 is_online_by_others (1客人app 2客服) : ', [$is_offline_by_others]);
+            Log::info('駕駛被下線 is_online_by_others (1客人app 2客服) : ', [$is_offline_by_others]);
         }
 
         //---更改db DriverState
@@ -171,7 +171,7 @@ class DriverService extends ServiceAbstract
                 return $this->error->_('1007');
             }
 
-            //--身份別不是司機
+            //--身份別不是駕駛
             if ($this->driver->DriverNew != 2) {
 
                 return $this->error->_('1008');
@@ -217,7 +217,7 @@ class DriverService extends ServiceAbstract
             //---寫入到mongodb
             dispatch(new MogoDriverLatLonJob($this->driver, $this->params, $this->attrs, 1));
         }else{
-            Log::info('司機被上線 is_online_by_others (1客人app 2客服) : ', [$is_online_by_others]);
+            Log::info('駕駛被上線 is_online_by_others (1客人app 2客服) : ', [$is_online_by_others]);
         }
 
         //---更改db DriverState

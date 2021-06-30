@@ -74,14 +74,14 @@ class TaskDoneAbstract
         //--更新Task
         $this->updateTaskDone();
 
-        //---把司機設為上線
+        //---把駕駛設為上線
         //$this->onlineDriver();
 
         //--Event
         Event(new TaskDoneEvent($this->getTask()));
     }
 
-    //---把司機設為上線
+    //---把駕駛設為上線
     private function onlineDriver(){
         if(empty($this->task->driver->location->DriverLat) || empty($this->task->driver->location->DriverLon) ){
 
@@ -100,7 +100,7 @@ class TaskDoneAbstract
         $driverInsuranceBackService = app(DriverInsuranceBackService::class)->task($this->getTask());
         $res = $driverInsuranceBackService->cost();
         if(isset($res['InsuranceBack']) && $res['InsuranceBack'] < 0){
-            $this->doCreditChange(13, $res['InsuranceBack'], '司機保險出險費');
+            $this->doCreditChange(13, $res['InsuranceBack'], '駕駛保險出險費');
         }
     }
 

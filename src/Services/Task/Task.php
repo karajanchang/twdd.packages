@@ -58,7 +58,7 @@ class Task
         return true;
     }
 
-    //---檢查該司機有沒有進行中 0-6 的任務
+    //---檢查該駕駛有沒有進行中 0-6 的任務
     public function checkNotHaveInProcessTaskStateByDriver(Model $driver){
         if($this->repository->checkNotHaveInProcessTaskByDriverId($driver->id)!==true){
 

@@ -45,13 +45,13 @@ class MultiCallCouponListener
             $this->sendCoupon($task);
             $this->pushNotification($task);
         } catch (\Exception $e) {
-            Log::error('多位司機優惠券失敗'. $task->id . $e->getMessage(), [$e]);
+            Log::error('多位駕駛優惠券失敗'. $task->id . $e->getMessage(), [$e]);
         }
     }
 
     private function validMultiCallInvite($task)
     {
-        //是多位司機呼叫 type=1 && call_type=3
+        //是多位駕駛呼叫 type=1 && call_type=3
         if ($task->type != 1 || $task->call_type != 3) {
 
             return false;
@@ -98,7 +98,7 @@ class MultiCallCouponListener
         //發優惠券
         $activityId = env('MULTI_CALL_INVITE_ACTIVITY_ID');
         if (empty($activityId)) {
-            Log::info('多位司機邀請優惠券ID未設定 taskId:' . $task->id);
+            Log::info('多位駕駛邀請優惠券ID未設定 taskId:' . $task->id);
 
             return false;
         }

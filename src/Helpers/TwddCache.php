@@ -2,10 +2,10 @@
 /*
  * 注意：tag第二層以後是多筆的才要加id
  *
- * 一個司機只會有一個 profile
+ * 一個駕駛只會有一個 profile
  * TwddCache::driver($id)->DriverProfile()->key('DriverProfile', $id)->get();
  *
- * 一個司機會有多筆的 News
+ * 一個駕駛會有多筆的 News
  * TwddCache::driver($id)->DriverNews($id)->key('DriverNewsList')->get();
  *
  *

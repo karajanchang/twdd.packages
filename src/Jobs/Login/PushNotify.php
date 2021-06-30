@@ -35,7 +35,7 @@ class PushNotify extends Job
 
         $push = $this->identity->push;
         if(empty($push->DeviceType) || empty($push->PushToken)){
-            Log::info('Login Push Notify error, 該司機沒有push token:', [$this->identity]);
+            Log::info('Login Push Notify error, 該駕駛沒有push token:', [$this->identity]);
 
             return false;
         }

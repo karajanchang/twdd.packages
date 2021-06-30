@@ -25,7 +25,7 @@ class CarFactory extends PaymentAbstract implements PaymentInterface
 
         if($this->checkIfDriverMerchantExists() === false){
 
-            return $this->returnError( 2006, '智付通驗證錯誤 - 司機沒有啓用商店. 任務單號： ('.$this->task->id.')', null, true);
+            return $this->returnError( 2006, '智付通驗證錯誤 - 駕駛沒有啓用商店. 任務單號： ('.$this->task->id.')', null, true);
         }
         $carFactoryCreditCard = $this->getCarFactoryCreditCard();
         $this->setCarFactoryCreditcardId($carFactoryCreditCard->id);
@@ -117,7 +117,7 @@ class CarFactory extends PaymentAbstract implements PaymentInterface
 
         if($this->checkIfDriverMerchantExists() === false){
 
-            return $this->returnError( 2006, '智付通驗證錯誤 - 司機沒有啓用商店. 刷卡單號： ('.$OrderNo.')', null, true);
+            return $this->returnError( 2006, '智付通驗證錯誤 - 駕駛沒有啓用商店. 刷卡單號： ('.$OrderNo.')', null, true);
         }
 
         try{
@@ -167,7 +167,7 @@ class CarFactory extends PaymentAbstract implements PaymentInterface
 
         if($this->checkIfDriverMerchantExists() === false){
 
-            return $this->returnError( 2006, '智付通驗證錯誤 - 司機沒有啓用商店. 任務單號： ('.$this->task->id.')', null, true);
+            return $this->returnError( 2006, '智付通驗證錯誤 - 駕駛沒有啓用商店. 任務單號： ('.$this->task->id.')', null, true);
         }
         $carFactoryCreditCard = $this->getCarFactoryCreditCard();
         $this->setCarFactoryCreditcardId($carFactoryCreditCard->id);

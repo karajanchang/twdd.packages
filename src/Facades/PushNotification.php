@@ -23,7 +23,7 @@ class PushNotification extends Facade
     $device_type 格式為數值 (1: 'ios', 2: 'andriod')
     $device_type 格式為字串 ('ios' or 'andriod')
 
-##2. 送推播給司機
+##2. 送推播給駕駛
     PushNotification::driver($device_type)->tokens($tokens)->action('PushMsg')->title($title)->body($body);
 
     $device_type 格式為數值 (1: 'ios', 2: 'andriod')

@@ -29,7 +29,7 @@ class DriverOnlineListener
         $driver->DriverState = 1;
 
         $driver->save();
-        Log::info('司機上線: '.$driver->id);
+        Log::info('駕駛上線: '.$driver->id);
     }
 }
 

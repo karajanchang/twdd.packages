@@ -80,7 +80,7 @@ class TaskDoneEventSubscriber
         ];
 
         $dt = Carbon::parse($task->createtime);
-        Log::info('TwddEventSubscriber updateMonthMoneyDriver 更新司機每月業績 taskno ('.$task->id.'):', ['dt' => $dt, 'params' => $params]);
+        Log::info('TwddEventSubscriber updateMonthMoneyDriver 更新駕駛每月業績 taskno ('.$task->id.'):', ['dt' => $dt, 'params' => $params]);
         $res = app(MonthMoneyDriverRepository::class)->createOrUpdateByDriverId($task->driver_id, $dt, $params);
 
         return $res;
