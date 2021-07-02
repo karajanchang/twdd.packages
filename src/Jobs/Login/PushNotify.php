@@ -51,7 +51,7 @@ class PushNotify extends Job
             return true;
         }
 
-        Log::info('Login Push Notify exception:', $res);
+        Log::info('Login Push Notify exception:', [$res]);
         return false;
     }
 }
