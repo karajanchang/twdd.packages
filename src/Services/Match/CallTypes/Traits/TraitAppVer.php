@@ -20,10 +20,6 @@ trait TraitAppVer
             }else{
                 $mini_ver = env('APP_MINI_VER_ANDROID', '3.4.2');
             }
-            if($AppVer < $mini_ver){
-
-                return false;
-            }
 
             //--因為true代表過期，所以這邊要反過來
             return !ZhyuTool::versionOutOfDate($AppVer, $mini_ver);
