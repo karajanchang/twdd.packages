@@ -134,6 +134,18 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
             $url = env('APPLEPAY_URL', $default_url);
             $res = $this->post($url, $params);
 
+            // 處理對方回應連線失敗情形 {"message":"Network error communicating with endpoint"}
+            if (!isset($res['status'])) {
+                $msg = 'ApplePay連線失敗 (單號：' . $this->task->id . ')';
+                Log::info($msg, ['params' => $params, 'res' => $res]);
+
+                if($is_notify_member === true) {
+                    event(new ApplePayFailEvent($this->task, $res));
+                }
+
+                return $this->returnError(4004, $msg, $res, true);
+            }
+
             if (isset($res['status']) && $res['status'] > 0) {
                 $msg = 'ApplePay付款失敗 (單號：' . $this->task->id . ')';
                 Log::info($msg, ['params' => $params, 'res' => $res]);
