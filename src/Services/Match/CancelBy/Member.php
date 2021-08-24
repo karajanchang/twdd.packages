@@ -14,8 +14,12 @@ class Member implements InterfaceCancelBy
 
     public function cancelCalldriverTaskMap(array $params = null){
         $this->calldriverTaskMap->is_cancel = 1;
-        $this->calldriverTaskMap->user_cancel_reason_id = $params['cancel_reason_id'];
+        $this->calldriverTaskMap->user_cancel_reason_id = $params['cancel_reason_id'] ?? null;
         $this->calldriverTaskMap->save();
+
+        //--如果是車廠，把有關連的map也取消
+        $cancel_reason_id = $params['cancel_reason_id'] ?? null;
+        $this->cancelOtherMap($cancel_reason_id);
     }
 
     public function cancelTask(array $params = null){
@@ -26,6 +30,14 @@ class Member implements InterfaceCancelBy
             'user_cancel_reason_id' => $params['cancel_reason_id'] ?? null,
 
         ];
+
+        //--若要收取違約取消費
+        if($this->fees['TaskFee'] > 0) {
+            $all['TaskState'] = 7;
+            $all['is_user_violation'] = 1;
+            $all['TaskFee'] = $this->fees['TaskFee'];
+            $all['twddFee'] = $this->fees['twddFee'];
+        }
         app(TaskRepository::class)->where('id', $this->task->id)->update($all);
 
         if(!empty($this->task->UserCreditCode) && isset($this->calldriverTaskMap->call_type) && $this->calldriverTaskMap->call_type==2){
@@ -41,9 +53,11 @@ class Member implements InterfaceCancelBy
             'cancel_by' => $this->cancel_by,
             'cancel_reason_id' => $cancel_reason_id,
             'cancel_reason' => $params['cancel_reason'] ?? null,
+            'cancel_fee' => $this->fees['TaskFee'],
         ];
     }
 
+    //--檢查是否可以取消
     public function check(){
         if(isset($this->task->TaskState) && $this->task->TaskState >=4 ){
 

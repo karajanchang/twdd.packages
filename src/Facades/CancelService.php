@@ -25,3 +25,9 @@ class CancelService extends Facade
  *      'cancel_reason' => '今天我不爽所以要取消',
  * ]);
  */
+
+/*
+ * 檢查看是否要收取消違約費
+ * CancelService::by($member|$driver|$user|$car_factory)->calldriverTaskMap($map)->task($task)->getCancelFees();
+ *
+ */

@@ -59,7 +59,7 @@ class CancelService extends ServiceAbstract
         return $res;
     }
 
-    public function cancel(array $params, bool $is_force_cancel = false, bool $is_cancel_with_check = false){
+    public function cancel(array $params = null, bool $is_force_cancel = false, bool $is_cancel_with_check = false){
         $job = app($this->who)->calldriverTaskMap($this->calldriverTaskMap)->task($this->task);
         if($is_cancel_with_check===true) {
 
@@ -67,5 +67,15 @@ class CancelService extends ServiceAbstract
         }
 
         return $job->cancel($params, $is_force_cancel);
+    }
+
+    /**
+     * 拿到違約的金額
+     * @return mixed
+     */
+    public function getCancelFees(){
+        $job = app($this->who)->calldriverTaskMap($this->calldriverTaskMap)->task($this->task);
+
+        return $job->shouldTakeCancelFee();
     }
 }

@@ -7,6 +7,7 @@ namespace Twdd\Services\Match\CancelBy;
  * 客服取消
  */
 
+use Twdd\Repositories\CalldriverTaskMapRepository;
 use Twdd\Repositories\TaskCancelLogRepository;
 use Twdd\Repositories\TaskRepository;
 
@@ -26,6 +27,10 @@ class User implements InterfaceCancelBy
         $calldriver = $this->calldriverTaskMap->calldriver;
         $calldriver->IsMatch = 0;
         $calldriver->save();
+
+        //--如果是車廠，把有關連的map也取消
+        $cancel_reason_id = $params['cancel_reason_id'] ?? null;
+        $this->cancelOtherMap($cancel_reason_id);
     }
 
     public function cancelTask(array $params = null){
@@ -49,9 +54,11 @@ class User implements InterfaceCancelBy
             'cancel_by' => $this->cancel_by,
             'cancel_reason_id' => $params['cancel_reason_id'] ?? null,
             'cancel_reason' => $params['cancel_reason'] ?? null,
+            'cancel_fee' => 0,
         ];
     }
 
+    //--檢查是否可以取消
     public function check(): bool{
 
         return true;

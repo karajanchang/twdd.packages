@@ -133,4 +133,23 @@ class CalldriverTaskMapRepository extends Repository
         return $this->where('task_id', $task_id)->first();
     }
 
+    /**
+     *
+     * @param int $calldriver_id
+     * @param int $except_map_id
+     * @param int $cancel_by
+     * @param int|null $cancel_reason_id
+     */
+    public function cancelOtherSameCalldriverId(int $calldriver_id, int $except_map_id, int $cancel_by, int $cancel_reason_id = null){
+
+        $this->where('calldriver_id', $calldriver_id)
+            ->where('is_cancel', 0)
+            ->where('id', '!=', $except_map_id)
+            ->update([
+                'is_cancel' => 1,
+                'cancel_by' => $cancel_by,
+                'cancel_reason_id' => $cancel_reason_id,
+            ]);
+    }
+
 }
