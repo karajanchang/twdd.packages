@@ -19,6 +19,7 @@ use Twdd\Criterias\Calldriver\WhereIsCancelOrIsMatchFail;
 use Twdd\Criterias\Calldriver\WhereMember;
 use Twdd\Criterias\Calldriver\WherePayTypeNot4;
 use Twdd\Criterias\Calldriver\WhereTSOver;
+use Twdd\Criterias\Calldriver\WhereTypeNot10;
 use Twdd\Criterias\Calldriver\WhereUser;
 use Twdd\Models\CalldriverTaskMap;
 use Twdd\Models\Member;
@@ -37,12 +38,14 @@ class CalldriverTaskMapRepository extends Repository
         $whereTSOver = new WhereTSOver();
         $whereIsCancelOrIsMatchFail = new WhereIsCancelOrIsMatchFail();
         $wherePayTypeNot4 = new WherePayTypeNot4();
+        $WhereTypeNot10 = new WhereTypeNot10();
 
         $this->pushCriteria($joinCalldriver);
         $this->pushCriteria($whereMember);
         $this->pushCriteria($whereTSOver);
         $this->pushCriteria($whereIsCancelOrIsMatchFail);
         $this->pushCriteria($wherePayTypeNot4);
+        $this->pushCriteria($WhereTypeNot10);
 
         $count = $this->count();
 
