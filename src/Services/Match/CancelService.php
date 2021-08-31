@@ -20,7 +20,7 @@ class CancelService extends ServiceAbstract
         'member' => Member::class,
         'driver' => Driver::class,
         'user' => User::class,
-        'car_factoris' => CarFactory::class,
+        'car_factories' => CarFactory::class,
     ];
 
     public function by(Model $who){
@@ -61,6 +61,16 @@ class CancelService extends ServiceAbstract
 
     public function cancel(array $params = null, bool $is_force_cancel = false, bool $is_cancel_with_check = false){
         $job = app($this->who)->calldriverTaskMap($this->calldriverTaskMap)->task($this->task);
+        if($is_cancel_with_check===true) {
+
+            return $job->cancelWithCheck($params, $is_force_cancel);
+        }
+
+        return $job->cancel($params, $is_force_cancel);
+    }
+
+    public function cancelWithoutChargeFee(array $params = null, bool $is_force_cancel = false, bool $is_cancel_with_check = false){
+        $job = app($this->who)->calldriverTaskMap($this->calldriverTaskMap)->task($this->task)->setDoNotChargeCancelFee(true);
         if($is_cancel_with_check===true) {
 
             return $job->cancelWithCheck($params, $is_force_cancel);

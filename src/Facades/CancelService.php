@@ -31,3 +31,11 @@ class CancelService extends Facade
  * CancelService::by($member|$driver|$user|$car_factory)->calldriverTaskMap($map)->task($task)->getCancelFees();
  *
  */
+
+/*
+ * 取消不收違約費
+CancelService::by($member|$driver|$user|$car_factory)->calldriverTaskMap($map)->task($task)->cancelWithoutChargeFee([
+       'cancel_reason_id' => 1,
+       'cancel_reason' => '今天我不爽所以要取消',
+ );
+*/

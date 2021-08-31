@@ -41,6 +41,14 @@ class User implements InterfaceCancelBy
             'is_admin_edit' => 1,
 
         ];
+
+        //--若要收取違約取消費
+        if($this->do_not_charge_cancel_fee===false  && $this->fees['TaskFee'] > 0) {
+            $all['TaskState'] = 7;
+            $all['is_user_violation'] = 1;
+            $all['TaskFee'] = $this->fees['TaskFee'];
+            $all['twddFee'] = $this->fees['twddFee'];
+        }
         app(TaskRepository::class)->where('id', $this->task->id)->update($all);
 
         $this->unUsedCoupon();

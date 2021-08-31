@@ -37,7 +37,7 @@ class CarFactory implements InterfaceCancelBy
         ];
 
         //--若要收取違約取消費
-        if($this->fees['TaskFee'] > 0) {
+        if($this->do_not_charge_cancel_fee===false  && $this->fees['TaskFee'] > 0) {
             $all['TaskState'] = 7;
             $all['is_user_violation'] = 1;
             $all['TaskFee'] = $this->fees['TaskFee'];

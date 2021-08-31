@@ -6,7 +6,6 @@ namespace Twdd\Services\Match\CancelBy;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Twdd\Models\Calldriver;
 use Twdd\Models\CalldriverTaskMap;
 use Twdd\Repositories\CalldriverTaskMapRepository;
 use Twdd\Repositories\CouponRepository;
@@ -18,6 +17,30 @@ trait TraitCancelBy
     private $calldriverTaskMap;
     private $task;
     private $fees;
+    //---不要收取違約取消費
+    private $do_not_charge_cancel_fee = false;
+
+
+    /**
+     * @return bool
+     */
+    public function isDoNotChargeCancelFee(): bool
+    {
+        return $this->do_not_charge_cancel_fee;
+    }
+
+    /**
+     * @param bool $do_not_charge_cancel_fee
+     * @return $this
+     */
+    public function setDoNotChargeCancelFee(bool $do_not_charge_cancel_fee)
+    {
+        $this->do_not_charge_cancel_fee = $do_not_charge_cancel_fee;
+
+        return $this;
+    }
+
+
 
     public function cancelWithCheck(array $params = null, bool $is_force_cancel = false){
 
@@ -201,7 +224,7 @@ trait TraitCancelBy
     private function if_need_create_task(){
         $task = null;
         $map = $this->calldriverTaskMap;
-        if($this->fees['task_id']==0) {
+        if($this->do_not_charge_cancel_fee===false && $this->fees['task_id']==0) {
             $parmas = [
                 'type' => $map->calldriver->type,
                 'call_type' => $map->calldriver->call_type,
@@ -210,7 +233,7 @@ trait TraitCancelBy
 
                 'TaskFee' => $this->fees['TaskFee'],
                 'twddFee' => $this->fees['twddFee'],
-                'member_id' => $map->calldriver->member_id,
+                'member_id' => $map->member_id,
                 'driver_id' => $map->dirver_id,
                 'TaskState' => 7,
                 'is_user_violation' => 1,
