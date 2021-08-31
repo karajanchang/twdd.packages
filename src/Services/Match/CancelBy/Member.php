@@ -34,7 +34,7 @@ class Member implements InterfaceCancelBy
         //--若要收取違約取消費
         if($this->do_not_charge_cancel_fee===false  && $this->fees['TaskFee'] > 0) {
             $all['TaskState'] = 7;
-            $all['is_user_violation'] = 1;
+            $all['user_violation_id'] = $this->fees['user_violation_id'];
             $all['TaskFee'] = $this->fees['TaskFee'];
             $all['twddFee'] = $this->fees['twddFee'];
         }

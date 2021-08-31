@@ -184,13 +184,16 @@ trait TraitCancelBy
             if ($diff < $ts_long) {
 //                服務前12小時內 取消收取$150預約臨時取消費，並收取20%系統費，不收保險費
                 $fee = env('VIOLATION_FEE_LONG', 150);
+                $user_violation_id = env('VIOLATION_FEE_LONG_ID', 1);
 
                 //--駕駛啟動任務(taskstate >1)後取消收取$300預約臨時取消費，並收取20%系統費，不收保險費
                 if (isset($calldriverTaskMap->task_id) && !empty($calldriverTaskMap->task_id) && $diff < $ts_short){
                     $fee = env('VIOLATION_FEE_SHORT', 300);
+                    $user_violation_id = env('VIOLATION_FEE_SHORT_ID', 2);
                 }
 
                 return [
+                    'user_violation_id' => $user_violation_id,
                     'TaskFee' => $fee,
                     'twddFee' => $fee * 0.2,
                     'task_id' => $calldriverTaskMap->task_id ?? 0,
@@ -200,8 +203,10 @@ trait TraitCancelBy
             //--預約代駕
             if($calldriver->call_type==2 && $diff < $ts_short){
                 $fee = env('VIOLATION_PREMATCH_FEE_LONG', 100);
+                $user_violation_id = env('VIOLATION_PREMATCH_FEE_LONG_id', 3);
 
                 return [
+                    'user_violation_id' => $user_violation_id,
                     'TaskFee' => $fee,
                     'twddFee' => $fee * 0.2,
                     'task_id' => $calldriverTaskMap->task_id ?? 0,
@@ -209,7 +214,8 @@ trait TraitCancelBy
             }
         }
 
-       return [
+        return [
+            'user_violation_id' => 0,
             'TaskFee' => 0,
             'twddFee' => 0,
             'task_id' => $calldriverTaskMap->task_id ?? 0,
@@ -224,6 +230,7 @@ trait TraitCancelBy
     private function if_need_create_task(){
         $task = null;
         $map = $this->calldriverTaskMap;
+        if($this->fees['TaskFee'] == 0) return $task;
         if($this->do_not_charge_cancel_fee===false && $this->fees['task_id']==0) {
             $parmas = [
                 'type' => $map->calldriver->type,
@@ -234,9 +241,9 @@ trait TraitCancelBy
                 'TaskFee' => $this->fees['TaskFee'],
                 'twddFee' => $this->fees['twddFee'],
                 'member_id' => $map->member_id,
-                'driver_id' => $map->dirver_id,
+                'driver_id' => $map->call_driver_id,
                 'TaskState' => 7,
-                'is_user_violation' => 1,
+                'user_violation_id' => 1,
                 'createtime' => Carbon::now(),
                 'extra_price' => 0,
                 'over_price' => 0,
@@ -266,7 +273,6 @@ trait TraitCancelBy
                 'DestDistrict' => $map->calldriver->district_det,
                 'DestAddress' => $map->calldriver->addr_det,
                 'DestAddressKey' => $map->calldriver->addrKey_det,
-                'call_driver_id' => $map->calldriver->city,
 
             ];
 
@@ -277,6 +283,9 @@ trait TraitCancelBy
             app(CalldriverTaskMap::class)->where('id', $this->calldriverTaskMap->id)->update([
                 'task_id' => $task->id,
             ]);
+        }else if ($this->do_not_charge_cancel_fee===false && $this->fees['task_id'] > 0){
+            $task = app(TaskRepository::class)->find($this->fees['task_id']);
+            $this->task = $task;
         }
 
         return $task;
