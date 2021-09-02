@@ -58,7 +58,7 @@ class CalldriverTaskMapRepository extends Repository
         $this->pushCriteria($joinCalldriver);
 
         $call = $this->findBy('calldriver_id', $calldriver_id, [ 'calldriver_task_map.id as id', 'calldriver_id', 'calldriver_task_map.task_id', 'calldriver_task_map.driver_id', 'calldriver_task_map.member_id',
-            'IsMatchFail', 'addr', 'addrKey', 'addr_det', 'addrKey_det', 'lat', 'lon', 'UserCreditCode', 'UserCreditValue' ]);
+            'IsMatchFail', 'calldriver.addr as addr', 'calldriver.addrKey as addrKey', 'calldriver.addr_det as addr_det', 'calldriver.addrKey_det as addrKey_det', 'calldriver.lat as lat', 'calldriver.lon as lon', 'UserCreditCode', 'UserCreditValue' ]);
 
         return $call;
     }
@@ -75,7 +75,7 @@ class CalldriverTaskMapRepository extends Repository
         }
 
         $call = $this->findBy('calldriver_task_map.member_id', $member->id, [ 'calldriver_task_map.id as id', 'calldriver_id', 'calldriver_task_map.TS', 'calldriver_task_map.task_id', 'calldriver_task_map.driver_id',
-            'IsMatchFail', 'addr', 'addrKey', 'addr_det', 'addrKey_det', 'lat', 'lon', 'UserCreditCode', 'UserCreditValue', 'is_done', 'is_cancel', 'calldriver_task_map.member_id', 'calldriver_task_map.is_push' ]);
+            'IsMatchFail', 'calldriver.addr as addr', 'calldriver.addrKey as addrKey', 'calldriver.addr_det as addr_det', 'calldriver.addrKey_det as addrKey_det', 'calldriver.lat as lat', 'calldriver.lon as lon', 'UserCreditCode', 'UserCreditValue', 'is_done', 'is_cancel', 'calldriver_task_map.member_id', 'calldriver_task_map.is_push' ]);
 
 
         return $call;
