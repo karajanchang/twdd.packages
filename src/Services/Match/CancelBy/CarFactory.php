@@ -12,7 +12,7 @@ class CarFactory implements InterfaceCancelBy
     private $cancel_by = 4;
 
     public function cancelCalldriverTaskMap(array $params = null){
-        $this->calldriverTaskMap->IsMatchFail = 1;
+        $this->calldriverTaskMap->IsMatchFail = 0;
         $this->calldriverTaskMap->is_cancel = 1;
         $this->calldriverTaskMap->cancel_by = $this->cancel_by;
         $this->calldriverTaskMap->cancel_reason_id = $params['cancel_reason_id'] ?? null;
