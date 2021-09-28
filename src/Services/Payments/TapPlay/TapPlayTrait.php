@@ -51,7 +51,7 @@ trait TapPlayTrait
     private function post(string $url, array $postData){
         $res = ZhyuCurl::url($url)
                                 ->auth([
-                                    'x-api-key ' => $this->partner_key
+                                    'x-api-key' => $this->partner_key
                                 ])
                                 ->json($postData, true, (int) env('APPLEPAY_TIMEOUT', 30));
 
