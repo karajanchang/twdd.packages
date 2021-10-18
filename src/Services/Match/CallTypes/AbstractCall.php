@@ -200,6 +200,7 @@ class AbstractCall extends ServiceAbstract
         $params['coupon_id'] = !empty($this->coupon->id) ? $this->coupon->id : null;
         $params['IsByUserKeyin'] = !empty($this->user->id) ? 1 : 0;
         $params['call_driver_id'] = !empty($this->callDriver->id) ? $this->callDriver->id : null;
+        $params['use_jcoin'] = !empty($params['use_jcoin']) ? (int)(bool)$params['use_jcoin'] : 0;
 
 
         return $params;
