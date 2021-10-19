@@ -123,6 +123,15 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
         $params = $this->initParams($params);
 
         try {
+            $money = $this->getMoney();
+
+            if($money <= 0){
+                Log::info('ApplePay 刷卡0元，成功 (單號：'. $this->task->id. ')');
+
+                return $this->returnSuccess('結帳成功', null, true);
+            }
+
+
             if(empty($params['merchant_id'])){
                 $msg = '無法取得merchant';
                 Log::info($msg, [$params]);

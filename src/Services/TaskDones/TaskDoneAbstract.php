@@ -175,7 +175,11 @@ class TaskDoneAbstract
     protected function calucateBackUserCreditValue(){
         $TotalFee = $this->task->TaskStartFee + (int) $this->task->TaskDistanceFee + (int) $this->task->TaskWaitTimeFee + (int) $this->task->over_price + (int) $this->task->extra_price;
 
-        $back = $this->task->UserCreditValue > $TotalFee ? $TotalFee : $this->task->UserCreditValue;
+        if ($this->task->jcoin) {
+            $back = min($TotalFee, $this->task->jcoin);
+        } else {
+            $back = $this->task->UserCreditValue > $TotalFee ? $TotalFee : $this->task->UserCreditValue;
+        }
         if($back>0){
             $credit = $back;
             //---不收系統費時完全回補
