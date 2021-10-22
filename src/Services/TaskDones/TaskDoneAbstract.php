@@ -154,7 +154,7 @@ class TaskDoneAbstract
     private function calucateTaskFee(){
         //---有收系統費的才再算一次
         if($this->chargeTwddFee()===true){
-            $this->TaskFee = $this->task->TaskStartFee + (int) $this->task->TaskDistanceFee + (int) $this->task->TaskWaitTimeFee + (int) $this->task->over_price + (int) $this->task->extra_price - (int) $this->task->UserCreditValue;
+            $this->TaskFee = $this->task->TaskStartFee + (int) $this->task->TaskDistanceFee + (int) $this->task->TaskWaitTimeFee + (int) $this->task->over_price + (int) $this->task->extra_price - (int) $this->task->UserCreditValue - (int) $this->task->jcoin;
         }else{
             $this->TaskFee = $this->task->TaskFee;
         }
