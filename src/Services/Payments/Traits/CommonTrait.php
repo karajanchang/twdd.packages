@@ -24,7 +24,10 @@ trait CommonTrait
             'Pos_'   =>  'JSON',
             'PostData_' =>  $encrypt_data,
         ];
-        Log::info('付款最後送出的資料：', $postData);
+
+        if (env('APP_ENV') != 'production') {
+            Log::info('付款最後送出的資料：', $postData);
+        }
 
         return $postData;
     }
