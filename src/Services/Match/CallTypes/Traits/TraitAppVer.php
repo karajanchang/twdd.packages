@@ -11,20 +11,34 @@ trait TraitAppVer
     /*
      * 檢查App版本
      */
-    protected function AppVer(array $attributes) : bool{
-        $DeviceType = !empty($attributes['DeviceType']) ? strtolower(trim($attributes['DeviceType'])) : null;
-        $AppVer = !empty($attributes['AppVer']) ? $attributes['AppVer'] : null;
-        if(!is_null($DeviceType) && !is_null($AppVer)){
-            if($DeviceType=='iphone'){
-                $mini_ver = env('APP_MINI_VER_IOS', '3.6.5');
-            }else{
-                $mini_ver = env('APP_MINI_VER_ANDROID', '3.4.2');
-            }
+    protected function AppVer(array $attributes): bool
+    {
+        $deviceType = isset($attributes['DeviceType']) ? strtolower(trim($attributes['DeviceType'])) : null;
+        $appVer = $attributes['AppVer'] ?? null;
+        $osVer = $attributes['OSVer'] ?? null;
 
-            //--因為true代表過期，所以這邊要反過來
-            return !ZhyuTool::versionOutOfDate($AppVer, $mini_ver);
+        if (empty($deviceType) || empty($appVer) || empty($osVer)) {
+            return true;
         }
 
-        return true;
+        $OsMiniForceIOS = env('OS_MINI_FORCE_IOS', '13');
+        switch ($deviceType) {
+            case 'iphone':
+                // iOS 13 以下不進行強更
+                if (version_compare($osVer, $OsMiniForceIOS, '<')) {
+                    return true;
+                }
+                $miniVer = env('APP_MINI_VER_IOS', '3.6.5');
+                break;
+            case 'android':
+                $miniVer = env('APP_MINI_VER_ANDROID', '3.4.2');
+                break;
+        }
+
+        if (!isset($miniVer)) {
+            return true;
+        }
+
+        return version_compare($appVer, $miniVer, '>=');
     }
 }
