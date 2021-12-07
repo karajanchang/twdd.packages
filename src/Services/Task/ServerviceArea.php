@@ -9,6 +9,7 @@ namespace Twdd\Services\Task;
 
 use Illuminate\Support\Facades\Log;
 use Jyun\Mapsapi\TwddMap\Geocoding;
+use Mtsung\TwddLocation\Facade\TwddLocation;
 use Twdd\Errors\TaskErrors;
 use Twdd\Facades\LatLonService;
 use Twdd\Repositories\DistrictRepository;
@@ -78,6 +79,17 @@ class ServerviceArea extends ServiceAbstract
 
                 }
             }
+
+            try {
+                $res = TwddLocation::getDistrict($params['lat'], $params['lon']);
+                Log::info('TwddLocation::getDistrict: '.$params['lat'].','.$params['lon'], [$res]);
+                if (!is_null($res)) {
+                    return substr($res['zip_code'], 0, 3);
+                }
+            } catch (\Exception $e) {
+                Log::error('TwddLocation::getDistrict error', [$e]);
+            }
+
             $lat_lon = $params['lat'].','.$params['lon'];
             $location = Geocoding::reverseGeocode($lat_lon)['data'] ?? [];
             $zip = $location['zip'] ?? 0;

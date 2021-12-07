@@ -21,7 +21,8 @@
     "infobip/infobip-api-php-client": "^2.5",
     "zhyu/packages": "^0.4",
     "jenssegers/mongodb": "^3.6|^3.7|^3.8",
-    "jyun/mapsapi": "^1.0"
+    "jyun/mapsapi": "^1.0",
+    "mtsung/twdd.location": "^1.0"
   },
   "autoload": {
      "psr-4": {

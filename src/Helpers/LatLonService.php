@@ -6,6 +6,7 @@ namespace Twdd\Helpers;
 use ArrayAccess;
 use Illuminate\Support\Facades\Log;
 use Jyun\Mapsapi\TwddMap\Geocoding;
+use Mtsung\TwddLocation\Facade\TwddLocation;
 use Twdd\Repositories\DistrictRepository;
 
 class LatLonService implements ArrayAccess
@@ -115,6 +116,18 @@ class LatLonService implements ArrayAccess
             'district' => null,
             'zip' => null,
         ];
+
+        if (empty($zip)) {
+            try {
+                $res = TwddLocation::getDistrict($lat, $lon);
+                Log::info('TwddLocation::getDistrict: '.$lat.','.$lon, [$res]);
+                if (!is_null($res)) {
+                    $zip = $res['zip_code'];
+                }
+            } catch (\Exception $e) {
+                Log::error('TwddLocation::getDistrict error', [$e]);
+            }
+        }
 
         $if_in = false;
         if(!empty($zip)) {
