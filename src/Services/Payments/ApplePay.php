@@ -105,7 +105,7 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
 
 
         return [
-            'prime' => $memberPayToken->token,
+            'prime' => $memberPayToken->token ?? '',
             'order_number' => $OrderNo,
             'partner_key' => $this->partner_key,
             'merchant_id' => $merchant_id,
@@ -131,6 +131,11 @@ class ApplePay extends PaymentAbstract implements PaymentInterface
                 return $this->returnSuccess('結帳成功', null, true);
             }
 
+            if (empty($params['prime'])) {
+                $msg = 'ApplePay 查無Prime (單號：'. $this->task->id. ')';
+                Log::error($msg);
+                return $this->returnError(4004, $msg, null, true);
+            }
 
             if(empty($params['merchant_id'])){
                 $msg = '無法取得merchant';
