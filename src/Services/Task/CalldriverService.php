@@ -293,6 +293,7 @@ class CalldriverService extends ServiceAbstract
                 'IsMatchFail' => 0,
                 'is_push' => 0,
                 'call_driver_id' => $params['call_driver_id'],
+                'is_match_female_driver' => $params['match_female_driver'] ?? 0,
             ];
             array_push($paras, $pp);
         }
