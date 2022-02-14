@@ -19,6 +19,7 @@ use Twdd\Models\Member;
 use Twdd\Repositories\CalldriverRepository;
 use Twdd\Repositories\CalldriverTaskMapRepository;
 use Twdd\Repositories\MemberPayTokenRepository;
+use Twdd\Repositories\TaskHabitRepository;
 use Twdd\Services\ServiceAbstract;
 use Twdd\Traits\AttributesArrayTrait;
 use Twdd\Models\Calldriver;
@@ -32,13 +33,15 @@ class CalldriverService extends ServiceAbstract
     private $call_driver = null;
     private $members = [];
     private $mapRepository;
+    private $taskHabitRepository;
     private $user = null;
 
-    public function __construct(CalldriverRepository $repository, TaskErrors $taskErrors, CalldriverTaskMapRepository $mapRepository)
+    public function __construct(CalldriverRepository $repository, TaskErrors $taskErrors, CalldriverTaskMapRepository $mapRepository, TaskHabitRepository $taskHabitRepository)
     {
         $this->repository = $repository;
         $this->error = $taskErrors;
         $this->mapRepository = $mapRepository;
+        $this->taskHabitRepository = $taskHabitRepository;
     }
 
     public function checkIfDuplicate(){
@@ -192,7 +195,10 @@ class CalldriverService extends ServiceAbstract
             $this->insertMemberPayToken($calldriver, $params);
 
             if($do_not_create_map===false) {
-                $this->insertMap($calldriver, $params);
+                $calldriverTaskMaps = $this->insertMap($calldriver, $params);
+                foreach ($calldriverTaskMaps as $calldriverTaskMap) {
+                    $this->insertTaskHabits($calldriverTaskMap->id, $params);
+                }
             }
 
             return $calldriver;
@@ -229,8 +235,12 @@ class CalldriverService extends ServiceAbstract
 
     private function insertMap(Calldriver $calldriver, array $params){
         $paras = $this->filterMap($calldriver, $params);
+        $calldriverTaskMaps = [];
+        foreach ($paras as $para) {
+            $calldriverTaskMaps[] = $this->mapRepository->create($para);
+        }
 
-        return $this->mapRepository->insert($paras);
+        return $calldriverTaskMaps;
     }
 
 
@@ -299,6 +309,26 @@ class CalldriverService extends ServiceAbstract
         }
 
         return $paras;
+    }
+
+    private function insertTaskHabits(int $calldriverTaskMapId, array $params)
+    {
+        if (!isset($params['habits']) || empty($params['habits'])) {
+            return ;
+        }
+        $dtNow = Carbon::now();
+        $insertParams = [];
+        $defaultParams = [
+            'calldriver_task_map_id' => $calldriverTaskMapId,
+            'created_at' => $dtNow,
+            'updated_at' => $dtNow,
+        ];
+        foreach ($params['habits'] as $habitId) {
+            $defaultParams['habit_id'] = $habitId;
+            $insertParams[] = $defaultParams;
+        }
+
+        $this->taskHabitRepository->insert($insertParams);
     }
 
     /**

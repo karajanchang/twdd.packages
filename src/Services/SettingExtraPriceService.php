@@ -32,10 +32,8 @@ class SettingExtraPriceService extends ServiceAbstract
         if(TwddCache::key('SettingExtraPriceAll')->has()===false){
             $all = $this->repository->allOpen();
             TwddCache::key('SettingExtraPriceAll')->put($all);
-            Log::info('SettingExtraPriceAll 從資料庫拿', [$all]);
         }else{
             $all = TwddCache::key('SettingExtraPriceAll')->get();
-            Log::info('SettingExtraPriceAll 從快取拿', [$all]);
         }
         $TS = Carbon::now()->timestamp;
         $filters = $all->where('startTS', '<=', $TS)->where('endTS', '>=', $TS);
