@@ -181,14 +181,6 @@ class AbstractCall extends ServiceAbstract
         }
 
         $params['type'] = isset($params['type']) ? $params['type'] : 1;
-        if(!empty($params['addrKey']) && !empty($params['addr'])){
-            $params['addr'] = str_replace($params['city'], '', $params['addrKey']);
-            $params['addr'] = str_replace($params['district'], '', $params['addr']);
-        }
-        if(!empty($params['addrKey_det']) && !empty($params['addr_det'])){
-            $params['addr_det'] = str_replace($params['city_det'], '', $params['addrKey_det']);
-            $params['addr_det'] = str_replace($params['district_det'], '', $params['addr_det']);
-        }
 
         $params = $this->parseAddressByParams($params);
 
