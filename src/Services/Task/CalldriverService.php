@@ -313,7 +313,7 @@ class CalldriverService extends ServiceAbstract
 
     private function insertTaskHabits(int $calldriverTaskMapId, array $params)
     {
-        if (!isset($params['habits']) || empty($params['habits'])) {
+        if (!isset($params['habit_ids']) || empty($params['habit_ids'])) {
             return ;
         }
         $dtNow = Carbon::now();
@@ -323,7 +323,7 @@ class CalldriverService extends ServiceAbstract
             'created_at' => $dtNow,
             'updated_at' => $dtNow,
         ];
-        foreach ($params['habits'] as $habitId) {
+        foreach ($params['habit_ids'] as $habitId) {
             $defaultParams['habit_id'] = $habitId;
             $insertParams[] = $defaultParams;
         }
