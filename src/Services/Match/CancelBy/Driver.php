@@ -26,9 +26,9 @@ class Driver implements InterfaceCancelBy
             'TaskState' => -1,
             'isCancelByDriver' => 1,
             'TaskCancelTS' => time(),
-            'user_cancel_reason_id' => $params['cancel_reason_id'] ?? null,
-
+            'TaskCancelReason' => $params['cancel_reason'] ?? null,
         ];
+
         app(TaskRepository::class)->where('id', $this->task->id)->update($all);
 
         //--把coupon還給用戶，但預約call_type=2的要還
