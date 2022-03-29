@@ -134,7 +134,6 @@ class TaskDoneAbstract
         $extraCreditList = $extraCreditObj['list'];
 
         $credit += $extraCredit;
-        $this->DriverCredit = $this->DriverCredit + $credit;
 
         $params = [
             'driver_id' => $this->task->driver_id,
@@ -146,6 +145,8 @@ class TaskDoneAbstract
             'comments' => $comments,
             'createtime' => Carbon::now()->toDateTimeString(),
         ];
+
+        $this->DriverCredit = $this->DriverCredit + $credit;
 
         $driverCreditId = $this->driverCreditChangeRepository->insertGetId($params);
         $this->driverExtraCreditService->addExtraCreditLog($driverCreditId, $extraCreditList);
