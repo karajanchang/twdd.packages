@@ -57,8 +57,9 @@ class DriverExtraCreditService
         ];
     }
 
-    public function getExtraCredit(int $type, int $driver_id)
+    public function getExtraCredit(int $type, int $driver_id, $createTime)
     {
+        $createTime = ($createTime) ?? date('Y-m-d H:i:s');
         $list = $this->driverExtraCreditRepository->model()::select([
             'driver_extra_credit.*',
             'driver_credit_change_type.keyword',
@@ -66,8 +67,8 @@ class DriverExtraCreditService
         ->where([
             ['type', $type],
             ['driver_id', $driver_id],
-            ['contract_start_at', '<=', date('Y-m-d H:i:s')],
-            ['contract_end_at', '>=', date('Y-m-d H:i:s')]
+            ['contract_start_at', '<=', $createTime],
+            ['contract_end_at', '>=', $createTime]
         ])
         ->join('driver_credit_change_type', 'driver_credit_change_type.id', '=', 'driver_extra_credit.type')
         ->whereNull('deleted_at')
