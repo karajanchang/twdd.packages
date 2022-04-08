@@ -10,6 +10,7 @@ namespace Twdd\Helpers;
 
 
 use Twdd\Facades\TwddCache;
+use Twdd\Repositories\MemberCreditcardRepository;
 use Twdd\Repositories\MemberRepository;
 use Twdd\Services\ServiceAbstract;
 use Twdd\Traits\ModelToolTrait;
@@ -45,5 +46,11 @@ class MemberService extends ServiceAbstract
         }
 
         return $default_profile;
+    }
+
+    public function defaultCreditCard(int $memberId)
+    {
+        $repository = app()->make(MemberCreditcardRepository::class);
+        return $repository->defaultCreditCard($memberId);
     }
 }

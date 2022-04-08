@@ -35,7 +35,7 @@ class MemberRepository extends Repository
 
     public function profile(int $id, array $columns = []){
         $rcolumns = [
-            'member_grade_id', 'UserName', 'UserName', 'UserPhone', 'UserEmail', 'UserGender', 'InviteCode', 'OtherInviteCode',
+            'id', 'member_grade_id', 'UserName', 'UserName', 'UserPhone', 'UserEmail', 'UserGender', 'InviteCode', 'OtherInviteCode',
             'is_online', 'is_mobile_verify', 'is_registered',
             'UserEmergencyName', 'UserEmergencyPhone', 'UserEmergencyGender',
             'nums7', 'numsFail', 'numsBy7', 'numsByFail', 'pay_type',

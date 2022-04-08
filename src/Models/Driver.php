@@ -70,6 +70,6 @@ class Driver extends Model
 
     public function face8() {
 
-        return$this->hasOne(DriverFace8::class, 'driver_id', 'id');
+        return $this->hasOne(DriverFace8::class, 'driver_id', 'id');
     }
 }
