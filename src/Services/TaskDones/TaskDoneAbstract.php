@@ -14,6 +14,7 @@ use Twdd\Facades\SettingPriceService;
 use Twdd\Repositories\DriverCreditChangeRepository;
 use Twdd\Repositories\DriverRepository;
 use Twdd\Repositories\TaskRepository;
+use Twdd\Services\Credit\DriverExtraCreditService;
 use Twdd\Services\Price\SettingServicePriceService;
 
 class TaskDoneAbstract
@@ -22,6 +23,7 @@ class TaskDoneAbstract
     protected $driverCreditChangeRepository;
     protected $driverRepository;
     protected $settingServicePriceService;
+    protected $driverExtraCreditService;
     protected $is_first_use = 0;
     protected $task;
     protected $TaskFee = 0;
@@ -31,13 +33,19 @@ class TaskDoneAbstract
     protected $member_creditcard_id = null;
 
 
-    public function __construct(DriverCreditChangeRepository $driverCreditChangeRepository, DriverRepository $driverRepository,
-                                TaskRepository $taskRepository, SettingServicePriceService $settingServicePriceService)
+    public function __construct(
+        DriverCreditChangeRepository $driverCreditChangeRepository,
+        DriverRepository $driverRepository,
+        TaskRepository $taskRepository,
+        SettingServicePriceService $settingServicePriceService,
+        DriverExtraCreditService $driverExtraCreditService
+    )
     {
         $this->driverCreditChangeRepository = $driverCreditChangeRepository;
         $this->driverRepository = $driverRepository;
         $this->settingServicePriceService = $settingServicePriceService;
         $this->taskRepository = $taskRepository;
+        $this->driverExtraCreditService = $driverExtraCreditService;
     }
 
     public function setTask(Model $task, int $member_creditcard_id = 0){
@@ -119,20 +127,29 @@ class TaskDoneAbstract
         }
     }
 
-    protected function doCreditChange(int $type, int $credit, string $comments = null){
+    protected function doCreditChange(int $type, int $credit, string $comments = null)
+    {
+        $extraCreditObj  = $this->driverExtraCreditService->getExtraCredit($type, $this->task->driver_id, $this->task->createtime);
+        $extraCredit     = $extraCreditObj['credit'];
+        $extraCreditList = $extraCreditObj['list'];
+
+        $credit += $extraCredit;
+
         $params = [
             'driver_id' => $this->task->driver_id,
             'task_id' => $this->task->id,
             'type' => $type,
             'credit' => $credit,
             'driver_credit_before' => $this->DriverCredit,
-            'driver_credit_after' => $this->DriverCredit + $credit,
+            'driver_credit_after'  => $this->DriverCredit + $credit,
             'comments' => $comments,
             'createtime' => Carbon::now()->toDateTimeString(),
         ];
+
         $this->DriverCredit = $this->DriverCredit + $credit;
 
-        $this->driverCreditChangeRepository->insert($params);
+        $driverCreditId = $this->driverCreditChangeRepository->insertGetId($params);
+        $this->driverExtraCreditService->addExtraCreditLog($driverCreditId, $extraCreditList);
 
     }
 
