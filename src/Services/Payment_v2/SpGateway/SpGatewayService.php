@@ -42,9 +42,9 @@ class SpGatewayService
 
         $data = [
             'MerchantOrderNo' => $orderNo,
-            'PayerEmail' => $this->payerEmail,
-            'TokenValue' => 'ca567c81c7eb42fd4ea53f7ae069d9a2c069dc44dda1d85fbba98e75e1d511c3',
-            'TokenTerm' => 1,
+            'PayerEmail' => $this->payerEmail ?? $creditCard->PayerEmail,
+            'TokenValue' => $creditCard->TokenValue,
+            'TokenTerm' => $creditCard->member_id,
             'Amt' => $money,
             'ProdDesc' => $this->proDesc,
         ];

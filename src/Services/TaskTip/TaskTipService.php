@@ -57,9 +57,13 @@ class TaskTipService
 
         $payment->setPayerEmail($member->UserEmail);
         $payment->setProDesc('代駕任務小費');
+
         $res = $payment->pay($money, $creditcard, $merchant);
-        
         $this->createTaskTipLog($taskTip, $creditcard, $res);
+        if (!isset($res['Status']) || $res['Status'] != 'SUCCESS') {
+            return false;
+        }
+
         $this->updateTaskTipToSuccess($taskTip->id, $res);
 
         return true;
@@ -93,10 +97,6 @@ class TaskTipService
 
     private function updateTaskTipToSuccess(int $taskTipId, array $res)
     {
-        if (!isset($res['Status']) || $res['Status'] != 'SUCCESS') {
-            return;
-        }
-
         $data = ['status' => 1];
         $this->taskTipRepository->where('id', $taskTipId)->update($data);
     }
