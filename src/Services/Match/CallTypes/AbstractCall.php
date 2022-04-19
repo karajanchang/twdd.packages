@@ -228,7 +228,7 @@ class AbstractCall extends ServiceAbstract
                     $params['address'] = $location['address'] ?? null;
 
                     //--轉換成功
-                    if($location['district_id']>0) {
+                    if($location['district_id']>0 && $params['addr'] && $params['address']) {
                         $is_have_transfer_success = true;
                     }
                 }
