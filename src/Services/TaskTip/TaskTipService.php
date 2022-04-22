@@ -97,7 +97,10 @@ class TaskTipService
 
     private function updateTaskTipToSuccess(int $taskTipId, array $res)
     {
-        $data = ['status' => 1];
+        $data = [
+            'status' => 1,
+            'pay_at' => Carbon::now(),
+        ];
         $this->taskTipRepository->where('id', $taskTipId)->update($data);
     }
 }
