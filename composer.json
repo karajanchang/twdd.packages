@@ -23,7 +23,7 @@
     "jenssegers/mongodb": "^3.6|^3.7|^3.8",
     "jyun/mapsapi": "^1.0",
     "mtsung/twdd.location": "^1.0",
-    "guzzlehttp/guzzle": "^7.4"
+    "guzzlehttp/guzzle": "^7.0"
   },
   "autoload": {
      "psr-4": {
