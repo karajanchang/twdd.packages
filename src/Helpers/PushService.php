@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Twdd\Models\LoginIdentify;
+use Twdd\Models\MemberCreditcard;
 use Twdd\Models\Task;
 use Twdd\Repositories\TaskRepository;
 use Twdd\Services\Token\DriverPushService;
@@ -63,7 +64,7 @@ class PushService
     /*修改登入者的PushToken和DeviceType*/
     public function createOrUpdateByLoginIdentity(LoginIdentify $loginIdentify){
         $app = $this->app($loginIdentify['type']);
-        
+
         return $app->createOrUpdateByLoginIdentity($loginIdentify);
     }
 
@@ -253,6 +254,13 @@ class PushService
 
         if(!empty($this->task->id)) {
             $task = $this->taskRepository->view4push2member($this->task->id);
+            $defaultCreditCard = MemberCreditcard::query()->select('id')
+                ->where('member_id', $this->task->member_id)
+                ->where('is_default', 1)->first();
+            $task->can_pay_tip = 0;
+            if (!empty($defaultCreditCard)) {
+                $task->can_pay_tip = 1;
+            }
             $this->obj($task);
         }
         if(!is_null($obj)){
