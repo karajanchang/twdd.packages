@@ -18,7 +18,12 @@ Trait SpgatewayTrait
 
     protected function preInit(){
         $this->driverMerchant = app(DriverMerchantRepository::class)->findByTask($this->task);
-        $this->memberCreditCard = app(MemberCreditcardRepository::class)->findByTask($this->task);
+        // empty call_member_id 等同於自己叫自己，不要問為什麼，我也想知道
+        if ($this->task->type == 1 && $this->task->call_type == 3 && !empty($this->task->call_member_id)) {
+            $this->memberCreditCard = app(MemberCreditcardRepository::class)->findByMemberId($this->task->call_member_id);
+        } else {
+            $this->memberCreditCard = app(MemberCreditcardRepository::class)->findByTask($this->task);
+        }
     }
 
     /**

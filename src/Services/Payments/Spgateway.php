@@ -196,8 +196,8 @@ class Spgateway extends PaymentAbstract implements PaymentInterface
             'Amt'               =>  $money,
             'ProdDesc'          =>  '代駕費用',
             'PayerEmail'        =>  $payer_email,
-            'TokenValue'        =>  $this->memberCreditCard->TokenValue,
-            'TokenTerm'         =>  $this->task->member_id,
+            'TokenValue'        =>  $memberCreditCard->TokenValue,
+            'TokenTerm'         =>  $memberCreditCard->member_id,
             'TokenSwitch'       =>  'on',
         ];
         $msg = '刷卡資料 (單號：' . $this->task->id . ')';
