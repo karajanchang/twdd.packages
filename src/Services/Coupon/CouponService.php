@@ -9,6 +9,7 @@ namespace Twdd\Services\Coupon;
 
 use App\User;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Twdd\Errors\CouponErrors;
@@ -69,6 +70,26 @@ class CouponService extends ServiceAbstract
         if ($coupon->isOnlyForThisMember == 1 && !empty($member->id) && !empty($coupon->member_id) && $member->id!= $coupon->member_id) {
 
             return $this->error->_('4006');
+        }
+
+        if (!empty($task)) {
+            if (!empty($coupon->city_id_option)) {
+                $allowCityIds = json_decode($coupon->city_id_option);
+
+                if (!in_array($task->start_city_id, $allowCityIds)) {
+                    return $this->error->_('4010');
+                }
+            }
+
+            if (!empty($coupon->daily_start_time) && !empty($coupon->daily_end_time)) {
+                $startDt = Carbon::parse($coupon->daily_start_time);
+                $endDt = Carbon::parse($coupon->daily_end_time);
+                $valid = Carbon::createFromTimestamp($task->TaskRideTS)->between($startDt, $endDt);
+
+                if (!$valid) {
+                    return $this->error->_('4011');
+                }
+            }
         }
 
         return $coupon;

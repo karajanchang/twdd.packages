@@ -8,7 +8,9 @@
 namespace Twdd\Services\Coupon;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Twdd\Errors\CouponErrors;
 use Twdd\Repositories\CouponwordRepository;
 use Twdd\Repositories\DriverRepository;
@@ -84,6 +86,25 @@ class CouponwordService extends ServiceAbstract
 
 
         }
+
+        if (!empty($task)) {
+            if (!empty($couponword->city_id_option)) {
+                $allowCityIds = json_decode($couponword->city_id_option);
+                if (!in_array($task->start_city_id, $allowCityIds)) {
+                    return $this->error->_('4010');
+                }
+            }
+
+            if (!empty($couponword->daily_start_time) && !empty($couponword->daily_end_time)) {
+                $startDt = Carbon::parse($couponword->daily_start_time);
+                $endDt = Carbon::parse($couponword->daily_end_time);
+                $valid = Carbon::createFromTimestamp($task->TaskRideTS)->between($startDt, $endDt);
+                if (!$valid) {
+                    return $this->error->_('4011');
+                }
+            }
+        }
+
 
         if(($couponword->nums ?? 0) > 0){
             $nums = $this->taskRepository->nums7ByUserCreditCode($code, $task_id);
