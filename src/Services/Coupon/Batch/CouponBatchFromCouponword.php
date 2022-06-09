@@ -39,6 +39,10 @@ class CouponBatchFromCouponword extends AbstractCouponBatch implements Interface
             'money' => $couponword->money,
             'startTS' => $couponword->startTS,
             'endTS' => $couponword->endTS,
+            'daily_start_time' => $couponword->daily_start_time,
+            'daily_end_time' => $couponword->daily_end_time,
+            'city_id_option' => $couponword->city_id_option,
+            'use_description' => $couponword->use_description,
             'only_first_use' => $couponword->only_first_use,
             'activity_id' => $couponword->activity_id,
         ];
