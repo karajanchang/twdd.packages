@@ -10,4 +10,6 @@ return [
     'coupon_only_for_custom_member' => '此優惠券儘限指定會員使用',
     'black_card_can_not_use_coupon' => '黑卡會員無法使用優惠卷',
     'coupon_nums_reached_the_limit' => '此優惠券兌換人數已達上限',
+    'not_allow_use_in_city' => '不符合優惠券規則之使用縣市',
+    'not_allow_use_in_time' => '不符合優惠券規則之使用時間',
 ];

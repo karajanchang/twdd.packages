@@ -62,4 +62,14 @@ class CouponErrors extends ErrorAbstract
 
         return trans('twdd::coupon.coupon_nums_reached_the_limit');
     }
+
+    public function error4010(){
+
+        return trans('twdd::coupon.not_allow_use_in_city');
+    }
+
+    public function error4011(){
+
+        return trans('twdd::coupon.not_allow_use_in_time');
+    }
 }
