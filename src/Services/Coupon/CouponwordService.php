@@ -98,11 +98,18 @@ class CouponwordService extends ServiceAbstract
             if (!empty($couponword->daily_start_time) && !empty($couponword->daily_end_time)) {
                 $startDt = Carbon::parse($couponword->daily_start_time);
                 $endDt = Carbon::parse($couponword->daily_end_time);
+                $rideDt = Carbon::createFromTimestamp($task->TaskRideTS);
                 // 跨日問題解決 22:00~03:00
                 if ($endDt->isBefore($startDt)) {
-                    $endDt->addDay();
+                    if ($rideDt->isBefore($endDt) || $rideDt->isAfter($startDt)) {
+                        $valid = true;
+                    } else {
+                        $valid = false;
+                    }
+                } else {
+                    $valid = $rideDt->between($startDt, $endDt);
                 }
-                $valid = Carbon::createFromTimestamp($task->TaskRideTS)->between($startDt, $endDt);
+
                 if (!$valid) {
                     return $this->error->_('4011');
                 }
