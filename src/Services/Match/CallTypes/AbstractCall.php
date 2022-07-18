@@ -61,6 +61,8 @@ class AbstractCall extends ServiceAbstract
 
     }
 
+    public function cancel(array $other_params = []){}
+
     /*
      * 是否不要檢查該媒合前功能
      */
@@ -219,6 +221,7 @@ class AbstractCall extends ServiceAbstract
                 } else {
                     $lat_lon = $params['lat'].','.$params['lon'];
                     $location = Geocoding::reverseGeocode($lat_lon)['data'] ?? [];
+
                     $params['city'] = $location['city'] ?? null;
                     $params['city_id'] = $location['city_id'] ?? null;
                     $params['district'] = $location['district'] ?? null;

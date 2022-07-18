@@ -33,6 +33,8 @@ class SpGatewayService
         if (empty($this->orderNo)) {
             $orderNo = $this->createOrderNo();
             $this->setOrderNo($orderNo);
+        } else {
+            $orderNo = $this->orderNo;
         }
         $this->checkMoney($money);
         $this->checkMerchant($merchant);
@@ -50,6 +52,43 @@ class SpGatewayService
         ];
 
         return $service->pay($data, $merchant->MerchantID, $merchant->MerchantHashKey, $merchant->MerchantIvKey);
+    }
+
+    public function query(int $money, string $orderNo, DriverMerchant $merchant)
+    {
+        $service = new Query();
+
+        $data = [
+            'MerchantOrderNo' => $orderNo,
+            'Amt' => $money
+        ];
+
+        return $service->exec($data, $merchant->MerchantID, $merchant->MerchantHashKey, $merchant->MerchantIvKey);
+    }
+
+    public function cancel(int $money, string $orderNo, DriverMerchant $merchant)
+    {
+        $service = new Cancel();
+
+        $data = [
+            'MerchantOrderNo' => $orderNo,
+            'Amt' => $money
+        ];
+
+        return $service->exec($data, $merchant->MerchantID, $merchant->MerchantHashKey, $merchant->MerchantIvKey);
+    }
+
+    public function back(int $money, string $orderNo, int $closeType, DriverMerchant $merchant)
+    {
+        $service = new Back();
+
+        $data = [
+            'MerchantOrderNo' => $orderNo,
+            'Amt' => $money,
+            'CloseType' => $closeType
+        ];
+
+        return $service->exec($data, $merchant->MerchantID, $merchant->MerchantHashKey, $merchant->MerchantIvKey);
     }
 
     public function setPayerEmail(string $email)

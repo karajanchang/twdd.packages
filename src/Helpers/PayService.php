@@ -14,6 +14,8 @@ class PayService
     private $original_pay_type = null;
     private $payment = null;
     private $task = null;
+    private $calldriverTaskMap = null;
+    private $call_type = null;
 
     public function __construct()
     {
@@ -30,8 +32,20 @@ class PayService
         }
     }
 
-    public function by(int $pay_type, bool $is_change = false){
-        $this->payment = app(Collection::make($this->lut)->get($pay_type));
+    public function callType(int $call_type)
+    {
+        $this->call_type = $call_type;
+
+        return $this;
+    }
+
+    public function by(int $pay_type, bool $is_change = false) {
+
+        if ($this->call_type === 5) {
+            $this->payment = app(Collection::make($this->lut)->get(6));
+        } else {
+            $this->payment = app(Collection::make($this->lut)->get($pay_type));
+        }
         Log::info('PayService::by', ['payment' => $pay_type]);
 
         //---原來的才記
@@ -45,8 +59,11 @@ class PayService
 
     public function task(Model $task){
         $this->task = $task;
+        return $this;
+    }
 
-
+    public function calldriverTaskMap(Model $calldriverTaskMap){
+        $this->calldriverTaskMap = $calldriverTaskMap;
         return $this;
     }
 
@@ -96,7 +113,7 @@ class PayService
     public function pay(array $params = [], bool $is_notify_member = true){
         $this->payWhenIsCarFactory();
 
-        return $this->payment->task($this->task)->pay($params, $is_notify_member);
+        return $this->payment->calldriverTaskMap($this->calldriverTaskMap)->task($this->task)->pay($params, $is_notify_member);
     }
 
     public function query(){

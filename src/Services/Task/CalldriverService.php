@@ -18,6 +18,7 @@ use Twdd\Facades\LatLonService;
 use Twdd\Models\Member;
 use Twdd\Repositories\CalldriverRepository;
 use Twdd\Repositories\CalldriverTaskMapRepository;
+use Twdd\Repositories\BlackhatDetailRepository;
 use Twdd\Repositories\MemberPayTokenRepository;
 use Twdd\Repositories\TaskHabitRepository;
 use Twdd\Services\ServiceAbstract;
@@ -34,26 +35,35 @@ class CalldriverService extends ServiceAbstract
     private $members = [];
     private $mapRepository;
     private $taskHabitRepository;
+    private $blackhatDetailRepository;
     private $user = null;
 
-    public function __construct(CalldriverRepository $repository, TaskErrors $taskErrors, CalldriverTaskMapRepository $mapRepository, TaskHabitRepository $taskHabitRepository)
+    public function __construct(
+        TaskErrors $taskErrors,
+        CalldriverRepository $repository,
+        CalldriverTaskMapRepository $mapRepository,
+        BlackhatDetailRepository $blackhatDetailRepository,
+        TaskHabitRepository $taskHabitRepository
+    )
     {
         $this->repository = $repository;
         $this->error = $taskErrors;
         $this->mapRepository = $mapRepository;
         $this->taskHabitRepository = $taskHabitRepository;
+        $this->blackhatDetailRepository = $blackhatDetailRepository;
     }
 
-    public function checkIfDuplicate(){
+    public function checkIfDuplicate()
+    {
         $res = $this->checkIfHaveCallMember();
-        if($res!==true){
+        if ($res !== true) {
 
             return $res;
         }
 
         $call_member = $this->getCallMember();
         $res = $this->checkDuplicateByMember($call_member);
-        if($res!==true){
+        if ($res !== true) {
 
             return $res;
         }
@@ -61,8 +71,9 @@ class CalldriverService extends ServiceAbstract
         return true;
     }
 
-    private function checkDuplicateByMember($member){
-        if($this->mapRepository->numsOfDuplcateByMember($member)>0){
+    private function checkDuplicateByMember($member)
+    {
+        if ($this->mapRepository->numsOfDuplcateByMember($member) > 0) {
             $this->error->setReplaces('seconds', $this->calucateLastSeconds());
 
             return $this->error['1005'];
@@ -70,9 +81,10 @@ class CalldriverService extends ServiceAbstract
         return true;
     }
 
-    private function checkIfHaveCallMember(){
+    private function checkIfHaveCallMember()
+    {
         $call_member = $this->getCallMember();
-        if(is_null($call_member)){
+        if (is_null($call_member)) {
 
             return $this->error['1004'];
         }
@@ -99,7 +111,8 @@ class CalldriverService extends ServiceAbstract
     }
 
 
-    public function currentCall(int $calldriver_id){
+    public function currentCall(int $calldriver_id)
+    {
         $call = $this->mapRepository->currentCall($calldriver_id);
 
         $driver = InitalObject::parseDriverFromCall($call);
@@ -130,12 +143,13 @@ class CalldriverService extends ServiceAbstract
         ];
     }
 
-    private function calucateLastSeconds(){
-        $key = 'CALLDRIVER_CHECK_INITAL'.$this->getCallMember()->id;
+    private function calucateLastSeconds()
+    {
+        $key = 'CALLDRIVER_CHECK_INITAL' . $this->getCallMember()->id;
         $seconds = env('CALLDRIVER_CHECK_SECONDS', 60);
-        if(!Cache::has($key)){
+        if (!Cache::has($key)) {
             Cache::put($key, time(), Carbon::now()->addSeconds($seconds));
-        }else{
+        } else {
             $time = Cache::get($key);
             $seconds = $seconds - (time() - $time);
         }
@@ -144,10 +158,11 @@ class CalldriverService extends ServiceAbstract
     }
 
 
-    public function create(array $params, bool $do_not_create_map = false){
+    public function create(array $params, bool $do_not_create_map = false)
+    {
         //---檢查會員是否有效
         $res = $this->checkIfHaveCallMember();
-        if($res!==true){
+        if ($res !== true) {
 
             return $res;
         }
@@ -157,7 +172,7 @@ class CalldriverService extends ServiceAbstract
         }*/
 
         $error = $this->validate($params);
-        if($error!==true){
+        if ($error !== true) {
 
             return $error;
         }
@@ -165,7 +180,7 @@ class CalldriverService extends ServiceAbstract
         //---lat lon 代0時要 地址轉latlon
         $this->ifMmemberIsNullThenEqalCallMember();
 
-        if(empty($params['city']) || empty($params['district'])) {
+        if (empty($params['city']) || empty($params['district'])) {
             if (isset($params['zip'])) {
                 $cityDistricts = LatLonService::locationFromZip($params['zip']);
                 if (isset($cityDistricts) && count($cityDistricts)) {
@@ -176,7 +191,7 @@ class CalldriverService extends ServiceAbstract
             }
         }
 
-        if(empty($params['city_det']) || empty($params['district_det'])) {
+        if (empty($params['city_det']) || empty($params['district_det'])) {
             if (isset($params['zip_det'])) {
                 $cityDistricts_det = LatLonService::locationFromZip($params['zip_det']);
                 if (isset($cityDistricts_det) && count($cityDistricts_det)) {
@@ -189,23 +204,30 @@ class CalldriverService extends ServiceAbstract
         Log::info('CalldriverService create params: ', $params);
 
         try {
+            $callType = $params['call_type'] ?? 0;
+            $originParams = $params;
             $params = $this->filter($params);
             $calldriver = $this->repository->create($params);
 
             $this->insertMemberPayToken($calldriver, $params);
 
-            if($do_not_create_map===false) {
+            if ($do_not_create_map === false) {
                 $calldriverTaskMaps = $this->insertMap($calldriver, $params);
+
+                if ($callType == 5) {
+                    $calldriver = $this->insertBlackHatDetail($calldriverTaskMaps, $originParams);
+                }
+
                 foreach ($calldriverTaskMaps as $calldriverTaskMap) {
                     $this->insertTaskHabits($calldriverTaskMap->id, $params);
                 }
             }
 
             return $calldriver;
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             Bugsnag::notifyException($e);
-            $msg = env('APP_DEBUG')===true ? $e->getMessage() : null;
-            Log::error('twdd CalldriverService error'.$msg, [$e]);
+            $msg = env('APP_DEBUG') === true ? $e->getMessage() : null;
+            Log::error('twdd CalldriverService error' . $msg, [$e]);
 
             return $this->error->_('500');
         }
@@ -215,15 +237,16 @@ class CalldriverService extends ServiceAbstract
     /*
      * 塞入apple pay / line pay 或其他付款方式的token
      */
-    private function insertMemberPayToken(Calldriver $calldriver, array $params = []){
+    private function insertMemberPayToken(Calldriver $calldriver, array $params = [])
+    {
         $members = $this->getMembers();
-        Log::info(__CLASS__.'::'.__METHOD__.' members: ', [$members]);
-        if(!isset($params['pay_token']) || empty($params['pay_token'])) return ;
+        Log::info(__CLASS__ . '::' . __METHOD__ . ' members: ', [$members]);
+        if (!isset($params['pay_token']) || empty($params['pay_token'])) return;
 
         $res = false;
-        if(count($members)) {
+        if (count($members)) {
             foreach ($this->members as $member) {
-                if(isset($member->id) && !empty($member->id)) {
+                if (isset($member->id) && !empty($member->id)) {
                     $res = app(MemberPayTokenRepository::class)->createByMemberId($member->id, $params['pay_token'], $params['pay_type']);
                 }
                 break;
@@ -233,7 +256,8 @@ class CalldriverService extends ServiceAbstract
         return $res;
     }
 
-    private function insertMap(Calldriver $calldriver, array $params){
+    private function insertMap(Calldriver $calldriver, array $params)
+    {
         $paras = $this->filterMap($calldriver, $params);
         $calldriverTaskMaps = [];
         foreach ($paras as $para) {
@@ -241,6 +265,19 @@ class CalldriverService extends ServiceAbstract
         }
 
         return $calldriverTaskMaps;
+    }
+
+    private function insertBlackHatDetail(array $calldriverTaskMaps, array $params)
+    {
+
+        $data['type'] = $params['blackHat_type'];
+        $data['start_date'] = $params['start_date'];
+        $data['maybe_over_time'] = $params['maybe_over_time'];
+
+        $calldriverTaskMap = $calldriverTaskMaps[0];
+        $data['calldriver_task_map_id'] = $calldriverTaskMap->id;
+
+        return $this->blackhatDetailRepository->create($data);
     }
 
 

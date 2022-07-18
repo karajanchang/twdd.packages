@@ -63,9 +63,19 @@ class MatchService extends ServiceAbstract
         return $this->callType->check($params, $check_lists);
     }
 
+    public function cancel_check(array $params, array $check_lists = ['*']){
+
+        return $this->callType->cancel_check($params, $check_lists);
+    }
+
     public function match(array $other_params = []){
 
         return $this->callType->match($other_params);
+    }
+
+    public function cancel(array $other_params = []){
+
+        return $this->callType->cancel($other_params);
     }
 
 

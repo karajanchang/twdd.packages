@@ -9,6 +9,7 @@ abstract class SpGatewayAbstract
     protected $iv;
     protected $partnerId;
     protected $merchantPrefix;
+    protected $queryUrl;
     protected $creditUrl;
     protected $cancelUrl;
 
@@ -20,6 +21,8 @@ abstract class SpGatewayAbstract
         $this->merchantPrefix = env('SPGATEWAY_MERCHANT_PREFIX','TWD');
         $this->creditUrl = env('SPGATEWAY_URL', 'https://core.spgateway.com/API/CreditCard');
         $this->cancelUrl = env('SPGATEWAY_CANCEL_URL', 'https://core.spgateway.com/API/CreditCard/Cancel');
+        $this->queryUrl  = env('SPGATEWAY_QUERY_URL', 'https://core.spgateway.com/API/QueryTradeInfo');
+        $this->closeUrl  = env('SPGATEWAY_BACK_URL', 'https://core.spgateway.com/API/CreditCard/Close');
     }
 
     protected function encrypt($postData, $key, $iv)

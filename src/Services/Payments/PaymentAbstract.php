@@ -14,6 +14,7 @@ class PaymentAbstract
 {
     protected $error;
     protected $task;
+    protected $calldriverTaskMap;
     private $taskPayLogRepository;
     protected $money = 0;
     protected $pay_type = 1;
@@ -34,6 +35,12 @@ class PaymentAbstract
             $this->setMoney($task->TaskFee);
         }
 
+        return $this;
+    }
+
+    public function calldriverTaskMap(Model $calldriverTaskMap = null)
+    {
+        $this->calldriverTaskMap = $calldriverTaskMap;
         return $this;
     }
 
@@ -84,6 +91,7 @@ class PaymentAbstract
         $params = [
             'pay_type' => $this->pay_type,
             'task_id' => isset($this->task->id) ? $this->task->id : null,
+            'calldriver_task_map_id' => isset($this->calldriverTaskMap->id) ? $this->calldriverTaskMap->id : null,
             'pay_status' => $pay_status,
             'error_code' => (int) $error_code,
             'msg' => $msg,
