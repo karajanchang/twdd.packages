@@ -69,14 +69,10 @@ class ServerviceArea extends ServiceAbstract
 
     private function getZipFromParams(array $params){
         if(!isset($params['zip']) || empty($params['zip'])){
-            if(isset($params['city']) && isset($params['district'])) {
+            if(isset($params['city']) && !empty($params['city']) && isset($params['district']) && !empty($params['district'])) {
                 $location = LatLonService::citydistrictFromCityAndDistrict($params['city'], $params['district']);
-                try {
-                    $zip = $location['zip'];
-
-                    return $zip;
-                }catch(\Exception $e){
-
+                if (strlen($location['zip']) == 3) {
+                    return $location['zip'];
                 }
             }
 
