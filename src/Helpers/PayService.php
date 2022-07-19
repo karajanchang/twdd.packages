@@ -75,7 +75,7 @@ class PayService
     public function cancel(string $OrderNo = null, int $amount = null){
         Log::info(__CLASS__.'::'.__METHOD__.': ', [$this->task]);
 
-        return $this->payment->task($this->task)->cancel($OrderNo, $amount);
+        return $this->payment->calldriverTaskMap($this->calldriverTaskMap)->task($this->task)->cancel($OrderNo, $amount);
     }
 
     /*
@@ -118,7 +118,7 @@ class PayService
 
     public function query(){
 
-        return $this->payment->task($this->task)->query();
+        return $this->payment->calldriverTaskMap($this->calldriverTaskMap)->task($this->task)->query();
     }
 
     public function money(int $money){

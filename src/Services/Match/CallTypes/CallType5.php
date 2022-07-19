@@ -95,6 +95,10 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             'maybe_over_time' => $params['maybe_over_time']
         ]);
 
+        if (!$driverID) {
+            return $this->error('找不到司機', null, 2001);
+        }
+
         // 若找不到要建立單？
 
         $callDriver = app(DriverRepository::class)->findByDriverID($driverID, ['id']);
@@ -153,11 +157,19 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         $calldriver = Calldriver::where('id', $params['calldriver_id'])->first();
 
-        $blackhatDetail = $calldriver->calldriver_task_map[0]->blackhat_detail;
+        $calldriverTaskMap = $calldriver->calldriver_task_map[0];
+        $blackhatDetail = $calldriverTaskMap->blackhat_detail;
 
-        var_dump($blackhatDetail);exit;
+        if (!$blackhatDetail) {
+            return $this->error('沒有此預約單');
+        }
 
-        return $this->success('呼叫成功');
+        $payQuery = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->query();
+
+        // 用 Query 判斷走 back or cancel
+        //var_dump($payQuery);exit;
+
+        return $this->success('退款成功');
     }
 
 

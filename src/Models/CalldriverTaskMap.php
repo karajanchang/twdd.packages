@@ -36,6 +36,11 @@ class CalldriverTaskMap extends Model
     }
 
     public function blackhat_detail(){
-        return $this->belongsTo(BlackhatDetail::class, 'calldriver_task_map_id', 'id');
+        return $this->belongsTo(BlackhatDetail::class, 'id', 'calldriver_task_map_id');
+    }
+
+    public function paylogs(){
+
+        return $this->hasMany(TaskPayLog::class, 'calldriver_task_map_id', 'id');
     }
 }

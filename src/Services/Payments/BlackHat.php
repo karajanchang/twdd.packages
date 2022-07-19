@@ -3,7 +3,7 @@
 
 namespace Twdd\Services\Payments;
 
-
+use Illuminate\Support\Facades\Log;
 use Twdd\Models\DriverMerchant;
 use Twdd\Services\Payments\SpgatewayErrorDectect;
 use Twdd\Repositories\MemberCreditcardRepository;
@@ -32,8 +32,11 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
             $member = $this->calldriverTaskMap->member;
 
             $memberCreditCard = app(MemberCreditcardRepository::class)->defaultCreditCard($member->id);
-            $orderNo = 'bh_' . time();
+            $orderNo = 'bh_' . str_pad($this->calldriverTaskMap->id, 8, "0", STR_PAD_LEFT);
             $money = $params['money'];
+
+            $this->setMoney($money);
+            $this->setOrderNo($orderNo);
         }
 
         try {
@@ -48,7 +51,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
                 return $this->returnSuccess('刷卡成功', $res, true);
 
-            } else if ($res['Message']) {
+            } else if (isset($res['Message']) && $res['Message']) {
 
                 app(SpgatewayErrorDectect::class)->init($memberCreditCard, $res['Status'], $res['Message']);
 
@@ -61,40 +64,64 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
         } catch (\Exception $e) {
 
-            $msg = '刷卡異常 (單號：'.$this->task->id.'): '.$e->getMessage();
+            $msg = '刷卡異常 (預約單號：'.$this->calldriverTaskMap->id.'): '.$e->getMessage();
 
             return $this->notifyExceptionAndLog($e, 2005, $msg, 0);
         }
-
-
-        $res = $payment->query($money, $orderNo, $driverMerchant);
-
-        // echo "<pre>";
-        // var_dump($res);exit;
-
-        // TradeStatus = 1 and
-        //$res = $payment->cancel($money, $orderNo, $driverMerchant);
-
-        $res = $payment->back($money, $orderNo, 2, $driverMerchant);
-
-        echo "<pre>";
-        var_dump($res);exit;
-
-
-
-
-
-
-
-
-
-
-
     }
 
-    public function cancel(string $OrderNo = null, int $amount = null) {}
-    public function back(int $amt, bool $is_notify_member = false) {}
-    public function query() {}
+    public function cancel(string $OrderNo = null, int $amount = null)
+    {
+        $driverMerchant = new DriverMerchant();
+
+        $driverMerchant->MerchantID = 'TWD161038650';
+        $driverMerchant->MerchantHashKey = 'U5XsUQLg0bvYAprhXm8FybhHZzDiS9cw';
+        $driverMerchant->MerchantIvKey = 'Cog226xrtyu4nvtP';
+
+//        $payment = new SpGatewayService();
+//        $payment->setOrderNo($orderNo);
+//        $payment->setProDesc('代駕任務測試');
+//
+//        $res = $payment->cancel($money, $orderNo, $driverMerchant);
+    }
+
+    public function back(int $amt, bool $is_notify_member = false)
+    {
+        $driverMerchant = new DriverMerchant();
+
+        $driverMerchant->MerchantID = 'TWD161038650';
+        $driverMerchant->MerchantHashKey = 'U5XsUQLg0bvYAprhXm8FybhHZzDiS9cw';
+        $driverMerchant->MerchantIvKey = 'Cog226xrtyu4nvtP';
+
+//        $payment = new SpGatewayService();
+//        $payment->setOrderNo($orderNo);
+//        $payment->setProDesc('代駕任務測試');
+//
+//        $res = $payment->back($money, $orderNo, 2, $driverMerchant);
+    }
+
+    public function query()
+    {
+        $driverMerchant = new DriverMerchant();
+
+        $driverMerchant->MerchantID = 'TWD161038650';
+        $driverMerchant->MerchantHashKey = 'U5XsUQLg0bvYAprhXm8FybhHZzDiS9cw';
+        $driverMerchant->MerchantIvKey = 'Cog226xrtyu4nvtP';
+
+        $money = 0;
+        $orderNo = "";
+        // 刷訂金
+        if ($this->calldriverTaskMap) {
+            $payLogs = $this->calldriverTaskMap->payLogs->where('pay_status', 1);
+            $payLog = $payLogs[0] ?? null;
+
+            $money = $payLog->amt;
+            $orderNo = $payLog->OrderNo;
+        }
+
+        $payment = new SpGatewayService();
+        return $res = $payment->query($money, $orderNo, $driverMerchant);
+    }
 
 
 
