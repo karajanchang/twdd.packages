@@ -208,33 +208,19 @@ class AbstractCall extends ServiceAbstract
 
         $is_have_transfer_success = false;
         if(!empty($params['lat']) && !empty($params['lon'])){
-            if(intval($params['lat'])!=0 && intval($params['lon'])!=0) {
-                if (env('APP_DEBUG', false) === true && (bool)app(Request::class)->get('is_testing') === true) {
-                    $params['city'] = '台北市';
-                    $params['city_id'] = 1;
-                    $params['district'] = '中正區';
-                    $params['district_id'] = 1;
-                    $params['zip'] = '100';
-                    $params['addr'] = '臨沂街51號';
-                    $params['address'] = '台北市中正區臨沂街51號';
-                    $is_have_transfer_success = true;
-                } else {
-                    $lat_lon = $params['lat'].','.$params['lon'];
-                    $location = Geocoding::reverseGeocode($lat_lon)['data'] ?? [];
+            $lat_lon = $params['lat'].','.$params['lon'];
+            $location = Geocoding::reverseGeocode($lat_lon)['data'] ?? [];
+            $params['city'] = $location['city'] ?? null;
+            $params['city_id'] = $location['city_id'] ?? null;
+            $params['district'] = $location['district'] ?? null;
+            $params['district_id'] = $location['district_id'] ?? null;
+            $params['zip'] = $location['zip'] ?? null;
+            $params['addr'] = $location['addr'] ?? null;
+            $params['address'] = $location['address'] ?? null;
 
-                    $params['city'] = $location['city'] ?? null;
-                    $params['city_id'] = $location['city_id'] ?? null;
-                    $params['district'] = $location['district'] ?? null;
-                    $params['district_id'] = $location['district_id'] ?? null;
-                    $params['zip'] = $location['zip'] ?? null;
-                    $params['addr'] = $location['addr'] ?? null;
-                    $params['address'] = $location['address'] ?? null;
-
-                    //--轉換成功
-                    if($location['district_id']>0 && $params['addr'] && $params['address']) {
-                        $is_have_transfer_success = true;
-                    }
-                }
+            //--轉換成功
+            if($params['district_id']>0 && $params['addr'] && $params['address']) {
+                $is_have_transfer_success = true;
             }
         }
         //--如果都沒有轉換成功再改用address來換換

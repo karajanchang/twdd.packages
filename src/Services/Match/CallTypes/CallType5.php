@@ -90,13 +90,13 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         $driverID = $this->matchDriver([
             'zip' => $params['zip'],
-            'blackHat_type' => $params['blackHat_type'],
+            'black_hat_type' => $params['black_hat_type'],
             'start_date' => $params['start_date'],
             'maybe_over_time' => $params['maybe_over_time']
         ]);
 
         if (!$driverID) {
-            return $this->error('找不到司機', null, 2001);
+            return $this->error('目前無駕駛承接', null, 2001);
         }
 
         // 若找不到要建立單？
@@ -112,20 +112,19 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
 
-        $taskFee = ($params['blackHat_type'] == 5) ? 1980 : 2680;
+        $taskFee = ($params['black_hat_type'] == 1) ? 1980 : 2680;
         $payParams['money'] = $taskFee / 2;
 
-        $pay_result = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->pay($payParams);
+        $payResult = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->pay($payParams);
 
-        if (isset($pay_result['error'])) {
+        if (isset($payResult['error'])) {
 
             $blackHatDetail->pay_status = 2; # 預約成功 刷卡失敗
             $blackHatDetail->prematch_status = 1;
             $blackHatDetail->save();
+            $msg = !is_null($payResult['msg']) ? $payResult['msg'] : '系統發生錯誤';
 
-            $msg = !is_null($pay_result['msg']) ? $pay_result['msg'] : '系統發生錯誤';
-            return $this->error($msg);
-
+            return $this->error($msg, null, 2002);
         } else {
 
             $blackHatDetail->pay_status = 1; # 預約成功 刷卡成功
@@ -178,13 +177,10 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         return [
             'lat'                       =>  'required|numeric',
             'lon'                       =>  'required|numeric',
-            'city'                      =>  'nullable|string',
-            'district'                  =>  'nullable|string',
             'addr'                      =>  'nullable|string',
             'zip'                       =>  'nullable|string',
-            'address'                   =>  'nullable|string',
 
-            'start_date'                =>  'required|date',
+            'start_date'            =>  'required|date',
             'maybe_over_time'           =>  'required|integer',
 
             'UserRemark'                =>  'nullable|string',
@@ -215,7 +211,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         $drivers = Driver::whereIn('driver_group_id', $driverGroup)->where('is_online', 1)->get()->pluck('id')->toArray();
 
         // type
-        $blackHatType = $params['blackHat_type'];
+        $blackHatType = $params['black_hat_type'];
         $blackHatHour = ($blackHatType == 1) ? 5 : 8;
         $blackHatMaybeOverTime = $params['maybe_over_time'];
         $blackHatCurrentDate = Carbon::parse($params['start_date'])->format('Y-m-d');

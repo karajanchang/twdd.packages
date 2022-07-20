@@ -270,7 +270,7 @@ class CalldriverService extends ServiceAbstract
     private function insertBlackHatDetail(array $calldriverTaskMaps, array $params)
     {
 
-        $data['type'] = $params['blackHat_type'];
+        $data['type'] = $params['black_hat_type'];
         $data['start_date'] = $params['start_date'];
         $data['maybe_over_time'] = $params['maybe_over_time'];
 
