@@ -111,6 +111,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         }
 
         $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
+        $calldriver = $calldriverTaskMap->calldriver;
 
         $taskFee = ($params['black_hat_type'] == 1) ? 1980 : 2680;
         $payParams['money'] = $taskFee / 2;
@@ -131,7 +132,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             $blackHatDetail->prematch_status = 1;
             $blackHatDetail->save();
 
-            return $this->success('呼叫成功', $callDriver);
+            return $this->success('呼叫成功', $calldriver);
         }
     }
 
@@ -165,8 +166,45 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         $payQuery = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->query();
 
-        // 用 Query 判斷走 back or cancel
-        //var_dump($payQuery);exit;
+        if (isset($payQuery['error'])) {
+            $msg = $payQuery['msg'] ?? '系統發生錯誤';
+            //Log::info(__CLASS__.'::'.__METHOD__.'error: ', [$payQuery]);
+
+            return $this->error($msg);
+        }
+
+        if ($payQuery['result']['Result']['TradeStatus'] == 3) {
+            return $this->success('刷退成功');
+        }
+
+        # 取消授權
+        if ($payQuery['result']['Result']['TradeStatus'] ==1 && $payQuery['result']['Result']['CloseStatus'] < 2) {
+            $payCancel = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->cancel();
+
+            if (isset($payCancel['error'])) {
+                $msg = $payCancel['msg'] ?? '系統發生錯誤';
+                //Log::info(__CLASS__.'::'.__METHOD__.'error: ', [$payCancel]);
+
+                return $this->error($msg);
+            } else {
+                return $this->success('刷退成功');
+            }
+
+        }
+
+        # 退刷
+        if ($payQuery['result']['Result']['TradeStatus'] ==1 && $payQuery['result']['Result']['CloseStatus'] >= 2) {
+            $payBack = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->back();
+
+            if (isset($payBack['error'])) {
+                $msg = $payBack['msg'] ?? '系統發生錯誤';
+                //Log::info(__CLASS__.'::'.__METHOD__.'error: ', [$payBack]);
+
+                return $this->error($msg);
+            } else {
+                return $this->success('刷退成功');
+            }
+        }
 
         return $this->success('退款成功');
     }
@@ -236,7 +274,6 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             ->whereBetween('start_date', [$blackHatStartBeforeDate, $blackHatStartAfterDate])
             ->get()->toArray();
 
-
         //- 一日一人僅接收1張8H單、兩張5H，其中兩張5H的判斷為乘客是否預計會超時，
         //- 兩個五小時，若前一單有超時需求，中間需隔3小時
         //- 兩個五小時，前一單預計不超時，中間需隔 1.5小時
@@ -244,7 +281,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         $rejectDriverId = [];
         foreach($blackHatDetail as $row) {
             $_blackHatType = $row['type'];
-            $_driverId = $row['calldriver_task_map']['driver_id'];
+            $_driverId = $row['calldriver_task_map']['call_driver_id'];
             $_blackHatTypeHour = ($_blackHatType == 1) ? 5 : 8;
 
             if (!isset($driverId[$_driverId])) {
@@ -268,8 +305,9 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         foreach ($blackHatDetail as $row)
         {
             $_blackHatType = $row['type'];
-            $_driverId = $row['calldriver_task_map']['driver_id'];
+            $_driverId = $row['calldriver_task_map']['call_driver_id'];
             $_blackHatTypeHour = ($_blackHatType == 1) ? 5 : 8;
+
 
             if (in_array($_driverId, $rejectDriverId)) {
                 continue;
