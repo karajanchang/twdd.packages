@@ -18,7 +18,7 @@ use Twdd\Facades\LatLonService;
 use Twdd\Models\Member;
 use Twdd\Repositories\CalldriverRepository;
 use Twdd\Repositories\CalldriverTaskMapRepository;
-use Twdd\Repositories\BlackhatDetailRepository;
+use Twdd\Repositories\BlackHatDetailRepository;
 use Twdd\Repositories\MemberPayTokenRepository;
 use Twdd\Repositories\TaskHabitRepository;
 use Twdd\Services\ServiceAbstract;
@@ -42,7 +42,7 @@ class CalldriverService extends ServiceAbstract
         TaskErrors $taskErrors,
         CalldriverRepository $repository,
         CalldriverTaskMapRepository $mapRepository,
-        BlackhatDetailRepository $blackhatDetailRepository,
+        BlackHatDetailRepository $blackhatDetailRepository,
         TaskHabitRepository $taskHabitRepository
     )
     {

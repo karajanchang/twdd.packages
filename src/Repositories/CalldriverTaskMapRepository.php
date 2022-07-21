@@ -128,6 +128,13 @@ class CalldriverTaskMapRepository extends Repository
             ->get();
     }
 
+    public function findMemberTaskMap(int $calldriverTaskMapId, int $memberId)
+    {
+        return $this->join('calldriver', 'calldriver_task_map.calldriver_id', '=', 'calldriver.id')
+            ->where('calldriver_task_map.id', $calldriverTaskMapId)
+            ->where('calldriver_task_map.member_id', $memberId)
+            ->first();
+    }
     /*
      * 從task_id去拿到calldriverTaskMap
      */
