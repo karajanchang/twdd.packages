@@ -59,7 +59,7 @@ class MatchService extends ServiceAbstract
     }
 
     public function check(array $params, array $check_lists = ['*']){
-        
+
         return $this->callType->check($params, $check_lists);
     }
 
@@ -78,5 +78,9 @@ class MatchService extends ServiceAbstract
         return $this->callType->cancel($other_params);
     }
 
+    public function matchPay(int $calldriverTaskMapId)
+    {
+        return $this->callType->matchPay($calldriverTaskMapId);
+    }
 
 }

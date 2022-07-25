@@ -110,11 +110,24 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             return $this->error($msg, $blackHatDetail);
         }
 
+        return $this->matchPay($blackHatDetail);
+    }
+
+    public function matchPay(int $calldriverTaskMapId)
+    {
+        $blackHatDetail = BlackhatDetail::query()->where('calldriver_task_map_id', $calldriverTaskMapId)->first();
+        if (empty($blackHatDetail)) {
+            return $this->error('查無此單', null, 2004);
+        }
+        if ($blackHatDetail->pay_status == 1) {
+            return $this->error('已付款，不需再次付款', null,2003);
+        }
+
         $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
         $calldriver = $calldriverTaskMap->calldriver;
 
-        $taskFee = ($params['black_hat_type'] == 1) ? 1980 : 2680;
-        $payParams['money'] = $taskFee / 2;
+        $taskFee = ($blackHatDetail->type == 1) ? 1980 : 2680;
+        $payParams['money'] = floor($taskFee / 2);
 
         $payResult = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->pay($payParams);
 
@@ -132,7 +145,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             $blackHatDetail->prematch_status = 1;
             $blackHatDetail->save();
 
-            return $this->success('呼叫成功', $calldriver);
+            return $this->success('付款成功', $calldriver);
         }
     }
 

@@ -4,6 +4,8 @@
 namespace Twdd\Services;
 
 
+use Twdd\Facades\MatchFactory;
+use Twdd\Facades\MatchService as TwddMatchService;
 use Twdd\Repositories\BlackHatDetailRepository;
 use Twdd\Repositories\CalldriverTaskMapRepository;
 
@@ -35,11 +37,10 @@ class ReserveService
         if (empty($calldriverTaskMap)) {
             return null;
         }
-        // 取得類型 type = 1 && call_type = 5 黑帽客
-        if ($calldriverTaskMap->type == 1 && $calldriverTaskMap->call_type = 5) {
+        // call_type = 5 黑帽客
+        if ($calldriverTaskMap->call_type = 5) {
             $row = $this->blackHatDetailRepository->getMemberReserve($memberId, $calldriverTaskMpaId);
         }
-
 
         return $row ?? null;
     }
