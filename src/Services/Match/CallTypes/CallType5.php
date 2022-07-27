@@ -110,7 +110,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             return $this->error($msg, $blackHatDetail);
         }
 
-        return $this->matchPay($blackHatDetail);
+        return $this->matchPay($blackHatDetail->calldriver_task_map_id);
     }
 
     public function matchPay(int $calldriverTaskMapId)
