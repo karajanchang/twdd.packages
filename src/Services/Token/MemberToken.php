@@ -60,7 +60,7 @@ class MemberToken extends TokenAbstract implements InterfaceToken
         }
 
         //---登入失敗
-        if(md5($this->params['UserPassword'])!=$identity->UserPassword){
+        if(md5($this->params['UserPassword'])!==$identity->UserPassword){
 
             return $this->error->_('1011');
         }
