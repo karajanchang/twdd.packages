@@ -3,8 +3,10 @@
 
 namespace Twdd\Services\Match\CallTypes;
 
-use DB;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Twdd\Models\CalldriverTaskMap;
 use Twdd\Models\Driver;
 use Twdd\Models\Calldriver;
 use Twdd\Models\BlackhatDetail;
@@ -12,8 +14,10 @@ use Twdd\Models\DriverGroupCallCity;
 use Twdd\Models\BlackhatDriverSchedule;
 use Twdd\Facades\LatLonService;
 use Twdd\Facades\PayService;
+use Twdd\Models\TaskPayLog;
 use Twdd\Repositories\DriverRepository;
 use Twdd\Repositories\CalldriverTaskMapRepository;
+use Twdd\Repositories\TaskRepository;
 use Twdd\Services\Match\CallTypes\Traits\TraitAlwaysBlackList;
 use Twdd\Services\Match\CallTypes\Traits\TraitAppVer;
 use Twdd\Services\Match\CallTypes\Traits\TraitCallNoDuplicate;
@@ -164,64 +168,158 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         return $params;
     }
 
-    public function cancel(array $other_params = [])
+    public function cancel(int $calldriverTaskMpId, array $other_params = [])
     {
-        $params = $this->params;
-
-        $calldriver = Calldriver::where('id', $params['calldriver_id'])->first();
-
-        $calldriverTaskMap = $calldriver->calldriver_task_map[0];
+        $calldriverTaskMap = CalldriverTaskMap::where('id', $calldriverTaskMpId)->first();
         $blackhatDetail = $calldriverTaskMap->blackhat_detail;
 
         if (!$blackhatDetail) {
             return $this->error('沒有此預約單');
         }
 
-        $payQuery = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->query();
+        $taskMapParams = [
+            'is_cancel' => 1,
+            'cancel_by' => 1, // 1客人 2駕駛 3客服 4車廠
+        ];
+        $detailParams = [
+            'prematch_status' => -1
+        ];
 
-        if (isset($payQuery['error'])) {
-            $msg = $payQuery['msg'] ?? '系統發生錯誤';
-            //Log::info(__CLASS__.'::'.__METHOD__.'error: ', [$payQuery]);
-
-            return $this->error($msg);
+        $cancelStatus = $this->getCancelStatus($blackhatDetail->start_date);
+        Log::info('call_type 5 cancel:', [$cancelStatus, $calldriverTaskMap]);
+        if ($cancelStatus == 3) {
+            return $this->error('已過任務開始時間，無法取消任務');
         }
-
-        if ($payQuery['result']['Result']['TradeStatus'] == 3) {
-            return $this->success('刷退成功');
-        }
-
-        # 取消授權
-        if ($payQuery['result']['Result']['TradeStatus'] ==1 && $payQuery['result']['Result']['CloseStatus'] < 2) {
-            $payCancel = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->cancel();
-
-            if (isset($payCancel['error'])) {
-                $msg = $payCancel['msg'] ?? '系統發生錯誤';
-                //Log::info(__CLASS__.'::'.__METHOD__.'error: ', [$payCancel]);
-
-                return $this->error($msg);
-            } else {
-                return $this->success('刷退成功');
-            }
-
-        }
-
-        # 退刷
-        if ($payQuery['result']['Result']['TradeStatus'] ==1 && $payQuery['result']['Result']['CloseStatus'] >= 2) {
-            $payBack = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->back();
-
-            if (isset($payBack['error'])) {
-                $msg = $payBack['msg'] ?? '系統發生錯誤';
-                //Log::info(__CLASS__.'::'.__METHOD__.'error: ', [$payBack]);
-
-                return $this->error($msg);
-            } else {
-                return $this->success('刷退成功');
-            }
+        $this->cancelTaskState($blackhatDetail, $taskMapParams, $detailParams);
+        switch ($cancelStatus) {
+            case 1:
+                $refundRes = $this->refund($calldriverTaskMap);
+                if (!$refundRes) {
+                    // Todo::退刷失敗 => 寄信通知客服
+                }
+                break;
+            case 2:
+                $fee = ($blackhatDetail->type_price) / 2;
+                $this->createViolationTask($calldriverTaskMap, $fee);
+                break;
         }
 
         return $this->success('退款成功');
     }
 
+    /*
+     * cancelStatus: 1 => 免費取消(退50%訂金)
+     * cancelStatus: 2 => 不退款(不退50%訂金)
+     * cancelStatus: 3 => 不退款(額外收剩餘的50%訂金)
+     */
+    public function getCancelStatus($startDate)
+    {
+        $taskDt = Carbon::parse($startDate);
+        $nowDt = Carbon::now();
+
+        if ($nowDt->isBefore($taskDt->copy()->subHours(24))) {
+            return 1;
+        }
+
+        if ($nowDt->isBefore($taskDt)) {
+            return 2;
+        }
+
+        // 過了任務開始時間，無法取消
+        if ($nowDt->isAfter($taskDt)) {
+            return 3;
+        }
+
+        return 1;
+    }
+
+    private function cancelTaskState($blackhatDetail, $taskMapParams, $detailParams)
+    {
+        DB::transaction(function () use ($blackhatDetail, $taskMapParams, $detailParams) {
+            BlackhatDetail::query()->where('calldriver_task_map_id', $blackhatDetail->calldriver_task_map_id)->update($detailParams);
+            CalldriverTaskMap::query()->where('id', $blackhatDetail->calldriver_task_map_id)->update($taskMapParams);
+        }, 3);
+    }
+
+    private function refund($calldriverTaskMap)
+    {
+        $payQuery = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->query();
+
+        if (isset($payQuery['error'])) {
+            $msg = $payQuery['msg'] ?? '系統發生錯誤';
+            Log::error(__METHOD__ . 'payQuery:', [$msg]);
+            return $this->error('系統發生錯誤');
+        }
+
+        if ($payQuery['result']['Result']['TradeStatus'] == 3) {
+            $backCreditCardResult = true;
+        }
+
+        # 取消授權
+        if ($payQuery['result']['Result']['TradeStatus'] == 1 && $payQuery['result']['Result']['CloseStatus'] < 2) {
+            $payCancel = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->cancel();
+
+            if (isset($payCancel['error'])) {
+                $msg = $payCancel['msg'] ?? '系統發生錯誤';
+                Log::error(__METHOD__ . '取消授權失敗:', [$msg]);
+            } else {
+                $backCreditCardResult = true;
+            }
+        }
+
+        # 退刷
+        if ($payQuery['result']['Result']['TradeStatus'] == 1 && $payQuery['result']['Result']['CloseStatus'] >= 2) {
+            $payBack = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->back();
+
+            if (isset($payBack['error'])) {
+                $msg = $payBack['msg'] ?? '系統發生錯誤';
+                Log::error(__METHOD__ . '刷退失敗:', [$msg]);
+            } else {
+                $backCreditCardResult = true;
+            }
+        }
+
+        return $backCreditCardResult;
+    }
+
+    private function createViolationTask($map, $fee)
+    {
+        $calldriver = $map->calldriver;
+        $parmas = [
+            'type' => $calldriver->type,
+            'call_type' => $calldriver->call_type,
+            'pay_type' => $calldriver->pay_type,
+            'TaskFee' => $fee,
+            'twddFee' => round($fee * 0.2),
+            'member_id' => $map->member_id,
+            'driver_id' => $map->call_driver_id,
+            'TaskState' => 7,
+            'user_violation_id' => 1,
+            'createtime' => Carbon::now(),
+
+            'TaskRideTS' => $map->TS,
+            'TaskCancelTS' => Carbon::now()->timestamp,
+            'TaskStartLat' => $calldriver->lat,
+            'TaskStartLon' => $calldriver->lon,
+            'start_zip' => $calldriver->zip,
+            'TaskEndLat' => $calldriver->lat_det,
+            'TaskEndLon' => $calldriver->lon_det,
+            'end_zip' => $calldriver->zip_det,
+            'UserAddress' => $calldriver->addr,
+            'UserAddressKey' => $calldriver->addrKey,
+            'UserRemark' => $calldriver->UserRemark,
+            'UserCity' => $calldriver->city,
+            'UserDistrict' => $calldriver->district,
+            'DestCity' => $calldriver->city_det,
+            'DestDistrict' => $calldriver->district_det,
+            'DestAddress' => $calldriver->addr_det,
+            'DestAddressKey' => $calldriver->addrKey_det,
+        ];
+
+        $task = app(TaskRepository::class)->create($parmas);
+        CalldriverTaskMap::query()->where('id', $map->id)->update(['task_id' => $task->id,]);
+        TaskPayLog::query()->where('calldriver_task_map_id', $map->id)->update(['task_id' => $task->id]);
+    }
 
     public function rules() : array {
 
@@ -231,7 +329,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             'addr'                      =>  'nullable|string',
             'zip'                       =>  'nullable|string',
 
-            'start_date'            =>  'required|date',
+            'start_date'                =>  'required|date',
             'maybe_over_time'           =>  'required|integer',
 
             'UserRemark'                =>  'nullable|string',

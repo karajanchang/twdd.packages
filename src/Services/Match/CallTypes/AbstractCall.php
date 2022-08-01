@@ -61,7 +61,7 @@ class AbstractCall extends ServiceAbstract
 
     }
 
-    public function cancel(array $other_params = []){}
+    public function cancel(int $calldriverTaskMapId, array $other_params = []){}
 
     /*
      * 是否不要檢查該媒合前功能

@@ -4,10 +4,12 @@
 namespace Twdd\Services;
 
 
+use Illuminate\Support\Carbon;
 use Twdd\Facades\MatchFactory;
 use Twdd\Facades\MatchService as TwddMatchService;
 use Twdd\Repositories\BlackHatDetailRepository;
 use Twdd\Repositories\CalldriverTaskMapRepository;
+use Twdd\Services\Match\CallTypes\CallType5;
 
 class ReserveService
 {
@@ -40,6 +42,7 @@ class ReserveService
         // call_type = 5 黑帽客
         if ($calldriverTaskMap->call_type = 5) {
             $row = $this->blackHatDetailRepository->getMemberReserve($memberId, $calldriverTaskMpaId);
+            $row->cancel_status = (new CallType5())->getCancelStatus($row->start_date);
         }
 
         return $row ?? null;

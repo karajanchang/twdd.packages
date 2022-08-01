@@ -73,9 +73,9 @@ class MatchService extends ServiceAbstract
         return $this->callType->match($other_params);
     }
 
-    public function cancel(array $other_params = []){
+    public function cancel(int $calldriverTaskMapId, array $other_params = []){
 
-        return $this->callType->cancel($other_params);
+        return $this->callType->cancel($calldriverTaskMapId, $other_params);
     }
 
     public function matchPay(int $calldriverTaskMapId)
