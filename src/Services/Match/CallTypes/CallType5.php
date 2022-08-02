@@ -129,8 +129,8 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
         $calldriver = $calldriverTaskMap->calldriver;
-
-        $taskFee = ($blackHatDetail->type == 1) ? 1980 : 2680;
+        $config = $this->getTypeConfig($blackHatDetail->type);
+        $taskFee = $config['price'];
         $payParams['money'] = floor($taskFee / 2);
 
         $payResult = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->pay($payParams);
@@ -159,7 +159,9 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     public function processParams(array $params, array $other_params = []) : array
     {
         $params = parent::processParams($params, $other_params);
-
+        $config = $this->getTypeConfig($params['black_hat_type']);
+        $params['type_price'] = $config['price'];
+        $params['end_date'] = Carbon::parse($params['start_date'])->addHours($config['hour']);
         // TS
         $params['TS'] = time();
         $params['pay_type'] = 2;
@@ -185,7 +187,12 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             'prematch_status' => -1
         ];
 
-        $cancelStatus = $this->getCancelStatus($blackhatDetail->start_date);
+        if (isset($other_params['cancel_status'])) {
+            $cancelStatus = $other_params['cancel_status'];
+        } else {
+            $cancelStatus = $this->getCancelStatus($blackhatDetail->start_date);
+        }
+
         Log::info('call_type 5 cancel:', [$cancelStatus, $calldriverTaskMap]);
         if ($cancelStatus == 3) {
             return $this->error('已過任務開始時間，無法取消任務');
@@ -193,10 +200,13 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         $this->cancelTaskState($blackhatDetail, $taskMapParams, $detailParams);
         switch ($cancelStatus) {
             case 1:
-                $refundRes = $this->refund($calldriverTaskMap);
-                if (!$refundRes) {
-                    // Todo::退刷失敗 => 寄信通知客服
+                if ($blackhatDetail->pay_status == 1) {
+                    $refundRes = $this->refund($calldriverTaskMap);
+                    if (!$refundRes) {
+                        // Todo::退刷失敗 => 寄信通知客服
+                    }
                 }
+
                 break;
             case 2:
                 $fee = ($blackhatDetail->type_price) / 2;
@@ -204,7 +214,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 break;
         }
 
-        return $this->success('退款成功');
+        return $this->success('取消成功');
     }
 
     /*
@@ -321,6 +331,28 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         TaskPayLog::query()->where('calldriver_task_map_id', $map->id)->update(['task_id' => $task->id]);
     }
 
+    public function getTypeConfigs()
+    {
+        return [
+            1 => [
+                'title' => '5小時 鐘點代駕（尊榮黑帽客）',
+                'price' => 1980,
+                'hour' => 5,
+            ],
+            2 => [
+                'title' => '8小時 鐘點代駕（尊榮黑帽客）',
+                'price' => 2680,
+                'hour' => 8,
+            ]
+        ];
+    }
+
+    public function getTypeConfig($type)
+    {
+        $configs = $this->getTypeConfigs();
+        return $configs[$type];
+    }
+
     public function rules() : array {
 
         return [
@@ -380,8 +412,10 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             ->havingRaw("cnt = $blackHatHour")->get()->keyBy('driver_id')->toArray();
 
         // 前後後一天的黑帽客任務
-        $blackHatDetail = BlackhatDetail::whereRaw('1=1')
+        $blackHatDetail = BlackhatDetail::query()
+            ->whereRaw('1=1')
             ->with('calldriver_task_map')
+            ->where('prematch_status', 1)
             ->whereBetween('start_date', [$blackHatStartBeforeDate, $blackHatStartAfterDate])
             ->get()->toArray();
 

@@ -16,12 +16,14 @@ class BlackhatDetail extends Model
     protected $fillable = [
         'calldriver_task_map_id',
         'type',
+        'type_price',
         'maybe_over_time',
         'start_date',
         'end_date',
         'prematch_status',
         'pay_status',
-        'created_at'
+        'created_at',
+        'updated_at',
     ];
 
     public function calldriver_task_map()

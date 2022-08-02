@@ -214,6 +214,7 @@ class CalldriverService extends ServiceAbstract
             if ($do_not_create_map === false) {
                 $calldriverTaskMaps = $this->insertMap($calldriver, $params);
 
+                // 黑帽客建單明細
                 if ($callType == 5) {
                     $calldriver = $this->insertBlackHatDetail($calldriverTaskMaps, $originParams);
                 }
@@ -269,14 +270,20 @@ class CalldriverService extends ServiceAbstract
 
     private function insertBlackHatDetail(array $calldriverTaskMaps, array $params)
     {
-
-        $data['type'] = $params['black_hat_type'];
-        $data['start_date'] = $params['start_date'];
-        $data['maybe_over_time'] = $params['maybe_over_time'];
-
+        $nowDt = Carbon::now();
         $calldriverTaskMap = $calldriverTaskMaps[0];
-        $data['calldriver_task_map_id'] = $calldriverTaskMap->id;
 
+        $data = [
+            'calldriver_task_map_id' => $calldriverTaskMap->id,
+            'type' => $params['black_hat_type'],
+            'type_price' => $params['type_price'],
+            'start_date' => $params['start_date'],
+            'end_date' => $params['end_date'],
+            'maybe_over_time' => $params['maybe_over_time'],
+            'created_at' => $nowDt,
+            'updated_at' => $nowDt,
+        ];
+        Log::info('create detail data', $data);
         return $this->blackhatDetailRepository->create($data);
     }
 
