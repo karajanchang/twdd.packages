@@ -3,12 +3,12 @@
 
 namespace Twdd\Services\Match\CallTypes;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Twdd\Models\CalldriverTaskMap;
 use Twdd\Models\Driver;
-use Twdd\Models\Calldriver;
 use Twdd\Models\BlackhatDetail;
 use Twdd\Models\DriverGroupCallCity;
 use Twdd\Models\BlackhatDriverSchedule;
@@ -16,7 +16,6 @@ use Twdd\Facades\LatLonService;
 use Twdd\Facades\PayService;
 use Twdd\Models\TaskPayLog;
 use Twdd\Repositories\DriverRepository;
-use Twdd\Repositories\CalldriverTaskMapRepository;
 use Twdd\Repositories\TaskRepository;
 use Twdd\Services\Match\CallTypes\Traits\TraitAlwaysBlackList;
 use Twdd\Services\Match\CallTypes\Traits\TraitAppVer;
@@ -92,20 +91,20 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         $params = $this->processParams($this->params, $other_params);
 
-        $driverID = $this->matchDriver([
+        $driverId = $this->matchDriver([
             'zip' => $params['zip'],
             'black_hat_type' => $params['black_hat_type'],
             'start_date' => $params['start_date'],
             'maybe_over_time' => $params['maybe_over_time']
         ]);
 
-        if (!$driverID) {
+        if (!$driverId) {
             return $this->error('目前無駕駛承接', null, 2001);
         }
 
         // 若找不到要建立單？
 
-        $callDriver = app(DriverRepository::class)->findByDriverID($driverID, ['id']);
+        $callDriver = app(DriverRepository::class)->find($driverId, ['id']);
         $blackHatDetail = $this->getCalldriverServiceInstance()->setCallDriver($callDriver)->create($params);
 
         if(isset($blackHatDetail['error'])) {
@@ -388,104 +387,129 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         // 透過縣市抓取區域司機群
         $driverGroup = DriverGroupCallCity::select('drivergroup_id')->where('city_id', $cityId)->get()->pluck('drivergroup_id')->all();
 
-        // 區域司機群
-        $drivers = Driver::whereIn('driver_group_id', $driverGroup)->where('is_online', 1)->get()->pluck('id')->toArray();
-
         // type
         $blackHatType = $params['black_hat_type'];
-        $blackHatHour = ($blackHatType == 1) ? 5 : 8;
-        $blackHatMaybeOverTime = $params['maybe_over_time'];
-        $blackHatCurrentDate = Carbon::parse($params['start_date'])->format('Y-m-d');
-        $blackHatStartBeforeDate = Carbon::parse($params['start_date'])->subDays(1)->format('Y-m-d 00:00:00');
-        $blackHatStartAfterDate  = Carbon::parse($params['start_date'])->addDays(1)->format('Y-m-d 23:59:59');
-        $blackHatStartDate = Carbon::parse($params['start_date'])->format('Y-m-d H:i:s');
-        $blackHatEndDate = Carbon::parse($blackHatStartDate)->addHour($blackHatHour)->format('Y-m-d H:i:s');
-        $blackHatStartH = Carbon::parse($params['start_date'])->format('Y-m-d H:00:00');
-        $blackHatEndH = Carbon::parse($blackHatStartH)->addHour($blackHatHour - 1)->format('Y-m-d H:i:s');
+        // 取得所有方案
+        $typeConfigs = $this->getTypeConfigs();
+        $blackHatHour = $typeConfigs[$blackHatType]['hour'];
 
+        $blackHatMaybeOverTime = $params['maybe_over_time'];
+        $reserveDateStart = Carbon::parse($params['start_date']);
+        $reserveDateEnd = $reserveDateStart->copy()->addHours($blackHatHour);
 
         // 抓取排班司機
-        $driverId = BlackhatDriverSchedule::select('driver_id', DB::raw('COUNT(*) as cnt'))
-            ->whereBetween('date_hour', [$blackHatStartH, $blackHatEndH])
-            ->whereIn('driver_id', $drivers)
-            ->groupBy('driver_id')
-            ->havingRaw("cnt = $blackHatHour")->get()->keyBy('driver_id')->toArray();
-
+        $scheduleRangeStart = $reserveDateStart->copy()->floorHour();
+        $scheduleRangeEnd = $reserveDateStart->copy()->ceilHour()->addHours($blackHatHour);
+        $driverIdGroups = BlackhatDriverSchedule::query()
+            ->select('blackhat_driver_schedule.driver_id', 'driver.blackhat_group_id', DB::raw('COUNT(*) as cnt'))
+            ->join('driver', 'blackhat_driver_schedule.driver_id', '=', 'driver.id')
+            ->whereBetween('blackhat_driver_schedule.date_hour', [$scheduleRangeStart, $scheduleRangeEnd])
+            ->where('driver.is_online', 1)
+            ->where('driver.is_out', 0)
+            ->whereNotNull('driver.blackhat_group_id')
+            ->whereIn('driver.driver_group_id', $driverGroup)
+            ->groupBy('driver_id', 'blackhat_group_id')
+            ->having('cnt', '>=',  $blackHatHour)
+            ->get()
+            ->keyBy('driver_id');
+        Log::info('black_hat 有排班駕駛:', [$driverIdGroups]);
         // 前後後一天的黑帽客任務
         $blackHatDetail = BlackhatDetail::query()
             ->whereRaw('1=1')
             ->with('calldriver_task_map')
             ->where('prematch_status', 1)
-            ->whereBetween('start_date', [$blackHatStartBeforeDate, $blackHatStartAfterDate])
-            ->get()->toArray();
+            ->whereBetween('start_date', [$reserveDateStart->copy()->startOfMonth(), $reserveDateStart->copy()->endOfMonth()])
+            ->get();
 
         //- 一日一人僅接收1張8H單、兩張5H，其中兩張5H的判斷為乘客是否預計會超時，
         //- 兩個五小時，若前一單有超時需求，中間需隔3小時
         //- 兩個五小時，前一單預計不超時，中間需隔 1.5小時
+        foreach($blackHatDetail as $history) {
+            $driverId = $history->calldriver_task_map->call_driver_id;
+            $config = $typeConfigs[$history['type']];
+            $bufferHour = $history['maybe_over_time'] ? 1.5 : 0;
+            $historyReverseDate = Carbon::parse($history['start_date']);
 
-        $rejectDriverId = [];
-        foreach($blackHatDetail as $row) {
-            $_blackHatType = $row['type'];
-            $_driverId = $row['calldriver_task_map']['call_driver_id'];
-            $_blackHatTypeHour = ($_blackHatType == 1) ? 5 : 8;
-
-            if (!isset($driverId[$_driverId])) {
+            if (!$driverIdGroups->has($driverId)) {
                 continue;
             }
+            if (!isset($driverIdGroups[$driverId]['day_hour'])) {
+                $driverIdGroups[$driverId]['day_hour'] = 0; // 跟預約單同一天時數加總
+                $driverIdGroups[$driverId]['month_hour'] = 0; // 跟預約單同月時數加總
+            }
+            if ($historyReverseDate->isSameDay($reserveDateStart)) {
+                $driverIdGroups[$driverId]['day_hour'] += ($config['hour'] + $bufferHour);
+            }
+            if ($historyReverseDate->isSameMonth($reserveDateStart)) {
+                $driverIdGroups[$driverId]['month_hour'] += ($config['hour'] + $bufferHour);
+            }
 
-            // 計算 user 當天有幾單
             // 拒絕 當天接單上限含 8 小時的司機
-            $_currentDate = Carbon::parse($row['start_date'])->format('Y-m-d');
-            if ($_currentDate === $blackHatCurrentDate) {
-                $driverId[$_driverId]['current'] = $currentDateFetch[$_driverId]['current'] ?? 0;
-                $driverId[$_driverId]['current'] += $_blackHatTypeHour;
-
-                if ($driverId[$_driverId]['current'] >= 8) {
-                    $rejectDriverId[] = $_driverId;
-                    unset($driverId[$_driverId]);
-                }
+            if ($driverIdGroups[$driverId]['day_hour'] >= 8) {
+                Log::info('black_hat 因超過8小時排除:', ['driver_id' => $driverId, 'total_hour' => $driverIdGroups[$driverId]['day_hour']]);
+                $driverIdGroups->forget($driverId);
             }
         }
 
-        foreach ($blackHatDetail as $row)
+        foreach ($blackHatDetail as $history)
         {
-            $_blackHatType = $row['type'];
-            $_driverId = $row['calldriver_task_map']['call_driver_id'];
-            $_blackHatTypeHour = ($_blackHatType == 1) ? 5 : 8;
+            $driverId = $history['calldriver_task_map']['call_driver_id'];
 
+            $bufferMinutes = $blackHatMaybeOverTime ? 3 * 60 : 1.5 * 60;
+            $startDateWithBuffer = Carbon::parse($history['start_date'])->subMinutes($bufferMinutes);
+            $endDateWithBuffer = Carbon::parse($history['end_date'])->addMinutes($bufferMinutes);
+            Log::info('date', [Carbon::parse($history['start_date']), Carbon::parse($history['end_date'])]);
+            // 時間交集 https://www.twblogs.net/a/5db28472bd9eee310d9fd37d
+            if (!($endDateWithBuffer->isBefore($reserveDateStart) || $startDateWithBuffer->isAfter($reserveDateEnd) )) {
+                Log::info('black_hat 預約單有交集:', [
+                    'driver_id' => $driverId,
+                    '預約單' => [$reserveDateStart, $reserveDateEnd],
+                    '上下單' => [$startDateWithBuffer, $endDateWithBuffer],
+                ]);
+                $driverIdGroups->forget($driverId);
+            }
+        }
 
-            if (in_array($_driverId, $rejectDriverId)) {
+        if ($driverIdGroups->count() == 0) {
+            return null;
+        }
+
+        // 避免同秒重複派單
+        foreach ($driverIdGroups as $driverId => $driver) {
+            if (Cache::has('black_hat_match_driverId_' . $driverId)) {
+                $driverIdGroups->forget($driverId);
+            }
+        }
+
+        if ($driverIdGroups->count() == 1) {
+            $driverId = $driverIdGroups->first()->driver_id;
+            Cache::put('black_hat_match_driverId_' . $driverId, $driverId, Carbon::now()->addMinute());
+            return $driverIdGroups->first()->driver_id;
+        }
+
+        // 排序
+        // 派單順序是A(正職)->B(兼職)，同組同條件依據該駕駛當月黑帽客任務時數的多寡
+        $matchDriver = null;
+        foreach ($driverIdGroups as $driver) {
+            if (empty($matchDriver)) {
+                $matchDriver = $driver;
                 continue;
             }
 
-            if ($row['start_date'] >= $params['start_date']) {
-
-                $_subMinutes = $blackHatMaybeOverTime ? 3 * 60 : 1.5 * 60;
-                $_startDate = Carbon::parse($row['start_date'])->subMinutes($_subMinutes)->format('Y-m-d H:i:s');
-                $_endDate = Carbon::parse($row['start_date'])->addMinutes($_blackHatTypeHour * 60)->format('Y-m-d H:i:s');
-
-            } else {
-
-                $_addMinutes = $row['maybe_over_time'] ? 3 * 60: 1.5 * 60;
-                $_addMinutes += $_blackHatTypeHour * 60;
-                $_startDate = $row['start_date'];
-                $_endDate = Carbon::parse($row['start_date'])->addMinutes($_addMinutes)->format('Y-m-d H:i:s');
-
+            if ($driver->blackhat_group_id < $matchDriver->blackhat_group_id) {
+                $matchDriver = $driver;
+                continue;
             }
 
-            if (!($_endDate < $blackHatStartDate || $blackHatEndDate < $_startDate)) {
-                unset($driverId[$_driverId]);
+            if ($driver->blackhat_group_id == $matchDriver->blackhat_group_id
+                && $driver->month_hour < $matchDriver->month_hour) {
+                $matchDriver = $driver;
+                continue;
             }
         }
-
-        $driverIds = Driver::whereIn('id', array_keys($driverId))->get()->pluck('DriverID')->toArray();
-
-        $driverId = ($driverIds) ? $driverIds[array_rand($driverIds, 1)] : null;
+        $driverId = $matchDriver->driver_id;
+        Cache::put('black_hat_match_driverId_' . $driverId, $driverId, Carbon::now()->addMinute());
 
         return $driverId;
-
-        // TODO
-        // 派單順序是A(正職)->B(兼職)，同組同條件依據該駕駛當月黑帽客任務時數的多寡，平均駕駛執勤時數
-        // Redis 序列
     }
 }
