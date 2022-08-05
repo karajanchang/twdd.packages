@@ -334,12 +334,14 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     {
         return [
             1 => [
-                'title' => '5小時 鐘點代駕（尊榮黑帽客）',
+                'match_title' => '5小時 鐘點代駕（尊榮黑帽客）', // 媒合方案startpage使用
+                'title' => '尊榮黑帽客(5小時)',
                 'price' => 1980,
                 'hour' => 5,
             ],
             2 => [
-                'title' => '8小時 鐘點代駕（尊榮黑帽客）',
+                'match_title' => '8小時 鐘點代駕（尊榮黑帽客）', // 媒合方案startpage使用
+                'title' => '尊榮黑帽客(8小時)',
                 'price' => 2680,
                 'hour' => 8,
             ]
@@ -349,7 +351,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     public function getTypeConfig($type)
     {
         $configs = $this->getTypeConfigs();
-        return $configs[$type];
+        return $configs[$type] ?? null;
     }
 
     public function rules() : array {
@@ -413,7 +415,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             ->get()
             ->keyBy('driver_id');
         Log::info('black_hat 有排班駕駛:', [$driverIdGroups]);
-        // 前後後一天的黑帽客任務
+        // 當月黑帽客任務
         $blackHatDetail = BlackhatDetail::query()
             ->whereRaw('1=1')
             ->with('calldriver_task_map')
