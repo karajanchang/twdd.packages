@@ -127,7 +127,6 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         }
 
         $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
-        $calldriver = $calldriverTaskMap->calldriver;
         $config = $this->getTypeConfig($blackHatDetail->type);
         $taskFee = $config['price'];
         $payParams['money'] = floor($taskFee / 2);
@@ -148,7 +147,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             $blackHatDetail->prematch_status = 1;
             $blackHatDetail->save();
 
-            return $this->success('付款成功', $calldriver);
+            return $this->success('付款成功', $calldriverTaskMap);
         }
     }
 
@@ -509,7 +508,10 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 continue;
             }
         }
-        $driverId = $matchDriver->driver_id;
+        if (!isset($matchDriver->driver_id)) {
+            return $matchDriver->driver_id;
+        }
+
         Cache::put('black_hat_match_driverId_' . $driverId, $driverId, Carbon::now()->addMinute());
 
         return $driverId;
