@@ -26,6 +26,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
         $driverMerchant->MerchantIvKey = 'Cog226xrtyu4nvtP';
 
         $orderNo = "";
+        $proPaySuffix = "";
 
         // 刷訂金
         if ($this->calldriverTaskMap) {
@@ -34,16 +35,31 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
             $memberCreditCard = app(MemberCreditcardRepository::class)->defaultCreditCard($member->id);
             $orderNo = 'bh_' . str_pad($this->calldriverTaskMap->id, 8, "0", STR_PAD_LEFT);
             $money = $params['money'];
+            $proPaySuffix = "訂金";
 
             $this->setMoney($money);
             $this->setOrderNo($orderNo);
+        }
+
+        // 刷尾款
+        if ($this->task)
+        {
+            $orderNo = 'bh_' . str_pad($this->task->id, 8, "0", STR_PAD_LEFT);
+            $money = $params['money'];
+            $proPaySuffix = "任務金";
+
+            $this->setMoney($money);
+            $this->setOrderNo($orderNo);
+            if (isset($params['is_random_serial']) && $params['is_random_serial'] === true) {
+                $orderNo = $this->getOrderNo();
+            }
         }
 
         try {
 
             $payment = new SpGatewayService();
             $payment->setOrderNo($orderNo);
-            $payment->setProDesc('代駕任務測試');
+            $payment->setProDesc('黑帽客' . $proPaySuffix);
 
             $res = $payment->pay($money, $memberCreditCard, $driverMerchant);
 
