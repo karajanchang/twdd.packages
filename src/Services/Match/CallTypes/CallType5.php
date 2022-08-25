@@ -90,8 +90,12 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         }
 
         $params = $this->processParams($this->params, $other_params);
-
+//        if ($this->isDuplicate($params['member_id'])) {
+//            return $this->error('重複預約', null, 2002);
+//        }
         $driverId = $this->matchDriver([
+            'lat' => $params['lat'],
+            'lon' => $params['lon'],
             'zip' => $params['zip'],
             'black_hat_type' => $params['black_hat_type'],
             'start_date' => $params['start_date'],
@@ -157,11 +161,12 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     public function processParams(array $params, array $other_params = []) : array
     {
         $params = parent::processParams($params, $other_params);
+        $startDt = Carbon::parse($params['start_date']);
         $config = $this->getTypeConfig($params['black_hat_type']);
         $params['type_price'] = $config['price'];
-        $params['end_date'] = Carbon::parse($params['start_date'])->addHours($config['hour']);
+        $params['end_date'] = $startDt->copy()->addHours($config['hour']);
         // TS
-        $params['TS'] = time();
+        $params['TS'] = $startDt->copy()->timestamp;
         $params['pay_type'] = 2;
         $params['call_type'] = 5;
 
@@ -214,6 +219,16 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         return $this->success('取消成功');
     }
+
+//    public function isDuplicate($memberId, Carbon $startDate1, Carbon $endDate1, Carbon $startDate2, Carbon $endDate2)
+//    {
+//        // 黑帽客的單
+//        if (!($endDate1->isBefore($startDate2) || $startDate1->isAfter($endDate2) )) {
+//
+//        }
+//
+//        return false;
+//    }
 
     /*
      * cancelStatus: 1 => 免費取消(退50%訂金)
@@ -380,9 +395,10 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     {
 
         $zip = $params['zip'];
-
+        $lat = $params['lat'];
+        $lon = $params['lon'];
         // 抓取縣市
-        $location = LatLonService::locationFromZip($zip)->first();
+        $location = LatLonService::citydistrictFromLatlonOrZip($lat, $lon, $zip);
         $cityId = $location->city_id;
 
         // 透過縣市抓取區域司機群
