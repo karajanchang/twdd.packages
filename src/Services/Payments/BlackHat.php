@@ -4,7 +4,9 @@
 namespace Twdd\Services\Payments;
 
 use Illuminate\Support\Facades\Log;
+use Twdd\Errors\PaymentErrors;
 use Twdd\Models\DriverMerchant;
+use Twdd\Repositories\TaskPayLogRepository;
 use Twdd\Services\Payments\SpgatewayErrorDectect;
 use Twdd\Repositories\MemberCreditcardRepository;
 use Twdd\Services\Payments\Traits\SpgatewayTrait;
@@ -16,14 +18,9 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
     protected $pay_type = 2;
 
-
     public function pay(array $params = [], bool $notifyMember = true)
     {
-        $driverMerchant = new DriverMerchant();
-
-        $driverMerchant->MerchantID = 'TWD161038650';
-        $driverMerchant->MerchantHashKey = 'U5XsUQLg0bvYAprhXm8FybhHZzDiS9cw';
-        $driverMerchant->MerchantIvKey = 'Cog226xrtyu4nvtP';
+        $driverMerchant = $this->getCompanyMerchant();
 
         $orderNo = "";
         $proPaySuffix = "";
@@ -31,8 +28,6 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
         // 刷訂金
         if ($this->calldriverTaskMap) {
             $member = $this->calldriverTaskMap->member;
-
-            $memberCreditCard = app(MemberCreditcardRepository::class)->defaultCreditCard($member->id);
             $orderNo = 'bh_' . str_pad($this->calldriverTaskMap->id, 8, "0", STR_PAD_LEFT);
             $money = $params['money'];
             $proPaySuffix = "訂金";
@@ -44,10 +39,11 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
         // 刷尾款
         if ($this->task)
         {
+            $member = $this->task->member;
             $orderNo = 'bh_' . str_pad($this->task->id, 8, "0", STR_PAD_LEFT);
-            $money = $params['money'];
+            $blackHatDetail = $this->task->calldriver_task_map->blackhat_detail;
+            $money = $this->task->TaskFee - floor($blackHatDetail->type_price / 2 );
             $proPaySuffix = "任務金";
-
             $this->setMoney($money);
             $this->setOrderNo($orderNo);
             if (isset($params['is_random_serial']) && $params['is_random_serial'] === true) {
@@ -55,12 +51,13 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
             }
         }
 
+        $memberCreditCard = app(MemberCreditcardRepository::class)->defaultCreditCard($member->id);
+
         try {
 
             $payment = new SpGatewayService();
             $payment->setOrderNo($orderNo);
             $payment->setProDesc('黑帽客' . $proPaySuffix);
-
             $res = $payment->pay($money, $memberCreditCard, $driverMerchant);
 
             if (isset($res['Status']) && $res['Status'] === 'SUCCESS') {
@@ -79,8 +76,13 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
             }
 
         } catch (\Exception $e) {
-
-            $msg = '刷卡異常 (預約單號：'.$this->calldriverTaskMap->id.'): '.$e->getMessage();
+            $msg = '';
+            if ($this->calldriverTaskMap) {
+                $msg = '刷卡異常 (預約單號：'.$this->calldriverTaskMap->id.'): '.$e->getMessage();
+            }
+            if ($this->task) {
+                $msg = '刷卡異常 (任務單號：'.$this->task->id.'): '.$e->getMessage();
+            }
 
             return $this->notifyExceptionAndLog($e, 2005, $msg, 0);
         }
@@ -88,11 +90,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
     public function cancel(string $OrderNo = null, int $amount = null)
     {
-        $driverMerchant = new DriverMerchant();
-
-        $driverMerchant->MerchantID = 'TWD161038650';
-        $driverMerchant->MerchantHashKey = 'U5XsUQLg0bvYAprhXm8FybhHZzDiS9cw';
-        $driverMerchant->MerchantIvKey = 'Cog226xrtyu4nvtP';
+        $driverMerchant = $this->getCompanyMerchant();
 
         $money = 0;
         $orderNo = "";
@@ -134,11 +132,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
     public function back(int $amt, bool $is_notify_member = false)
     {
-        $driverMerchant = new DriverMerchant();
-
-        $driverMerchant->MerchantID = 'TWD161038650';
-        $driverMerchant->MerchantHashKey = 'U5XsUQLg0bvYAprhXm8FybhHZzDiS9cw';
-        $driverMerchant->MerchantIvKey = 'Cog226xrtyu4nvtP';
+        $driverMerchant = $this->getCompanyMerchant();
 
         $money = 0;
         $orderNo = "";
@@ -180,12 +174,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
     public function query()
     {
-        $driverMerchant = new DriverMerchant();
-
-        $driverMerchant->MerchantID = 'TWD161038650';
-        $driverMerchant->MerchantHashKey = 'U5XsUQLg0bvYAprhXm8FybhHZzDiS9cw';
-        $driverMerchant->MerchantIvKey = 'Cog226xrtyu4nvtP';
-
+        $driverMerchant = $this->getCompanyMerchant();
         $money = 0;
         $orderNo = "";
         // 刷訂金
@@ -227,5 +216,16 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
             return $this->returnError(3002, $msg);
         }
+    }
+
+    private function getCompanyMerchant()
+    {
+        $driverMerchant = new DriverMerchant();
+
+        $driverMerchant->MerchantID = 'TWD161038650';
+        $driverMerchant->MerchantHashKey = 'U5XsUQLg0bvYAprhXm8FybhHZzDiS9cw';
+        $driverMerchant->MerchantIvKey = 'Cog226xrtyu4nvtP';
+
+        return $driverMerchant;
     }
 }

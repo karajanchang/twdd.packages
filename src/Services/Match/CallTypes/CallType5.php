@@ -141,6 +141,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
             $blackHatDetail->pay_status = 2; # 預約成功 刷卡失敗
             $blackHatDetail->prematch_status = 1;
+            $blackHatDetail->deposit = $payParams['money'];
             $blackHatDetail->save();
             $msg = !is_null($payResult['msg']) ? $payResult['msg'] : '系統發生錯誤';
 
@@ -149,6 +150,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
             $blackHatDetail->pay_status = 1; # 預約成功 刷卡成功
             $blackHatDetail->prematch_status = 1;
+            $blackHatDetail->deposit = $payParams['money'];
             $blackHatDetail->save();
 
             return $this->success('付款成功', $calldriverTaskMap);
