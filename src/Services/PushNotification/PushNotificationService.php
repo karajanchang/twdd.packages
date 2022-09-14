@@ -57,6 +57,7 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         if(!is_array($tokens)){
             $this->tokens = [$tokens];
         }else {
+            $tokens = array_values($tokens);
             $this->tokens = array_unique($tokens);
         }
 
