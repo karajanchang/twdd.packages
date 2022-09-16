@@ -34,11 +34,15 @@ class TaskDoneHelper
            return 4;
        }
 
+        if($this->task->call_type == 5){
+
+            return 6;
+        }
+
        return $this->task->pay_type;
     }
 
     public function done(){
-
         $taskDone = app(Collection::make($this->lut)->get($this->determinePayType()));
         $taskDone->setTask($this->task, $this->member_creditcard_id);
         $taskDone->done();

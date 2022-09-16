@@ -82,8 +82,11 @@ if (!function_exists('TaskPriceShare')) {
         $call_type = empty($task->call_type) ? 1 : (int) $task->call_type;
 
         $hour = Carbon::createFromTimestamp($task->TaskStartTS)->format('G');
-        $settingPrice = SettingPriceService::callType($call_type)->fetchByHour($city_id, $hour);
 
+        if ($call_type == 5) {
+            return 0.8;
+        }
+        $settingPrice = SettingPriceService::callType($call_type)->fetchByHour($city_id, $hour);
         $column = $task->pay_type==2 ? 'price_share_creditcard' : 'price_share';
         if(!empty($settingPrice->$column)){
 

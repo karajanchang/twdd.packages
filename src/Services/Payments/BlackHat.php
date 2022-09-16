@@ -42,7 +42,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
             $member = $this->task->member;
             $orderNo = 'bh_' . str_pad($this->task->id, 8, "0", STR_PAD_LEFT);
             $blackHatDetail = $this->task->calldriver_task_map->blackhat_detail;
-            $money = $this->task->TaskFee - floor($blackHatDetail->type_price / 2 );
+            $money = $this->task->TaskFee - $blackHatDetail->deposit;
             $proPaySuffix = "任務金";
             $this->setMoney($money);
             $this->setOrderNo($orderNo);
