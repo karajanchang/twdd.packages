@@ -420,14 +420,14 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         $scheduleRangeStart = $reserveDateStart->copy()->floorHour();
         $scheduleRangeEnd = $reserveDateStart->copy()->ceilHour()->addHours($blackHatHour);
         $driverIdGroups = BlackhatDriverSchedule::query()
-            ->select('blackhat_driver_schedule.driver_id', 'driver.blackhat_group_id', DB::raw('COUNT(*) as cnt'))
+            ->select('blackhat_driver_schedule.driver_id', 'blackhat_driver_group_map.blackhat_driver_group_id', DB::raw('COUNT(*) as cnt'))
             ->join('driver', 'blackhat_driver_schedule.driver_id', '=', 'driver.id')
+            ->join('blackhat_driver_group_map', 'driver.id', '=', 'blackhat_driver_group_map.driver_id')
             ->whereBetween('blackhat_driver_schedule.date_hour', [$scheduleRangeStart, $scheduleRangeEnd])
             ->where('driver.is_online', 1)
             ->where('driver.is_out', 0)
-            ->whereNotNull('driver.blackhat_group_id')
             ->whereIn('driver.driver_group_id', $driverGroup)
-            ->groupBy('driver_id', 'blackhat_group_id')
+            ->groupBy('driver_id', 'blackhat_driver_group_id')
             ->having('cnt', '>=',  $blackHatHour)
             ->get()
             ->keyBy('driver_id');
@@ -477,7 +477,6 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             $bufferMinutes = $blackHatMaybeOverTime ? 3 * 60 : 1.5 * 60;
             $startDateWithBuffer = Carbon::parse($history['start_date'])->subMinutes($bufferMinutes);
             $endDateWithBuffer = Carbon::parse($history['end_date'])->addMinutes($bufferMinutes);
-            Log::info('date', [Carbon::parse($history['start_date']), Carbon::parse($history['end_date'])]);
             // 時間交集 https://www.twblogs.net/a/5db28472bd9eee310d9fd37d
             if (!($endDateWithBuffer->isBefore($reserveDateStart) || $startDateWithBuffer->isAfter($reserveDateEnd) )) {
                 Log::info('black_hat 預約單有交集:', [
@@ -515,12 +514,12 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 continue;
             }
 
-            if ($driver->blackhat_group_id < $matchDriver->blackhat_group_id) {
+            if ($driver->blackhat_driver_group_id < $matchDriver->blackhat_driver_group_id) {
                 $matchDriver = $driver;
                 continue;
             }
 
-            if ($driver->blackhat_group_id == $matchDriver->blackhat_group_id
+            if ($driver->blackhat_driver_group_id == $matchDriver->blackhat_driver_group_id
                 && $driver->month_hour < $matchDriver->month_hour) {
                 $matchDriver = $driver;
                 continue;
