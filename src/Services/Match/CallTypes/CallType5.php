@@ -269,7 +269,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     private function refund($calldriverTaskMap)
     {
         $payQuery = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->query();
-
+        Log::info('pay_query', [$payQuery]);
         if (isset($payQuery['error'])) {
             $msg = $payQuery['msg'] ?? '系統發生錯誤';
             Log::error(__METHOD__ . 'payQuery:', [$msg]);
@@ -525,12 +525,9 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 continue;
             }
         }
-        if (!isset($matchDriver->driver_id)) {
-            return $matchDriver->driver_id;
-        }
 
-        Cache::put('black_hat_match_driverId_' . $driverId, $driverId, Carbon::now()->addMinute());
+        Cache::put('black_hat_match_driverId_' . $matchDriver->driver_id, $matchDriver->driver_id, Carbon::now()->addMinute());
 
-        return $driverId;
+        return $matchDriver->driver_id;
     }
 }
