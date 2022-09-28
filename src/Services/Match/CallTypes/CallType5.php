@@ -202,22 +202,27 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         if ($cancelStatus == 3) {
             return $this->error('已過任務開始時間，無法取消任務');
         }
-        $this->cancelTaskState($blackhatDetail, $taskMapParams, $detailParams);
+
         switch ($cancelStatus) {
             case 1:
                 if ($blackhatDetail->pay_status == 1) {
                     $refundRes = $this->refund($calldriverTaskMap);
                     if (!$refundRes) {
+                        return $this->error('取消失敗');
                         // Todo::退刷失敗 => 寄信通知客服
                     }
                 }
 
                 break;
             case 2:
-                $fee = ($blackhatDetail->type_price) / 2;
-                $this->createViolationTask($calldriverTaskMap, $fee);
+                $fee = $blackhatDetail->deposit;
+                $res = $this->createViolationTask($calldriverTaskMap, $fee);
+                if (!$res) {
+                    return $this->error('取消失敗');
+                }
                 break;
         }
+        $this->cancelTaskState($blackhatDetail, $taskMapParams, $detailParams);
 
         return $this->success('取消成功');
     }
@@ -269,7 +274,8 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     private function refund($calldriverTaskMap)
     {
         $payQuery = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->query();
-        Log::info('pay_query', [$payQuery]);
+        Log::info(__METHOD__ . 'pay_query', [$payQuery]);
+        $backCreditCardResult = false;
         if (isset($payQuery['error'])) {
             $msg = $payQuery['msg'] ?? '系統發生錯誤';
             Log::error(__METHOD__ . 'payQuery:', [$msg]);
@@ -309,41 +315,50 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
     private function createViolationTask($map, $fee)
     {
-        $calldriver = $map->calldriver;
-        $parmas = [
-            'type' => $calldriver->type,
-            'call_type' => $calldriver->call_type,
-            'pay_type' => $calldriver->pay_type,
-            'TaskFee' => $fee,
-            'twddFee' => round($fee * 0.2),
-            'member_id' => $map->member_id,
-            'driver_id' => $map->call_driver_id,
-            'TaskState' => 7,
-            'user_violation_id' => 1,
-            'createtime' => Carbon::now(),
+        try {
+            DB::beginTransaction();
+            $calldriver = $map->calldriver;
+            $parmas = [
+                'type' => $calldriver->type,
+                'call_type' => $calldriver->call_type,
+                'pay_type' => $calldriver->pay_type,
+                'TaskFee' => $fee,
+                'twddFee' => round($fee * 0.2),
+                'member_id' => $map->member_id,
+                'driver_id' => $map->call_driver_id,
+                'TaskState' => 7,
+                'user_violation_id' => 1,
+                'createtime' => Carbon::now(),
 
-            'TaskRideTS' => $map->TS,
-            'TaskCancelTS' => Carbon::now()->timestamp,
-            'TaskStartLat' => $calldriver->lat,
-            'TaskStartLon' => $calldriver->lon,
-            'start_zip' => $calldriver->zip,
-            'TaskEndLat' => $calldriver->lat_det,
-            'TaskEndLon' => $calldriver->lon_det,
-            'end_zip' => $calldriver->zip_det,
-            'UserAddress' => $calldriver->addr,
-            'UserAddressKey' => $calldriver->addrKey,
-            'UserRemark' => $calldriver->UserRemark,
-            'UserCity' => $calldriver->city,
-            'UserDistrict' => $calldriver->district,
-            'DestCity' => $calldriver->city_det,
-            'DestDistrict' => $calldriver->district_det,
-            'DestAddress' => $calldriver->addr_det,
-            'DestAddressKey' => $calldriver->addrKey_det,
-        ];
+                'TaskRideTS' => $map->TS,
+                'TaskCancelTS' => Carbon::now()->timestamp,
+                'TaskStartLat' => $calldriver->lat,
+                'TaskStartLon' => $calldriver->lon,
+                'start_zip' => $calldriver->zip,
+                'TaskEndLat' => $calldriver->lat_det,
+                'TaskEndLon' => $calldriver->lon_det,
+                'end_zip' => $calldriver->zip_det,
+                'UserAddress' => $calldriver->addr,
+                'UserAddressKey' => $calldriver->addrKey,
+                'UserRemark' => $calldriver->UserRemark,
+                'UserCity' => $calldriver->city,
+                'UserDistrict' => $calldriver->district,
+                'DestCity' => $calldriver->city_det,
+                'DestDistrict' => $calldriver->district_det,
+                'DestAddress' => $calldriver->addr_det,
+                'DestAddressKey' => $calldriver->addrKey_det,
+            ];
 
-        $task = app(TaskRepository::class)->create($parmas);
-        CalldriverTaskMap::query()->where('id', $map->id)->update(['task_id' => $task->id,]);
-        TaskPayLog::query()->where('calldriver_task_map_id', $map->id)->update(['task_id' => $task->id]);
+            $task = app(TaskRepository::class)->create($parmas);
+            CalldriverTaskMap::query()->where('id', $map->id)->update(['task_id' => $task->id,]);
+            TaskPayLog::query()->where('calldriver_task_map_id', $map->id)->update(['task_id' => $task->id]);
+
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return false;
+        }
     }
 
     public function getTypeConfigs()

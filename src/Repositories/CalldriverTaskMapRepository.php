@@ -88,7 +88,8 @@ class CalldriverTaskMapRepository extends Repository
      * 檢查此駕駛幾秒內是否有媒合的單
      */
     public function isInMatchingByDriverID(int $driver_id, int $seconds = 45) : bool{
-        $count = $this->where('driver_id', $driver_id)->where(DB::raw('UNIX_TIMESTAMP() - TS'), '<', $seconds)->count();
+        // cast avoid value out of range
+        $count = $this->where('driver_id', $driver_id)->where(DB::raw('UNIX_TIMESTAMP() - CAST(TS AS SIGNED)'), '<', $seconds)->count();
 
         return $count > 0;
     }
