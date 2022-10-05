@@ -522,6 +522,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         // 排序
         // 派單順序是A(正職)->B(兼職)，同組同條件依據該駕駛當月黑帽客任務時數的多寡
+        Log::info('black_hat名單清單(未排序)', [$driverIdGroups]);
         $matchDriver = null;
         foreach ($driverIdGroups as $driver) {
             if (empty($matchDriver)) {
