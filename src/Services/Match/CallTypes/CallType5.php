@@ -503,15 +503,15 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             }
         }
 
-        if ($driverIdGroups->count() == 0) {
-            return null;
-        }
-
         // 避免同秒重複派單
         foreach ($driverIdGroups as $driverId => $driver) {
             if (Cache::has('black_hat_match_driverId_' . $driverId)) {
                 $driverIdGroups->forget($driverId);
             }
+        }
+
+        if ($driverIdGroups->count() == 0) {
+            return null;
         }
 
         if ($driverIdGroups->count() == 1) {
