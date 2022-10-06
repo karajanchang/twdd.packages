@@ -273,19 +273,23 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
     private function refund($calldriverTaskMap)
     {
-        $payQuery = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->query();
-        Log::info(__METHOD__ . 'pay_query', [$payQuery]);
-        $backCreditCardResult = false;
-        if (isset($payQuery['error'])) {
-            $msg = $payQuery['msg'] ?? '系統發生錯誤';
-            Log::error(__METHOD__ . 'payQuery:', [$msg]);
-            return $this->error('系統發生錯誤');
+        // 先取消授權失敗再刷退
+        $payCancel = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->cancel();
+        if (isset($payCancel['error'])) {
+            $msg = $payCancel['msg'] ?? '系統發生錯誤';
+            Log::info('calldriver_task_map:' . $calldriverTaskMap . '取消授權失敗:', [$msg]);
+
+            $payBack = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->back();
+
+            if (isset($payBack['error'])) {
+                Log::info('calldriver_task_map:' . $calldriverTaskMap . '刷退失敗:', [$msg]);
+                return false;
+            }
         }
 
-        if ($payQuery['result']['Result']['TradeStatus'] == 3) {
-            $backCreditCardResult = true;
-        }
-
+        return true;
+        /*
+        // 由於藍新測試機Query 後給予的 CloseStatus = 0，但取消授權失敗，不準確，所以改以取消授權失敗後打退款
         # 取消授權
         if ($payQuery['result']['Result']['TradeStatus'] == 1 && $payQuery['result']['Result']['CloseStatus'] < 2) {
             $payCancel = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->cancel();
@@ -299,6 +303,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         }
 
         # 退刷
+        /*
         if ($payQuery['result']['Result']['TradeStatus'] == 1 && $payQuery['result']['Result']['CloseStatus'] >= 2) {
             $payBack = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->back();
 
@@ -311,6 +316,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         }
 
         return $backCreditCardResult;
+        */
     }
 
     private function createViolationTask($map, $fee)

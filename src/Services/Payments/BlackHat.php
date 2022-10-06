@@ -180,7 +180,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
         // 刷訂金
         if ($this->calldriverTaskMap) {
             $payLogs = $this->calldriverTaskMap->payLogs->where('pay_status', 1);
-            $payLog = $payLogs[0] ?? null;
+            $payLog = $payLogs->first();
 
             $money = $payLog->amt;
             $orderNo = $payLog->OrderNo;
