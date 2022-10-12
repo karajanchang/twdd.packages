@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Twdd\Facades\PushNotification;
 use Twdd\Models\CalldriverTaskMap;
 use Twdd\Models\Member;
 use Twdd\Models\Driver;
@@ -29,6 +30,7 @@ use Twdd\Services\Match\CallTypes\Traits\TraitMemberCanMatch;
 use Twdd\Services\Match\CallTypes\Traits\TraitMemberCanNotCall;
 use Twdd\Services\Match\CallTypes\Traits\TraitOnlyOnePrematch;
 use Twdd\Services\Match\CallTypes\Traits\TraitServiceArea;
+use Twdd\Services\PushNotificationService;
 
 class CallType5 extends AbstractCall implements InterfaceMatchCallType
 {
@@ -234,6 +236,8 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             return $this->error('已過任務開始時間，無法取消任務');
         }
 
+        $pushService = new PushNotificationService();
+
         switch ($cancelStatus) {
             case 1:
                 if ($blackhatDetail->pay_status == 1) {
@@ -243,7 +247,6 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                         // Todo::退刷失敗 => 寄信通知客服
                     }
                 }
-
                 break;
             case 2:
                 $fee = $blackhatDetail->deposit;
@@ -255,18 +258,20 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         }
         $this->cancelTaskState($blackhatDetail, $taskMapParams, $detailParams);
 
+        // 有退款的情境
+        if ($cancelStatus == 1 && $blackhatDetail->pay_status == 1) {
+            $memberBody = sprintf('黑帽客任務%s訂金已成功退款，敬請您留意，謝謝！', $calldriverTaskMap->id);
+            $pushService->push([$calldriverTaskMap->member_id], '黑帽客預約成功退款通知', $memberBody);
+        } else {
+            $memberBody = sprintf('黑帽客任務%s取消成功，很可惜無法為您服務，如有需求請重新預約。', $calldriverTaskMap->id);
+            $pushService->push([$calldriverTaskMap->member_id], '黑帽客預約取消通知', $memberBody);
+        }
+
+        $driverBody = sprintf('黑帽客任務%s已取消，敬請留意，辛苦了！', $calldriverTaskMap->id);
+        $pushService->push([$calldriverTaskMap->call_driver_id], '黑帽客預約取消通知', $driverBody);
+
         return $this->success('取消成功');
     }
-
-//    public function isDuplicate($memberId, Carbon $startDate1, Carbon $endDate1, Carbon $startDate2, Carbon $endDate2)
-//    {
-//        // 黑帽客的單
-//        if (!($endDate1->isBefore($startDate2) || $startDate1->isAfter($endDate2) )) {
-//
-//        }
-//
-//        return false;
-//    }
 
     /*
      * cancelStatus: 1 => 免費取消(退50%訂金)
