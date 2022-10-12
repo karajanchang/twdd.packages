@@ -479,9 +479,9 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             ->where('driver.is_online', 1)
             ->where('driver.is_out', 0)
             ->whereIn('driver.driver_group_id', $driverGroup)
-            ->whereNotIn('driver_id', $refuseDriverIds)
-            ->groupBy('driver_id', 'blackhat_driver_group_id')
-            ->having('cnt', '>=',  $blackHatHour)
+            ->whereNotIn('blackhat_driver_schedule.driver_id', $refuseDriverIds)
+            ->groupBy('blackhat_driver_schedule.driver_id', 'blackhat_driver_group_id')
+            ->having('cnt', '>=', $blackHatHour)
             ->get()
             ->keyBy('driver_id');
 
