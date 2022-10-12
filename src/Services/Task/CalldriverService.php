@@ -280,6 +280,8 @@ class CalldriverService extends ServiceAbstract
             'start_date' => $params['start_date'],
             'end_date' => $params['end_date'],
             'maybe_over_time' => $params['maybe_over_time'],
+            'tax_id_number' => $params['tax_id_number'] ?? "",
+            'tax_id_title' => $params['tax_id_title'] ?? "",
             'created_at' => $nowDt,
             'updated_at' => $nowDt,
         ];

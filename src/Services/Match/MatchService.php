@@ -3,7 +3,8 @@
 
 namespace Twdd\Services\Match;
 
-
+use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Twdd\Services\Match\CallTypes\InterfaceMatchCallType;
 use Twdd\Services\ServiceAbstract;
@@ -81,6 +82,10 @@ class MatchService extends ServiceAbstract
     public function matchPay(int $calldriverTaskMapId)
     {
         return $this->callType->matchPay($calldriverTaskMapId);
+    }
+
+    public function matchDriver(array $other_params = [], array $refuseDriverId = [0]) {
+        return $this->callType->matchDriver($other_params, $refuseDriverId);
     }
 
 }

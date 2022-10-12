@@ -10,7 +10,6 @@ use Twdd\Errors\ErrorAbstract;
 Trait ControllerOutputTrait
 {
     public function error($msg = null, $obj = null, int $code = -1){
-
         return $this->output($code, $msg, $obj);
     }
 

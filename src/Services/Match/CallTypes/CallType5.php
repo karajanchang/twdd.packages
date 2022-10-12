@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Twdd\Models\CalldriverTaskMap;
+use Twdd\Models\Member;
 use Twdd\Models\Driver;
 use Twdd\Models\BlackhatDetail;
 use Twdd\Models\DriverGroupCallCity;
@@ -60,6 +61,13 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     {
         $check = parent::check($params, $remove_lists);
 
+        //--預約一定要用信用卡
+        $res = $this->noCheckList('CheckHaveBindCreditCard');
+        if($res !== false && $this->CheckHaveBindCreditCard()!==true){
+
+            return $this->{$res}('預約代駕付款方式限定信用卡');
+        }
+
         if($check === true) {
             $this->setParams($params);
         }
@@ -82,31 +90,54 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
     public function match(array $other_params = [])
     {
-        //--預約一定要用信用卡
-        $res = $this->noCheckList('CheckHaveBindCreditCard');
-        if($res !== false && $this->CheckHaveBindCreditCard()!==true){
-
-            return $this->{$res}('預約代駕付款方式限定信用卡');
-        }
-
         $params = $this->processParams($this->params, $other_params);
+
 //        if ($this->isDuplicate($params['member_id'])) {
 //            return $this->error('重複預約', null, 2002);
 //        }
-        $driverId = $this->matchDriver([
-            'lat' => $params['lat'],
-            'lon' => $params['lon'],
-            'zip' => $params['zip'],
-            'black_hat_type' => $params['black_hat_type'],
-            'start_date' => $params['start_date'],
-            'maybe_over_time' => $params['maybe_over_time']
-        ]);
+
+        $driverIdByAdmin = $params['driverId_by_admin'] ?? null;
+
+        if ($driverIdByAdmin) {
+            $driverId = $driverIdByAdmin;
+        } else {
+
+            $driverId = $this->matchDriver([
+                'lat' => $params['lat'],
+                'lon' => $params['lon'],
+                'zip' => $params['zip'],
+                'black_hat_type' => $params['black_hat_type'],
+                'start_date' => $params['start_date'],
+                'maybe_over_time' => $params['maybe_over_time']
+            ]);
+        }
+
+//        $driverId = 21;
 
         if (!$driverId) {
             return $this->error('目前無駕駛承接', null, 2001);
         }
 
+//        // 為了 admin 後台叫空單紀錄用
+//        if (!$driverId && $params['type'] == 2) {
+//            $callDriver = app(DriverRepository::class)->find(1, ['id']);
+//            $callDriver->id = 0;
+//
+//            $this->member = Member::find($this->member->id);
+//
+//            $blackHatDetail = $this->getCalldriverServiceInstance()->setCallDriver($callDriver)->create($params);
+//            $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
+//            $calldriverTaskMap->isMatchFail = 1;
+//            $calldriverTaskMap->save();
+//
+//            // return ?
+//        }
+
         // 若找不到要建立單？
+
+        if ($params['type'] == 2) {
+            $this->member = Member::find($this->member->id);
+        }
 
         $callDriver = app(DriverRepository::class)->find($driverId, ['id']);
         $blackHatDetail = $this->getCalldriverServiceInstance()->setCallDriver($callDriver)->create($params);
@@ -186,7 +217,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         $taskMapParams = [
             'is_cancel' => 1,
-            'cancel_by' => 1, // 1客人 2駕駛 3客服 4車廠
+            'cancel_by' => $other_params['cancel_by'] ?? 1, // 1客人 2駕駛 3客服 4車廠
         ];
         $detailParams = [
             'prematch_status' => -1
@@ -414,7 +445,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         ];
     }
 
-    public function matchDriver($params)
+    public function matchDriver($params, array $refuseDriverIds = [0])
     {
 
         $zip = $params['zip'];
@@ -448,10 +479,12 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             ->where('driver.is_online', 1)
             ->where('driver.is_out', 0)
             ->whereIn('driver.driver_group_id', $driverGroup)
+            ->whereNotIn('driver_id', $refuseDriverIds)
             ->groupBy('driver_id', 'blackhat_driver_group_id')
             ->having('cnt', '>=',  $blackHatHour)
             ->get()
             ->keyBy('driver_id');
+
         Log::info('black_hat 有排班駕駛:', [$driverIdGroups]);
         // 當月黑帽客任務
         $blackHatDetail = BlackhatDetail::query()
