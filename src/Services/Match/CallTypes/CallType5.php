@@ -268,7 +268,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         }
 
         $driverBody = sprintf('黑帽客任務%s已取消，敬請留意，辛苦了！', $calldriverTaskMap->id);
-        $pushService->push([$calldriverTaskMap->call_driver_id], '黑帽客預約取消通知', $driverBody);
+        $pushService->push2Driver([$calldriverTaskMap->call_driver_id], '黑帽客預約取消通知', $driverBody);
 
         return $this->success('取消成功');
     }
