@@ -246,6 +246,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                         return $this->error('取消失敗');
                         // Todo::退刷失敗 => 寄信通知客服
                     }
+                    $detailParams['pay_status'] = 3;
                 }
                 break;
             case 2:
@@ -254,6 +255,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 if (!$res) {
                     return $this->error('取消失敗');
                 }
+                $detailParams['pay_status'] = 4;
                 break;
         }
         $this->cancelTaskState($blackhatDetail, $taskMapParams, $detailParams);
