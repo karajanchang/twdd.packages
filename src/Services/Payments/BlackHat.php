@@ -3,11 +3,9 @@
 
 namespace Twdd\Services\Payments;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Log;
-use Twdd\Errors\PaymentErrors;
 use Twdd\Models\DriverMerchant;
-use Twdd\Repositories\TaskPayLogRepository;
-use Twdd\Services\Payments\SpgatewayErrorDectect;
 use Twdd\Repositories\MemberCreditcardRepository;
 use Twdd\Services\Payments\Traits\SpgatewayTrait;
 use Twdd\Services\Payment_v2\SpGateway\SpGatewayService;
@@ -24,7 +22,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
         $orderNo = "";
         $proPaySuffix = "";
-
+        $blackHatDetail = $this->task->calldriver_task_map->blackhat_detail;
         // 刷訂金
         if ($this->calldriverTaskMap) {
             $member = $this->calldriverTaskMap->member;
@@ -41,7 +39,6 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
         {
             $member = $this->task->member;
             $orderNo = 'bh_' . str_pad($this->task->id, 8, "0", STR_PAD_LEFT);
-            $blackHatDetail = $this->task->calldriver_task_map->blackhat_detail;
             $money = $this->task->TaskFee - $blackHatDetail->deposit;
             $proPaySuffix = "任務金";
             $this->setMoney($money);
@@ -61,16 +58,19 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
             $res = $payment->pay($money, $memberCreditCard, $driverMerchant);
 
             if (isset($res['Status']) && $res['Status'] === 'SUCCESS') {
+                $blackHatDetail->pay_status = 6; // 任務尾款付款成功
+                $blackHatDetail->save();
 
                 return $this->returnSuccess('刷卡成功', $res, true);
-
             } else if (isset($res['Message']) && $res['Message']) {
-
                 app(SpgatewayErrorDectect::class)->init($memberCreditCard, $res['Status'], $res['Message']);
+                $blackHatDetail->pay_status = 5; // 任務尾款付款失敗
+                $blackHatDetail->save();
 
                 return $this->returnError(2003, '刷卡失敗', $res, true);
-
             } else {
+                $blackHatDetail->pay_status = 5; // 任務尾款付款失敗
+                $blackHatDetail->save();
 
                 return $this->returnError(2003, '刷卡失敗', ($res) ? $res : null, true);
             }
@@ -222,9 +222,9 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
     {
         $driverMerchant = new DriverMerchant();
 
-        $driverMerchant->MerchantID = 'TWD161038650';
-        $driverMerchant->MerchantHashKey = 'U5XsUQLg0bvYAprhXm8FybhHZzDiS9cw';
-        $driverMerchant->MerchantIvKey = 'Cog226xrtyu4nvtP';
+        $driverMerchant->MerchantID = env('COMPANY_SPGATEWAY_MERCHANT_ID', 'TWD161038650');
+        $driverMerchant->MerchantHashKey = env('COMPANY_SPGATEWAY_HASH_KEY', 'U5XsUQLg0bvYAprhXm8FybhHZzDiS9cw');
+        $driverMerchant->MerchantIvKey = env('COMPANY_SPGATEWAY_IV_KEY', 'Cog226xrtyu4nvtP');
 
         return $driverMerchant;
     }
