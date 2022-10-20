@@ -114,28 +114,19 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             ]);
         }
 
-//        $driverId = 21;
-
+        // 無匹配的駕駛，建立空白單
         if (!$driverId) {
+            $callDriver = app(DriverRepository::class)->first();
+            $callDriver->id = 0;
+
+            $this->member = Member::find($this->member->id);
+
+            $blackHatDetail = $this->getCalldriverServiceInstance()->setCallDriver($callDriver)->create($params);
+            $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
+            $calldriverTaskMap->isMatchFail = 1;
+            $calldriverTaskMap->save();
             return $this->error('目前無駕駛承接', null, 2001);
         }
-
-//        // 為了 admin 後台叫空單紀錄用
-//        if (!$driverId && $params['type'] == 2) {
-//            $callDriver = app(DriverRepository::class)->find(1, ['id']);
-//            $callDriver->id = 0;
-//
-//            $this->member = Member::find($this->member->id);
-//
-//            $blackHatDetail = $this->getCalldriverServiceInstance()->setCallDriver($callDriver)->create($params);
-//            $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
-//            $calldriverTaskMap->isMatchFail = 1;
-//            $calldriverTaskMap->save();
-//
-//            // return ?
-//        }
-
-        // 若找不到要建立單？
 
         if ($params['type'] == 2) {
             $this->member = Member::find($this->member->id);

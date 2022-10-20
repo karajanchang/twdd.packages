@@ -23,6 +23,7 @@ class ReserveService
         $this->blackHatDetailRepository = $blackHatDetailRepository;
     }
 
+    // 取得預約列表，已出發單排除
     public function getMemberReserves(int $memberId)
     {
         // 黑帽客列表

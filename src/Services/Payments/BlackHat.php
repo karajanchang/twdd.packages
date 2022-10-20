@@ -22,7 +22,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
         $orderNo = "";
         $proPaySuffix = "";
-        $blackHatDetail = $this->task->calldriver_task_map->blackhat_detail;
+        $blackHatDetail = $this->calldriverTaskMap->blackhat_detail;
         // 刷訂金
         if ($this->calldriverTaskMap) {
             $member = $this->calldriverTaskMap->member;
