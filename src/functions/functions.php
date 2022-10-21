@@ -23,9 +23,12 @@ if (!function_exists('BankAccount')) {
 //--檢查此任務是否需要收系統費
 if (!function_exists('IsTaskChargeTwddFee')) {
     function IsTaskChargeTwddFee(\Illuminate\Database\Eloquent\Model $task){
-        //---黑卡
+        //---天使卡
         if (isset($task->member->member_grade_id) && $task->member->member_grade_id==env('BLACK_MEMBER_GRADE_ID', 5)) {
-
+            //--- 天使卡-黑帽客要收系統平台費
+            if ($task->call_type == 5) {
+                return true;
+            }
             return false;
         }
 
