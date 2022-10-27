@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Jyun\Mapsapi\TwddMap\Directions;
 use Twdd\Facades\PushNotification;
 use Twdd\Models\CalldriverTaskMap;
 use Twdd\Models\Member;
@@ -206,6 +207,9 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         if (!$blackhatDetail) {
             return $this->error('沒有此預約單');
+        }
+        if ($calldriverTaskMap->is_cancel == 1) {
+            return $this->success('取消成功');
         }
 
         $taskMapParams = [
@@ -464,6 +468,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         $blackHatMaybeOverTime = $params['maybe_over_time'];
         $reserveDateStart = Carbon::parse($params['start_date']);
+
         $reserveDateEnd = $reserveDateStart->copy()->addHours($blackHatHour);
 
         // 抓取排班司機
@@ -498,7 +503,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         foreach($blackHatDetail as $history) {
             $driverId = $history->calldriver_task_map->call_driver_id;
             $config = $typeConfigs[$history['type']];
-            $bufferHour = $history['maybe_over_time'] ? 1.5 : 0;
+            $overtimeHour = $history['maybe_over_time'] ? 1.5 : 0;
             $historyReverseDate = Carbon::parse($history['start_date']);
 
             if (!$driverIdGroups->has($driverId)) {
@@ -507,36 +512,115 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             if (!isset($driverIdGroups[$driverId]['day_hour'])) {
                 $driverIdGroups[$driverId]['day_hour'] = 0; // 跟預約單同一天時數加總
                 $driverIdGroups[$driverId]['month_hour'] = 0; // 跟預約單同月時數加總
+                $driverIdGroups[$driverId]['day_overtime_nums'] = 0; // 跟預約單同一天超時單量 // 需求只能有一張超時單
             }
             if ($historyReverseDate->isSameDay($reserveDateStart)) {
-                $driverIdGroups[$driverId]['day_hour'] += ($config['hour'] + $bufferHour);
+                $driverIdGroups[$driverId]['day_hour'] += ($config['hour'] + $overtimeHour);
+                if ($history['maybe_over_time']) {
+                    $driverIdGroups[$driverId]['day_overtime_nums'] += 1;
+                }
             }
             if ($historyReverseDate->isSameMonth($reserveDateStart)) {
-                $driverIdGroups[$driverId]['month_hour'] += ($config['hour'] + $bufferHour);
+                $driverIdGroups[$driverId]['month_hour'] += ($config['hour'] + $overtimeHour);
             }
 
             // 拒絕 當天接單上限含 8 小時的司機
             if ($driverIdGroups[$driverId]['day_hour'] >= 8) {
-                Log::info('black_hat 因超過8小時排除:', ['driver_id' => $driverId, 'total_hour' => $driverIdGroups[$driverId]['day_hour']]);
+                Log::info('black_hat 因超過10小時排除:',
+                    ['driver_id' => $driverId, 'total_hour' => $driverIdGroups[$driverId]['day_hour']]);
+                $driverIdGroups->forget($driverId);
+            }
+
+            // 需求只能有一張超時單
+            if ($blackHatMaybeOverTime && $driverIdGroups[$driverId]['day_overtime_nums'] > 0) {
+                Log::info('black_hat 已有一張超時單不可再接第二張超時:',
+                    ['driver_id' => $driverId, 'day_overtime_nums' => $driverIdGroups[$driverId]['day_overtime_nums']]);
                 $driverIdGroups->forget($driverId);
             }
         }
 
+        $bufferMinutes = $blackHatMaybeOverTime ? 3 * 60 : 1.5 * 60;
         foreach ($blackHatDetail as $history)
         {
             $driverId = $history['calldriver_task_map']['call_driver_id'];
 
-            $bufferMinutes = $blackHatMaybeOverTime ? 3 * 60 : 1.5 * 60;
             $startDateWithBuffer = Carbon::parse($history['start_date'])->subMinutes($bufferMinutes);
             $endDateWithBuffer = Carbon::parse($history['end_date'])->addMinutes($bufferMinutes);
-            // 時間交集 https://www.twblogs.net/a/5db28472bd9eee310d9fd37d
-            if (!($endDateWithBuffer->isBefore($reserveDateStart) || $startDateWithBuffer->isAfter($reserveDateEnd) )) {
+
+            if ($this->isDtOverLap($reserveDateStart, $reserveDateEnd, $startDateWithBuffer, $endDateWithBuffer)) {
                 Log::info('black_hat 預約單有交集:', [
                     'driver_id' => $driverId,
                     '預約單' => [$reserveDateStart, $reserveDateEnd],
                     '上下單' => [$startDateWithBuffer, $endDateWithBuffer],
                 ]);
                 $driverIdGroups->forget($driverId);
+            }
+        }
+
+        // 排除黑帽客重複派單
+        $carFactories = CalldriverTaskMap::query()
+            ->leftJoin('calldriver', 'calldriver.id', '=', 'calldriver_task_map.calldriver_id')
+            ->where('calldriver.type', 10)
+            ->where('calldriver_task_map.call_type', 2)
+            ->where('calldriver_task_map.is_cancel', 0)
+            ->where('calldriver_task_map.is_done', 0)
+            ->where('calldriver_task_map.IsMatchFail', 0)
+            ->whereIn('calldriver_task_map.call_driver_id', $driverIdGroups->keys())
+            ->whereBetween('calldriver_task_map.TS', [
+                // +- 3h 避免沒有重疊，但因buffer會重疊
+                $reserveDateStart->copy()->subHours(3)->copy()->timestamp,
+                $reserveDateEnd->copy()->addHours(3)->copy()->timestamp
+            ])
+            ->get();
+        foreach ($carFactories as $carFactory) {
+            $driverId = $carFactory->call_driver_id;
+            $carFactoryStartDt = Carbon::createFromTimestamp($carFactory->TS);
+            $carFactoryEndDt = $carFactoryStartDt->copy()->addSeconds($carFactory->duration);
+
+            // 計算路程
+            $twoPlaceDistance = Directions::directions(
+                ($lat . ',' . $lon),
+                ($carFactory->lat . ',' . $carFactory->lon),
+                'bicycling'
+            );
+            $duration = $twoPlaceDistance['data']['routes']['legs']['duration'] ?? 0;
+
+            // 黑帽客(預約單) -> 車廠 => 路程 + 可能超時(+3h)|(+1.5h)
+            if ($reserveDateStart->isBefore($carFactoryStartDt)) {
+                $reserveWithBufferDateEnd = $reserveDateEnd->copy()->addMinutes($bufferMinutes)->addSeconds($duration);
+                if ($this->isDtOverLap($reserveDateStart, $reserveWithBufferDateEnd, $carFactoryStartDt, $carFactoryEndDt)) {
+                    Log::info('黑帽客to車廠單時間重疊:', [
+                        'driver_id' => $driverId,
+                        '預約單' => [
+                            '開始時間' => $reserveDateStart,
+                            '結束時間' => $reserveDateEnd,
+                            '結束時間+Buffer' => $reserveWithBufferDateEnd,
+                        ],
+                        '車廠單' => [
+                            '開始時間' => $carFactoryStartDt,
+                            '結束時間' => $carFactoryEndDt,
+                        ],
+                        'buffer' => [$bufferMinutes. '(m)+' . $duration . '(s)']]);
+                    $driverIdGroups->forget($driverId);
+                }
+            } else {
+                // 車廠 -> 黑帽客(預約單)  => 路程 + buffer(1h)
+                $carFactoryWithBufferEndDt = $carFactoryEndDt->copy()->addHour()->addSeconds($duration);
+                if ($this->isDtOverLap($reserveDateStart, $reserveDateEnd, $carFactoryStartDt, $carFactoryWithBufferEndDt)) {
+                    Log::info('車廠to黑帽客重疊:', [
+                        'driver_id' => $driverId,
+                        '車廠單' => [
+                            '開始時間' => $carFactoryStartDt,
+                            '結束時間' =>$carFactoryEndDt,
+                            '結束時間+Buffer(1h)+路程' => $carFactoryWithBufferEndDt],
+                        '預約單' => [
+                            '開始時間' => $reserveDateStart,
+                            '結束時間' => $reserveDateEnd,
+                        ],
+                        '路程' => [$duration . '(s)'],
+                    ]);
+                    $driverIdGroups->forget($driverId);
+                }
             }
         }
 
@@ -582,5 +666,14 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         Cache::put('black_hat_match_driverId_' . $matchDriver->driver_id, $matchDriver->driver_id, Carbon::now()->addMinute());
 
         return $matchDriver->driver_id;
+    }
+
+    // 時間交集 https://www.twblogs.net/a/5db28472bd9eee310d9fd37d
+    private function isDtOverLap($startDt1, $endDt1, $startDt2, $endDt2) : bool
+    {
+        if (!($endDt1->isBefore($startDt2) || $startDt1->isAfter($endDt2))) {
+            return true;
+        }
+        return false;
     }
 }
