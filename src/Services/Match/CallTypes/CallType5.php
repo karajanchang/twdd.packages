@@ -258,10 +258,10 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         // 有退款的情境
         if ($cancelStatus == 1 && $blackhatDetail->pay_status == 1) {
             $memberBody = sprintf('黑帽客任務%s訂金已成功退款，敬請您留意，謝謝！', $calldriverTaskMap->id);
-            $pushService->push([$calldriverTaskMap->member_id], '黑帽客預約成功退款通知', $memberBody);
+            $pushService->push([$calldriverTaskMap->member_id], '黑帽客預約成功退款通知', $memberBody, 'reserves');
         } else {
             $memberBody = sprintf('黑帽客任務%s取消成功，很可惜無法為您服務，如有需求請重新預約。', $calldriverTaskMap->id);
-            $pushService->push([$calldriverTaskMap->member_id], '黑帽客預約取消通知', $memberBody);
+            $pushService->push([$calldriverTaskMap->member_id], '黑帽客預約取消通知', $memberBody, 'reserves');
         }
 
         $driverBody = sprintf('黑帽客任務%s已取消，敬請留意，辛苦了！', $calldriverTaskMap->id);
