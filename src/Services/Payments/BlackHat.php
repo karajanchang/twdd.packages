@@ -22,11 +22,11 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
         $orderNo = "";
         $proPaySuffix = "";
-        $blackHatDetail = $this->calldriverTaskMap->blackhat_detail;
         // 刷訂金
         if ($this->calldriverTaskMap) {
             $member = $this->calldriverTaskMap->member;
             $orderNo = 'bh_' . str_pad($this->calldriverTaskMap->id, 8, "0", STR_PAD_LEFT);
+            $blackHatDetail = $this->calldriverTaskMap->blackhat_detail;
             $money = $params['money'];
             $proPaySuffix = "訂金";
 
@@ -39,6 +39,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
         {
             $member = $this->task->member;
             $orderNo = 'bh_' . str_pad($this->task->id, 8, "0", STR_PAD_LEFT);
+            $blackHatDetail = $this->task->calldriver_task_map->blackhat_detail;
             $money = $this->task->TaskFee - $blackHatDetail->deposit;
             $proPaySuffix = "任務金";
             $this->setMoney($money);
