@@ -466,14 +466,13 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         $typeConfigs = $this->getTypeConfigs();
         $blackHatHour = $typeConfigs[$blackHatType]['hour'];
 
-        $blackHatMaybeOverTime = $params['maybe_over_time'];
-        $reserveDateStart = Carbon::parse($params['start_date']);
-
-        $reserveDateEnd = $reserveDateStart->copy()->addHours($blackHatHour);
+        $reserveMaybeOverTime = $params['maybe_over_time'] ?? 0;
+        $reserveStartDt = Carbon::parse($params['start_date']);
+        $reserveEndDt = $reserveStartDt->copy()->addHours($blackHatHour);
 
         // 抓取排班司機
-        $scheduleRangeStart = $reserveDateStart->copy()->floorHour();
-        $scheduleRangeEnd = $reserveDateStart->copy()->ceilHour()->addHours($blackHatHour);
+        $scheduleRangeStart = $reserveStartDt->copy()->floorHour();
+        $scheduleRangeEnd = $reserveStartDt->copy()->ceilHour()->addHours($blackHatHour);
         $driverIdGroups = BlackhatDriverSchedule::query()
             ->select('blackhat_driver_schedule.driver_id', 'blackhat_driver_group_map.blackhat_driver_group_id', DB::raw('COUNT(*) as cnt'))
             ->join('driver', 'blackhat_driver_schedule.driver_id', '=', 'driver.id')
@@ -494,7 +493,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             ->whereRaw('1=1')
             ->with('calldriver_task_map')
             ->where('prematch_status', 1)
-            ->whereBetween('start_date', [$reserveDateStart->copy()->startOfMonth(), $reserveDateStart->copy()->endOfMonth()])
+            ->whereBetween('start_date', [$reserveStartDt->copy()->startOfMonth(), $reserveStartDt->copy()->endOfMonth()])
             ->get();
 
         //- 一日一人僅接收1張8H單、兩張5H，其中兩張5H的判斷為乘客是否預計會超時，
@@ -514,13 +513,13 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 $driverIdGroups[$driverId]['month_hour'] = 0; // 跟預約單同月時數加總
                 $driverIdGroups[$driverId]['day_overtime_nums'] = 0; // 跟預約單同一天超時單量 // 需求只能有一張超時單
             }
-            if ($historyReverseDate->isSameDay($reserveDateStart)) {
+            if ($historyReverseDate->isSameDay($reserveStartDt)) {
                 $driverIdGroups[$driverId]['day_hour'] += ($config['hour'] + $overtimeHour);
                 if ($history['maybe_over_time']) {
                     $driverIdGroups[$driverId]['day_overtime_nums'] += 1;
                 }
             }
-            if ($historyReverseDate->isSameMonth($reserveDateStart)) {
+            if ($historyReverseDate->isSameMonth($reserveStartDt)) {
                 $driverIdGroups[$driverId]['month_hour'] += ($config['hour'] + $overtimeHour);
             }
 
@@ -532,32 +531,50 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             }
 
             // 需求只能有一張超時單
-            if ($blackHatMaybeOverTime && $driverIdGroups[$driverId]['day_overtime_nums'] > 0) {
+            if ($reserveMaybeOverTime && $driverIdGroups[$driverId]['day_overtime_nums'] > 0) {
                 Log::info('black_hat 已有一張超時單不可再接第二張超時:',
                     ['driver_id' => $driverId, 'day_overtime_nums' => $driverIdGroups[$driverId]['day_overtime_nums']]);
                 $driverIdGroups->forget($driverId);
             }
         }
 
-        $bufferMinutes = $blackHatMaybeOverTime ? 3 * 60 : 1.5 * 60;
+        $bufferMinutes = 60;
         foreach ($blackHatDetail as $history)
         {
             $driverId = $history['calldriver_task_map']['call_driver_id'];
 
-            $startDateWithBuffer = Carbon::parse($history['start_date'])->subMinutes($bufferMinutes);
-            $endDateWithBuffer = Carbon::parse($history['end_date'])->addMinutes($bufferMinutes);
+            $historyStartDt = Carbon::parse($history['start_date']);
+            $historyEndDt = Carbon::parse($history['end_date']);
+            $reserveWithBufferEndDt = $reserveEndDt->copy();
+            $historyWithBufferEndDt = $historyEndDt->copy();
+            // 當前預約單在已預約的黑帽客之前，已預約黑帽客結束時間+是否會超時+buffer時間
+            if ($historyStartDt->isBefore($reserveStartDt)) {
+                if ($history['maybe_over_time']) {
+                    $historyWithBufferEndDt->addHours(3);
+                } else {
+                    $historyWithBufferEndDt->addMinutes(90);
+                }
+                $historyWithBufferEndDt->addMinutes($bufferMinutes);
+            } else {
+                if ($reserveMaybeOverTime) {
+                    $reserveWithBufferEndDt->addHours(3);
+                } else {
+                    $reserveWithBufferEndDt->addMinutes(90);
+                }
+                $reserveWithBufferEndDt->addMinutes($bufferMinutes);
+            }
 
-            if ($this->isDtOverLap($reserveDateStart, $reserveDateEnd, $startDateWithBuffer, $endDateWithBuffer)) {
+            if ($this->isDtOverLap($reserveStartDt, $reserveEndDt, $historyStartDt, $historyWithBufferEndDt)) {
                 Log::info('black_hat 預約單有交集:', [
                     'driver_id' => $driverId,
-                    '預約單' => [$reserveDateStart, $reserveDateEnd],
-                    '上下單' => [$startDateWithBuffer, $endDateWithBuffer],
+                    '預約單' => [$reserveStartDt, $reserveEndDt],
+                    '上下單' => [$historyStartDt, $historyWithBufferEndDt],
                 ]);
                 $driverIdGroups->forget($driverId);
             }
         }
 
-        // 排除黑帽客重複派單
+        // 排除車廠與黑帽客單重疊時間
         $carFactories = CalldriverTaskMap::query()
             ->leftJoin('calldriver', 'calldriver.id', '=', 'calldriver_task_map.calldriver_id')
             ->where('calldriver.type', 10)
@@ -567,9 +584,9 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             ->where('calldriver_task_map.IsMatchFail', 0)
             ->whereIn('calldriver_task_map.call_driver_id', $driverIdGroups->keys())
             ->whereBetween('calldriver_task_map.TS', [
-                // +- 3h 避免沒有重疊，但因buffer會重疊
-                $reserveDateStart->copy()->subHours(3)->copy()->timestamp,
-                $reserveDateEnd->copy()->addHours(3)->copy()->timestamp
+                // +- 5h 避免沒有重疊，但因buffer會重疊
+                $reserveStartDt->copy()->subHours(5)->copy()->timestamp,
+                $reserveEndDt->copy()->addHours(5)->copy()->timestamp
             ])
             ->get();
         foreach ($carFactories as $carFactory) {
@@ -586,14 +603,14 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             $duration = $twoPlaceDistance['data']['routes']['legs']['duration'] ?? 0;
 
             // 黑帽客(預約單) -> 車廠 => 路程 + 可能超時(+3h)|(+1.5h)
-            if ($reserveDateStart->isBefore($carFactoryStartDt)) {
-                $reserveWithBufferDateEnd = $reserveDateEnd->copy()->addMinutes($bufferMinutes)->addSeconds($duration);
-                if ($this->isDtOverLap($reserveDateStart, $reserveWithBufferDateEnd, $carFactoryStartDt, $carFactoryEndDt)) {
+            if ($reserveStartDt->isBefore($carFactoryStartDt)) {
+                $reserveWithBufferDateEnd = $reserveEndDt->copy()->addMinutes($bufferMinutes)->addSeconds($duration);
+                if ($this->isDtOverLap($reserveStartDt, $reserveWithBufferDateEnd, $carFactoryStartDt, $carFactoryEndDt)) {
                     Log::info('黑帽客to車廠單時間重疊:', [
                         'driver_id' => $driverId,
                         '預約單' => [
-                            '開始時間' => $reserveDateStart,
-                            '結束時間' => $reserveDateEnd,
+                            '開始時間' => $reserveStartDt,
+                            '結束時間' => $reserveEndDt,
                             '結束時間+Buffer' => $reserveWithBufferDateEnd,
                         ],
                         '車廠單' => [
@@ -606,7 +623,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             } else {
                 // 車廠 -> 黑帽客(預約單)  => 路程 + buffer(1h)
                 $carFactoryWithBufferEndDt = $carFactoryEndDt->copy()->addHour()->addSeconds($duration);
-                if ($this->isDtOverLap($reserveDateStart, $reserveDateEnd, $carFactoryStartDt, $carFactoryWithBufferEndDt)) {
+                if ($this->isDtOverLap($reserveStartDt, $reserveEndDt, $carFactoryStartDt, $carFactoryWithBufferEndDt)) {
                     Log::info('車廠to黑帽客重疊:', [
                         'driver_id' => $driverId,
                         '車廠單' => [
@@ -614,8 +631,8 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                             '結束時間' =>$carFactoryEndDt,
                             '結束時間+Buffer(1h)+路程' => $carFactoryWithBufferEndDt],
                         '預約單' => [
-                            '開始時間' => $reserveDateStart,
-                            '結束時間' => $reserveDateEnd,
+                            '開始時間' => $reserveStartDt,
+                            '結束時間' => $reserveEndDt,
                         ],
                         '路程' => [$duration . '(s)'],
                     ]);
