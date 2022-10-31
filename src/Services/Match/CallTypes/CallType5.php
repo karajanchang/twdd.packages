@@ -528,6 +528,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 Log::info('black_hat 因超過10小時排除:',
                     ['driver_id' => $driverId, 'total_hour' => $driverIdGroups[$driverId]['day_hour']]);
                 $driverIdGroups->forget($driverId);
+                continue;
             }
 
             // 需求只能有一張超時單
@@ -535,6 +536,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 Log::info('black_hat 已有一張超時單不可再接第二張超時:',
                     ['driver_id' => $driverId, 'day_overtime_nums' => $driverIdGroups[$driverId]['day_overtime_nums']]);
                 $driverIdGroups->forget($driverId);
+                continue;
             }
         }
 
