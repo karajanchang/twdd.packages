@@ -79,9 +79,15 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
         } catch (\Exception $e) {
             $msg = '';
             if ($this->calldriverTaskMap) {
+                $blackHatDetail = $this->calldriverTaskMap->blackhat_detail;
+                $blackHatDetail->pay_status = 5; // 任務尾款付款失敗
+                $blackHatDetail->save();
                 $msg = '刷卡異常 (預約單號：'.$this->calldriverTaskMap->id.'): '.$e->getMessage();
             }
             if ($this->task) {
+                $blackHatDetail = $this->task->calldriver_task_map->blackhat_detail;
+                $blackHatDetail->pay_status = 5; // 任務尾款付款失敗
+                $blackHatDetail->save();
                 $msg = '刷卡異常 (任務單號：'.$this->task->id.'): '.$e->getMessage();
             }
 
