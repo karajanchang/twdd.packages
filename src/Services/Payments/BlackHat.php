@@ -59,19 +59,25 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
             $res = $payment->pay($money, $memberCreditCard, $driverMerchant);
 
             if (isset($res['Status']) && $res['Status'] === 'SUCCESS') {
-                $blackHatDetail->pay_status = 6; // 任務尾款付款成功
-                $blackHatDetail->save();
+                if ($this->task) {
+                    $blackHatDetail->pay_status = 6; // 任務尾款付款成功
+                    $blackHatDetail->save();
+                }
 
                 return $this->returnSuccess('刷卡成功', $res, true);
             } else if (isset($res['Message']) && $res['Message']) {
                 app(SpgatewayErrorDectect::class)->init($memberCreditCard, $res['Status'], $res['Message']);
-                $blackHatDetail->pay_status = 5; // 任務尾款付款失敗
-                $blackHatDetail->save();
+                if ($this->task) {
+                    $blackHatDetail->pay_status = 5; // 任務尾款付款失敗
+                    $blackHatDetail->save();
+                }
 
                 return $this->returnError(2003, '刷卡失敗', $res, true);
             } else {
-                $blackHatDetail->pay_status = 5; // 任務尾款付款失敗
-                $blackHatDetail->save();
+                if ($this->task) {
+                    $blackHatDetail->pay_status = 5; // 任務尾款付款失敗
+                    $blackHatDetail->save();
+                }
 
                 return $this->returnError(2003, '刷卡失敗', ($res) ? $res : null, true);
             }
@@ -79,9 +85,6 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
         } catch (\Exception $e) {
             $msg = '';
             if ($this->calldriverTaskMap) {
-                $blackHatDetail = $this->calldriverTaskMap->blackhat_detail;
-                $blackHatDetail->pay_status = 5; // 任務尾款付款失敗
-                $blackHatDetail->save();
                 $msg = '刷卡異常 (預約單號：'.$this->calldriverTaskMap->id.'): '.$e->getMessage();
             }
             if ($this->task) {
