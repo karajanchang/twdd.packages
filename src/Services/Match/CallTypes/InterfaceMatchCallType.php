@@ -16,4 +16,6 @@ Interface InterfaceMatchCallType
 
     public function match(array $other_params = []);
 
+    public function cancel(int $calldriverTaskMapId, array $other_params = []);
+
 }

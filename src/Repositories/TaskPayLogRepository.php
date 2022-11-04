@@ -34,4 +34,9 @@ class TaskPayLogRepository extends Repository
         return $this->where('task_id', $task_id)->orderby('id', 'desc')->first();
     }
 
+    // 透過 task_map_id 更新 task_id (預付訂金還沒有 task_id 的情況)
+    public function updateTaskIdByTaskMapId(int $calldriverTaskMapId, int $taskId)
+    {
+        return $this->where('calldriver_task_map_id', $calldriverTaskMapId)->update(['task_id' => $taskId]);
+    }
 }

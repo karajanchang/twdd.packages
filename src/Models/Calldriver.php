@@ -8,7 +8,6 @@
 
 namespace Twdd\Models;
 
-
 use Illuminate\Database\Eloquent\Model;
 
 class Calldriver extends Model
@@ -18,6 +17,9 @@ class Calldriver extends Model
 
     protected $guarded = ['id'];
 
-
+    public function calldriver_task_map()
+    {
+        return $this->hasMany(CalldriverTaskMap::class);
+    }
 
 }

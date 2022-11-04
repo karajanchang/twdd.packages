@@ -31,6 +31,10 @@ class Task extends Model
         return $this->belongsTo(Member::class);
     }
 
+    public function calldriver_task_map(){
+        return $this->hasOne(CalldriverTaskMap::class);
+    }
+
     public function paylogs(){
 
         return $this->hasMany(TaskPayLog::class);

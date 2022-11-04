@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Twdd\Criterias\Calldriver\JoinCalldriver;
 use Twdd\Criterias\Calldriver\OrderByMapId;
+use Twdd\Criterias\Calldriver\WhereCallTypeNot5;
 use Twdd\Criterias\Calldriver\WhereIsCancelOrIsMatchFail;
 use Twdd\Criterias\Calldriver\WhereMember;
 use Twdd\Criterias\Calldriver\WherePayTypeNot4;
@@ -39,6 +40,7 @@ class CalldriverTaskMapRepository extends Repository
         $whereIsCancelOrIsMatchFail = new WhereIsCancelOrIsMatchFail();
         $wherePayTypeNot4 = new WherePayTypeNot4();
         $WhereTypeNot10 = new WhereTypeNot10();
+        $WhereCallTypeNot5 = new WhereCallTypeNot5();
 
         $this->pushCriteria($joinCalldriver);
         $this->pushCriteria($whereMember);
@@ -46,6 +48,7 @@ class CalldriverTaskMapRepository extends Repository
         $this->pushCriteria($whereIsCancelOrIsMatchFail);
         $this->pushCriteria($wherePayTypeNot4);
         $this->pushCriteria($WhereTypeNot10);
+        $this->pushCriteria($WhereCallTypeNot5);
 
         $count = $this->count();
 
@@ -85,7 +88,8 @@ class CalldriverTaskMapRepository extends Repository
      * 檢查此駕駛幾秒內是否有媒合的單
      */
     public function isInMatchingByDriverID(int $driver_id, int $seconds = 45) : bool{
-        $count = $this->where('driver_id', $driver_id)->where(DB::raw('UNIX_TIMESTAMP() - TS'), '<', $seconds)->count();
+        // cast avoid value out of range
+        $count = $this->where('driver_id', $driver_id)->where(DB::raw('UNIX_TIMESTAMP() - CAST(TS AS SIGNED)'), '<', $seconds)->count();
 
         return $count > 0;
     }
@@ -128,6 +132,13 @@ class CalldriverTaskMapRepository extends Repository
             ->get();
     }
 
+    public function findMemberTaskMap(int $calldriverTaskMapId, int $memberId)
+    {
+        return $this->join('calldriver', 'calldriver_task_map.calldriver_id', '=', 'calldriver.id')
+            ->where('calldriver_task_map.id', $calldriverTaskMapId)
+            ->where('calldriver_task_map.member_id', $memberId)
+            ->first();
+    }
     /*
      * 從task_id去拿到calldriverTaskMap
      */
