@@ -5,8 +5,9 @@ namespace Twdd\Services\Payment_v2\SpGateway;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
+use Twdd\Models\DriverMerchant;
 
-class Pay extends SpGatewayAbstract
+class Bind extends SpGatewayAbstract
 {
     private $version;
 
@@ -16,15 +17,15 @@ class Pay extends SpGatewayAbstract
         $this->version = env('SPGATEWAY_VERSION', '1.1');
     }
 
-    public function pay(array $postDataArr, string $merchantID, string $merchantHashKey, string $merchantIvKey)
+    public function exec(array $postDataArr, DriverMerchant $merchant)
     {
         try {
             $postDataArr = $this->appendFixData($postDataArr);
             $client = new Client();
             $formParams = [
-                'MerchantID_' => $merchantID,
+                'MerchantID_' => $merchant->MerchantID,
                 'Pos_' => 'JSON',
-                'PostData_' => $this->encrypt($postDataArr, $merchantHashKey, $merchantIvKey)
+                'PostData_' => $this->encrypt($postDataArr, $merchant->MerchantHashKey, $merchant->MerchantIvKey)
             ];
             $res = $client->request('POST', $this->creditUrl, [
                 'form_params' => $formParams,
@@ -32,7 +33,8 @@ class Pay extends SpGatewayAbstract
 
             $resBody = json_decode($res->getBody()->getContents(), true);
 
-            Log::info('pay Response', [
+            unset($postDataArr['CardNo']); // no log credit card number
+            Log::info('bind Response', [
                 'creditUrl' => $this->creditUrl,
                 'response' => $resBody,
                 'postData' => $postDataArr,
@@ -50,7 +52,7 @@ class Pay extends SpGatewayAbstract
     {
         $postData['Version'] = $this->version;
         $postData['TimeStamp'] = Carbon::now()->timestamp;
-        $postData['TokenSwitch'] = 'on';
+        $postData['TokenSwitch'] = 'get';
 
         return $postData;
     }

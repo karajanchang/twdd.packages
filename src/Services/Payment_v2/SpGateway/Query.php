@@ -13,7 +13,7 @@ class Query extends SpGatewayAbstract
     public function __construct()
     {
         parent::__construct();
-        $this->version = env('SPGATEWAY_PAY_VERSION', '1.1');
+        $this->version = env('SPGATEWAY_VERSION', '1.1');
     }
 
 

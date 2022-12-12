@@ -6,7 +6,6 @@ namespace Twdd\Services\Payment_v2\SpGateway;
 use Carbon\Carbon;
 use Twdd\Models\DriverMerchant;
 use Twdd\Models\MemberCreditcard;
-use Twdd\Services\Payment_v2\PaymentInterface;
 
 
 class SpGatewayService
@@ -23,8 +22,33 @@ class SpGatewayService
 
     public function bind(array $postData)
     {
-        $service = new Bind();
-        return $service->bind($postData);
+        $merchant = new DriverMerchant([
+            'driver_id' => 0,
+            'MerchantID' => env('COMPANY_SPGATEWAY_MERCHANT_ID', ''),
+            'MerchantHashKey' => env('COMPANY_SPGATEWAY_HASH_KEY', ''),
+            'MerchantIvKey' => env('COMPANY_SPGATEWAY_IV_KEY', ''),
+        ]);
+
+        $agreedAmount = 1;
+        $orderNo = $this->createOrderNo();
+
+        $bindService = new Bind();
+        $bindData = [
+            'MerchantOrderNo' => $orderNo,
+            'PayerEmail' => $postData['PayerEmail'],
+            'CardNo' => $postData['CardNo'],
+            'Amt' => $agreedAmount,
+            'Exp' => $postData['Exp'],
+            'CVC' => $postData['CVC'],
+            'TokenTerm' => $postData['TokenTerm'],
+            'TokenLife' => $postData['TokenLife'],
+            'ProdDesc' => $postData['proDesc'] ?? '約定信用卡',
+        ];
+        $bindRes = $bindService->exec($bindData, $merchant);
+
+        $this->cancel($agreedAmount, $orderNo, $merchant);
+
+        return $bindRes;
     }
 
     public function pay(int $money, MemberCreditcard $creditCard, DriverMerchant $merchant)
@@ -39,7 +63,6 @@ class SpGatewayService
         $this->checkMoney($money);
         $this->checkMerchant($merchant);
         $this->checkCreditCard($creditCard);
-        $this->checkOrderNo($this->orderNo);
         $this->checkDesc($this->proDesc);
 
         $data = [
