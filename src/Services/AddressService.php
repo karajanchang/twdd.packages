@@ -44,7 +44,7 @@ class AddressService {
         if (empty($location)) {
             return false;
         }
-        $geoText = "(GeomFromText('POINT(%s %s)'))";
+        $geoText = "(ST_GeomFromText('POINT(%s %s)'))";
         $data = [
             'city_id' => $location['city_id'],
             'district_id' => $location['district_id'],
