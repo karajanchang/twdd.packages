@@ -4,23 +4,32 @@
 namespace Twdd\Services;
 
 
+use App\Member;
 use Illuminate\Support\Carbon;
 use Twdd\Facades\MatchFactory;
 use Twdd\Facades\MatchService as TwddMatchService;
+use Twdd\Repositories\AddressRepository;
 use Twdd\Repositories\BlackHatDetailRepository;
 use Twdd\Repositories\CalldriverTaskMapRepository;
+use Twdd\Repositories\ReserveDemandRepository;
 use Twdd\Services\Match\CallTypes\CallType5;
 
 class ReserveService
 {
     private $calldriverTaskMapRepository;
     private $blackHatDetailRepository;
+    private $addressService;
+    private $reserveDemandRepository;
 
     public function __construct(CalldriverTaskMapRepository $calldriverTaskMapRepository,
-                                BlackHatDetailRepository $blackHatDetailRepository)
+                                BlackHatDetailRepository $blackHatDetailRepository,
+                                AddressService $addressService,
+                                ReserveDemandRepository $reserveDemandRepository)
     {
         $this->calldriverTaskMapRepository = $calldriverTaskMapRepository;
         $this->blackHatDetailRepository = $blackHatDetailRepository;
+        $this->addressService = $addressService;
+        $this->reserveDemandRepository = $reserveDemandRepository;
     }
 
     // 取得預約列表，已出發單排除
@@ -47,5 +56,27 @@ class ReserveService
         }
 
         return $row ?? null;
+    }
+
+    public function storeReserveDemand(Member $member, array $data)
+    {
+        $startAddress = $this->addressService->storeAddress($data['start_address']);
+        $endAddress = $this->addressService->storeAddress($data['end_address']);
+        if (!isset($startAddress->id)) {
+            throw new \Exception('出發地址無法分析，請重新輸入');
+        }
+        if (!isset($endAddress->id)) {
+            throw new \Exception('結束地址無法分析，請重新輸入');
+        }
+
+        $insertData = [
+            'member_id' => $member->id,
+            'start_addr_id' => $startAddress->id,
+            'end_addr_id' => $endAddress->id,
+            'reserve_datetime' => $data['reserve_datetime'],
+        ];
+        $this->reserveDemandRepository->store($insertData);
+
+        return true;
     }
 }
