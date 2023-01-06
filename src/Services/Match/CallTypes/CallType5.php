@@ -312,7 +312,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             $msg = $payCancel['msg'] ?? '系統發生錯誤';
             Log::info('calldriver_task_map:' . $calldriverTaskMap . '取消授權失敗:', [$msg]);
 
-            $payBack = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->back();
+            $payBack = PayService::callType(5)->by(2)->calldriverTaskMap($calldriverTaskMap)->back(0); // Back func 實際扣款是在 Payments/CallType5.php
 
             if (isset($payBack['error'])) {
                 Log::info('calldriver_task_map:' . $calldriverTaskMap . '刷退失敗:', [$msg]);
