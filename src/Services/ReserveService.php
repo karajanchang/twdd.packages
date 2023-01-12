@@ -106,6 +106,7 @@ class ReserveService
             'start_addr_id' => $startAddress->id,
             'end_addr_id' => $endAddress->id,
             'reserve_datetime' => $data['reserve_datetime'],
+            'pay_type' => $data['pay_type'],
         ];
         $this->reserveDemandRepository->store($insertData);
 
