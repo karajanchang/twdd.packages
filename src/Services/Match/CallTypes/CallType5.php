@@ -32,6 +32,7 @@ use Twdd\Services\Match\CallTypes\Traits\TraitMemberCanNotCall;
 use Twdd\Services\Match\CallTypes\Traits\TraitOnlyOnePrematch;
 use Twdd\Services\Match\CallTypes\Traits\TraitServiceArea;
 use Twdd\Services\PushNotificationService;
+use Twdd\Events\BlackhatReserveMailEvent;
 
 class CallType5 extends AbstractCall implements InterfaceMatchCallType
 {
@@ -63,15 +64,14 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     public function check(array $params, array $remove_lists = [])
     {
         $check = parent::check($params, $remove_lists);
-
         //--預約一定要用信用卡
         $res = $this->noCheckList('CheckHaveBindCreditCard');
-        if($res !== false && $this->CheckHaveBindCreditCard()!==true){
+        if ($params['pay_type'] == 2 && $res !== false && $this->CheckHaveBindCreditCard() !== true) {
 
             return $this->{$res}('預約代駕付款方式限定信用卡');
         }
 
-        if($check === true) {
+        if ($check === true) {
             $this->setParams($params);
         }
 
@@ -93,11 +93,11 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
     public function match(array $other_params = [])
     {
-        $params = $this->processParams($this->params, $other_params);
 
-//        if ($this->isDuplicate($params['member_id'])) {
-//            return $this->error('重複預約', null, 2002);
-//        }
+        $params = $this->processParams($this->params, $other_params);
+        //        if ($this->isDuplicate($params['member_id'])) {
+        //            return $this->error('重複預約', null, 2002);
+        //        }
 
         $driverIdByAdmin = $params['driverId_by_admin'] ?? null;
 
@@ -134,12 +134,23 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         }
 
         $callDriver = app(DriverRepository::class)->find($driverId, ['id']);
+
         $blackHatDetail = $this->getCalldriverServiceInstance()->setCallDriver($callDriver)->create($params);
 
-        if(isset($blackHatDetail['error'])) {
+        if (isset($blackHatDetail['error'])) {
             $msg = !is_null($blackHatDetail['msg']) ? $blackHatDetail['msg']->first() : '系統發生錯誤';
-            Log::info(__CLASS__.'::'.__METHOD__.'error: ', [$blackHatDetail]);
+            Log::info(__CLASS__ . '::' . __METHOD__ . 'error: ', [$blackHatDetail]);
             return $this->error($msg, $blackHatDetail);
+        }
+
+        if ($params['pay_type'] == 3) {
+            event(new BlackhatReserveMailEvent([
+                'status' => 1,
+                'driver' => $driverId,
+                'calldriverTaskMap' => $blackHatDetail->calldriver_task_map,
+                'email' => $this->member->UserEmail,
+            ]));
+            return $this->success('預約成功', $blackHatDetail->calldriver_task_map_id);
         }
 
         return $this->matchPay($blackHatDetail->calldriver_task_map_id);
@@ -152,7 +163,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             return $this->error('查無此單', null, 2004);
         }
         if ($blackHatDetail->pay_status == 1) {
-            return $this->error('已付款，不需再次付款', null,2003);
+            return $this->error('已付款，不需再次付款', null, 2003);
         }
 
         $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
@@ -185,7 +196,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     /*
      * 處理 params
      */
-    public function processParams(array $params, array $other_params = []) : array
+    public function processParams(array $params, array $other_params = []): array
     {
         $params = parent::processParams($params, $other_params);
         $startDt = Carbon::parse($params['start_date']);
@@ -194,7 +205,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         $params['end_date'] = $startDt->copy()->addHours($config['hour']);
         // TS
         $params['TS'] = $startDt->copy()->timestamp;
-        $params['pay_type'] = 2;
+        $params['pay_type'] = $params['pay_type'] ?? 2;
         $params['call_type'] = 5;
 
         return $params;
@@ -245,7 +256,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 }
                 break;
             case 2:
-                $fee = $blackhatDetail->deposit;
+                $fee = $blackhatDetail->deposit ?: $blackhatDetail->type_price / 2;
                 $res = $this->createViolationTask($calldriverTaskMap, $fee);
                 if (!$res) {
                     return $this->error('取消失敗');
@@ -263,6 +274,8 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             $memberBody = sprintf('黑帽客任務%s取消成功，很可惜無法為您服務，如有需求請重新預約。', $calldriverTaskMap->id);
             $pushService->push([$calldriverTaskMap->member_id], '黑帽客預約取消通知', $memberBody, 'reserves');
         }
+
+        $this->sendingCancelMail($calldriverTaskMap, $blackhatDetail);
 
         $driverBody = sprintf('黑帽客任務%s已取消，敬請留意，辛苦了！', $calldriverTaskMap->id);
         $pushService->push2Driver([$calldriverTaskMap->call_driver_id], '黑帽客預約取消通知', $driverBody);
@@ -424,7 +437,8 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         return $configs[$type] ?? null;
     }
 
-    public function rules() : array {
+    public function rules(): array
+    {
 
         return [
             'lat'                       =>  'required|numeric',
@@ -499,7 +513,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         //- 一日一人僅接收1張8H單、兩張5H，其中兩張5H的判斷為乘客是否預計會超時，
         //- 兩個五小時，若前一單有超時需求，中間需隔3小時
         //- 兩個五小時，前一單預計不超時，中間需隔 1.5小時
-        foreach($blackHatDetail as $history) {
+        foreach ($blackHatDetail as $history) {
             $driverId = $history->calldriver_task_map->call_driver_id;
             $config = $typeConfigs[$history['type']];
             $overtimeHour = $history['maybe_over_time'] ? 1.5 : 0;
@@ -525,24 +539,27 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
             // 拒絕 當天接單上限含 8 小時的司機
             if ($driverIdGroups[$driverId]['day_hour'] >= 8) {
-                Log::info('black_hat 因超過10小時排除:',
-                    ['driver_id' => $driverId, 'total_hour' => $driverIdGroups[$driverId]['day_hour']]);
+                Log::info(
+                    'black_hat 因超過10小時排除:',
+                    ['driver_id' => $driverId, 'total_hour' => $driverIdGroups[$driverId]['day_hour']]
+                );
                 $driverIdGroups->forget($driverId);
                 continue;
             }
 
             // 需求只能有一張超時單
             if ($reserveMaybeOverTime && $driverIdGroups[$driverId]['day_overtime_nums'] > 0) {
-                Log::info('black_hat 已有一張超時單不可再接第二張超時:',
-                    ['driver_id' => $driverId, 'day_overtime_nums' => $driverIdGroups[$driverId]['day_overtime_nums']]);
+                Log::info(
+                    'black_hat 已有一張超時單不可再接第二張超時:',
+                    ['driver_id' => $driverId, 'day_overtime_nums' => $driverIdGroups[$driverId]['day_overtime_nums']]
+                );
                 $driverIdGroups->forget($driverId);
                 continue;
             }
         }
 
         $bufferMinutes = 60;
-        foreach ($blackHatDetail as $history)
-        {
+        foreach ($blackHatDetail as $history) {
             $driverId = $history['calldriver_task_map']['call_driver_id'];
 
             $historyStartDt = Carbon::parse($history['start_date']);
@@ -619,7 +636,8 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                             '開始時間' => $carFactoryStartDt,
                             '結束時間' => $carFactoryEndDt,
                         ],
-                        'buffer' => [$bufferMinutes. '(m)+' . $duration . '(s)']]);
+                        'buffer' => [$bufferMinutes . '(m)+' . $duration . '(s)']
+                    ]);
                     $driverIdGroups->forget($driverId);
                 }
             } else {
@@ -630,8 +648,9 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                         'driver_id' => $driverId,
                         '車廠單' => [
                             '開始時間' => $carFactoryStartDt,
-                            '結束時間' =>$carFactoryEndDt,
-                            '結束時間+Buffer(1h)+路程' => $carFactoryWithBufferEndDt],
+                            '結束時間' => $carFactoryEndDt,
+                            '結束時間+Buffer(1h)+路程' => $carFactoryWithBufferEndDt
+                        ],
                         '預約單' => [
                             '開始時間' => $reserveStartDt,
                             '結束時間' => $reserveEndDt,
@@ -675,8 +694,10 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 continue;
             }
 
-            if ($driver->blackhat_driver_group_id == $matchDriver->blackhat_driver_group_id
-                && $driver->month_hour < $matchDriver->month_hour) {
+            if (
+                $driver->blackhat_driver_group_id == $matchDriver->blackhat_driver_group_id
+                && $driver->month_hour < $matchDriver->month_hour
+            ) {
                 $matchDriver = $driver;
                 continue;
             }
@@ -688,11 +709,27 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     }
 
     // 時間交集 https://www.twblogs.net/a/5db28472bd9eee310d9fd37d
-    private function isDtOverLap($startDt1, $endDt1, $startDt2, $endDt2) : bool
+    private function isDtOverLap($startDt1, $endDt1, $startDt2, $endDt2): bool
     {
         if (!($endDt1->isBefore($startDt2) || $startDt1->isAfter($endDt2))) {
             return true;
         }
         return false;
+    }
+
+    private function sendingCancelMail($calldriverTaskMap, $blackhatDetail)
+    {
+        if ($blackhatDetail->pay_status == 2) {
+            $status = 3;
+        } else {
+            $status = 2;
+        }
+
+        event(new BlackhatReserveMailEvent([
+            'status' => $status,
+            'driver' => $calldriverTaskMap->call_driver_id,
+            'calldriverTaskMap' => $calldriverTaskMap,
+            'email' => $calldriverTaskMap->member->UserEmail,
+        ]));
     }
 }

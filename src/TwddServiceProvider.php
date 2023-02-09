@@ -209,6 +209,8 @@ class TwddServiceProvider extends ServiceProvider
 
         $this->loadTranslationsFrom(__DIR__ . '/lang', 'twdd');
 
+        $this->loadViewsFrom(__DIR__.'/resources/views', 'twdd');
+
         $this->publishes([
             __DIR__.'/resources/views' => resource_path('views'),
         ]);
