@@ -246,6 +246,12 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         switch ($cancelStatus) {
             case 1:
+                //企業簽單無收取訂金, 直接修改狀態
+                if ($calldriverTaskMap->calldriver->pay_type == 3){
+                    $detailParams['pay_status'] = 4;
+                    break;
+                }
+
                 if ($blackhatDetail->pay_status == 1) {
                     $refundRes = $this->refund($calldriverTaskMap);
                     if (!$refundRes) {
