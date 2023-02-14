@@ -73,6 +73,9 @@ class ReserveService
         if ($calldriverTaskMap->call_type == 5) {
             $row = $this->blackHatDetailRepository->getMemberReserve($memberId, $calldriverTaskMpaId);
             $row->cancel_status = (new CallType5())->getCancelStatus($row->start_date);
+            if ($row->prematch_status == -1) {
+                $row->cancel_status = 3;// 不顯示按鈕
+            }
         }
         if ($calldriverTaskMap->call_type == 2) {
             $row = $calldriverTaskMap;
