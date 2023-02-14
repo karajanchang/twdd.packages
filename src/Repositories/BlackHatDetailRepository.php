@@ -22,7 +22,6 @@ class BlackHatDetailRepository extends Repository
             ->select(DB::raw('"1" AS reserve_type'), 'blackhat_detail.*', 'blackhat_detail.type AS black_hat_type', 'calldriver.TS' ,'calldriver.type', 'calldriver.call_type', 'calldriver.pay_type', 'calldriver.addr', 'calldriver.addrKey')
             ->where('calldriver_task_map.member_id', $memberId)
             ->whereNotNull('calldriver_task_map.call_driver_id')
-            ->whereNull('calldriver_task_map.task_id')
             ->where('blackhat_detail.start_date', '>=', $startOfTodayDt)
             ->get();
     }
