@@ -9,6 +9,7 @@ use Twdd\Models\DriverMerchant;
 use Twdd\Repositories\MemberCreditcardRepository;
 use Twdd\Services\Payments\Traits\SpgatewayTrait;
 use Twdd\Services\Payment_v2\SpGateway\SpGatewayService;
+use Twdd\Events\InvoiceIssueEvent;
 
 class BlackHat extends PaymentAbstract implements PaymentInterface
 {
@@ -59,10 +60,24 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
             $res = $payment->pay($money, $memberCreditCard, $driverMerchant);
 
             if (isset($res['Status']) && $res['Status'] === 'SUCCESS') {
+
+                $b2cInvoice = [
+                    "type"=>"B2C",
+                    "fee"=>$money,
+                    "target"=>$member,
+                ];
+
                 if ($this->task) {
                     $blackHatDetail->pay_status = 6; // 任務尾款付款成功
                     $blackHatDetail->save();
+
+                    $b2cInvoice['belong'] = $this->task;
+                }else {
+                    $b2cInvoice['belong'] = $this->calldriverTaskMap;
                 }
+
+                //開立B2C發票
+                event(new InvoiceIssueEvent($b2cInvoice));
 
                 return $this->returnSuccess('刷卡成功', $res, true);
             } else if (isset($res['Message']) && $res['Message']) {

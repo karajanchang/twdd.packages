@@ -70,6 +70,16 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\Infobip::class);
         });
 
+        $this->app->bind('InvoiceFactory', function()
+        {
+            return app()->make(\Twdd\Helpers\InvoiceFactory::class);
+        });
+
+        $this->app->bind('InvoiceService', function()
+        {
+            return app()->make(\Twdd\Services\Invoice\InvoiceService::class);
+        });
+
         $this->app->bind('LastCall', function()
         {
             return app()->make(\Twdd\Helpers\LastCall::class);
@@ -254,6 +264,8 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('DriverGlodenService', \Twdd\Facades\DriverGoldenService::class);
             $loader->alias('GoogleMap', \Twdd\Facades\GoogleMap::class);
             $loader->alias('Infobip', \Twdd\Facades\Infobip::class);
+            $loader->alias('InvoiceFactory', \Twdd\Facades\InvoiceFactory::class);
+            $loader->alias('InvoiceService', \Twdd\Facades\InvoiceService::class);
             $loader->alias('LastCall', \Twdd\Facades\LastCall::class);
             $loader->alias('LatLonService', \Twdd\Facades\LatLonService::class);
             $loader->alias('MatchFactory', \Twdd\Facades\MatchFactory::class);

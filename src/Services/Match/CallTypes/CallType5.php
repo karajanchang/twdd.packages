@@ -33,6 +33,7 @@ use Twdd\Services\Match\CallTypes\Traits\TraitOnlyOnePrematch;
 use Twdd\Services\Match\CallTypes\Traits\TraitServiceArea;
 use Twdd\Services\PushNotificationService;
 use Twdd\Events\BlackhatReserveMailEvent;
+use Twdd\Events\InvoiceInvalidEvent;
 
 class CallType5 extends AbstractCall implements InterfaceMatchCallType
 {
@@ -338,6 +339,12 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 return false;
             }
         }
+
+        //刷退成功需要作廢發票
+        event(new InvoiceInvalidEvent([
+            "type"=>"B2C",
+            "model"=> $calldriverTaskMap
+        ]));
 
         return true;
         /*
