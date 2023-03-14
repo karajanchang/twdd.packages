@@ -9,7 +9,7 @@ use Twdd\Models\DriverMerchant;
 use Twdd\Repositories\MemberCreditcardRepository;
 use Twdd\Services\Payments\Traits\SpgatewayTrait;
 use Twdd\Services\Payment_v2\SpGateway\SpGatewayService;
-use Twdd\Events\InvoiceIssueEvent;
+use Twdd\Jobs\Invoice\InvoiceIssueJob;
 
 class BlackHat extends PaymentAbstract implements PaymentInterface
 {
@@ -77,7 +77,8 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
                 }
 
                 //開立B2C發票
-                event(new InvoiceIssueEvent($b2cInvoice));
+                dispatch(new InvoiceIssueJob($b2cInvoice))->onConnection('sync')->onQueue('default');
+
 
                 return $this->returnSuccess('刷卡成功', $res, true);
             } else if (isset($res['Message']) && $res['Message']) {

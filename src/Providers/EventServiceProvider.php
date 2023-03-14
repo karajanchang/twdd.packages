@@ -27,27 +27,6 @@ class EventServiceProvider extends ServiceProvider
     //     ],
     // ];
 
-    public function boot()
-    {
-        $this->app['events']->listen(
-            \Twdd\Events\BlackhatReserveMailEvent::class,
-            \Twdd\Events\BlackhatReserveMailListener::class
-        );
 
-        $this->app['events']->listen(
-            \Twdd\Events\InvoiceIssueEvent::class,
-            \Twdd\Listeners\InvoiceIssueListener::class
-        );
-
-        $this->app['events']->listen(
-            \Twdd\Events\InvoiceMailEvent::class,
-            \Twdd\Listeners\InvoiceMailListener::class
-        );
-
-        $this->app['events']->listen(
-            \Twdd\Events\InvoiceInvalidEvent::class,
-            \Twdd\Listeners\InvoiceInvalidListener::class
-        );
-    }
     
 }

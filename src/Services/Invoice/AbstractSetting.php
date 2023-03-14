@@ -2,19 +2,19 @@
 
 namespace Twdd\Services\Invoice;
 
-abstract class AbstractSetting 
+abstract class AbstractSetting
 {
     public $url;
     protected $params;
     protected $calldriverTaskMap;
     protected $task;
     protected $member;
-    
+
     protected $enterprise;
 
     public function __construct()
     {
-        $this->url = sprintf('%s/api/invoice',env("INVOICE_API_URL","127.0.0.1"));
+        $this->url = sprintf('%s/api/invoice', env("INVOICE_API_URL", "http://127.0.0.1:8035"));
     }
     public function setMember($member)
     {
@@ -45,28 +45,26 @@ abstract class AbstractSetting
         return $this->params;
     }
 
-    public function call($url,$data,$method='POST')
+    public function call($url, $data, $method = 'POST')
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        curl_setopt($ch, CURLOPT_USERPWD, sprintf('twdd:%s',env("INVOICE_API_PASSWORD")));
+        curl_setopt($ch, CURLOPT_USERPWD, sprintf('twdd:%s', env("INVOICE_API_PASSWORD")));
 
-        switch ($method){
+        switch ($method) {
             case 'PUT':
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
                 break;
             default:
                 curl_setopt($ch, CURLOPT_POST, true);
                 break;
-        
         }
 
         $result = curl_exec($ch);
 
-        return json_decode($result,true);
+        return json_decode($result, true);
     }
-
 }

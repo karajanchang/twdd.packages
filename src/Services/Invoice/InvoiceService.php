@@ -1,11 +1,12 @@
-<?php 
+<?php
 
 namespace Twdd\Services\Invoice;
+
 use Twdd\Services\Invoice\InvoiceInterface;
 use Illuminate\Database\Eloquent\Model;
 
 
-class InvoiceService 
+class InvoiceService
 {
     public $type;
     public function __construct(InvoiceInterface $type)
@@ -43,12 +44,12 @@ class InvoiceService
         return $this;
     }
 
-    public function issue() :array
+    public function issue(): array
     {
         return $this->type->issue();
     }
 
-    public function invalid() :array
+    public function invalid(): array
     {
         return $this->type->invalid();
     }
@@ -68,5 +69,4 @@ class InvoiceService
 
         return $this;
     }
-
 }

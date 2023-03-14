@@ -32,8 +32,8 @@ use Twdd\Services\Match\CallTypes\Traits\TraitMemberCanNotCall;
 use Twdd\Services\Match\CallTypes\Traits\TraitOnlyOnePrematch;
 use Twdd\Services\Match\CallTypes\Traits\TraitServiceArea;
 use Twdd\Services\PushNotificationService;
-use Twdd\Events\BlackhatReserveMailEvent;
-use Twdd\Events\InvoiceInvalidEvent;
+use Twdd\Jobs\Invoice\InvoiceInvalidJob;
+use Twdd\Jobs\Blackhat\BlackhatReserveMailJob;
 
 class CallType5 extends AbstractCall implements InterfaceMatchCallType
 {
@@ -94,7 +94,6 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
     public function match(array $other_params = [])
     {
-
         $params = $this->processParams($this->params, $other_params);
         //        if ($this->isDuplicate($params['member_id'])) {
         //            return $this->error('重複預約', null, 2002);
@@ -145,12 +144,12 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         }
 
         if ($params['pay_type'] == 3) {
-            event(new BlackhatReserveMailEvent([
+            dispatch(new BlackhatReserveMailJob([
                 'status' => 1,
                 'driver' => $driverId,
                 'calldriverTaskMap' => $blackHatDetail->calldriver_task_map,
                 'email' => $this->member->UserEmail,
-            ]));
+            ]))->onConnection('sync')->onQueue('default');
             return $this->success('預約成功', $blackHatDetail->calldriver_task_map_id);
         }
 
@@ -341,11 +340,11 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         }
 
         //刷退成功需要作廢發票
-        event(new InvoiceInvalidEvent([
+        dispatch(new InvoiceInvalidJob([
             "type"=>"B2C",
             "model"=> $calldriverTaskMap
-        ]));
-
+        ]))->onConnection('sync')->onQueue('default');
+        
         return true;
         /*
         // 由於藍新測試機Query 後給予的 CloseStatus = 0，但取消授權失敗，不準確，所以改以取消授權失敗後打退款
@@ -738,11 +737,12 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             $status = 2;
         }
 
-        event(new BlackhatReserveMailEvent([
+        dispatch(new BlackhatReserveMailJob([
             'status' => $status,
             'driver' => $calldriverTaskMap->call_driver_id,
             'calldriverTaskMap' => $calldriverTaskMap,
             'email' => $calldriverTaskMap->member->UserEmail,
-        ]));
+        ]))->onConnection('sync')->onQueue('default');
+
     }
 }
