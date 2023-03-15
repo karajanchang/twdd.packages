@@ -36,9 +36,27 @@ class ReserveService
     public function getMemberReserves(int $memberId)
     {
         // 黑帽客列表
-        $rows = $this->blackHatDetailRepository->getMemberReserves($memberId);
+        $blackHats = $this->blackHatDetailRepository->getMemberReserves($memberId);
 
         // 未來一般預約merge
+        $reserves = $this->reserveDemandRepository->getReserves($memberId);
+        foreach ($reserves as $reserve) {
+            $reserve->reserve_type = 2;
+            $reserve->pay_status = 0;
+            switch ($reserve->reserve_status) {
+                case 0:
+                    $reserve->prematch_status = 2; // 客服派單中
+                    break;
+                case 1:
+                    $reserve->prematch_status = 1; // 成功
+                    break;
+                case 2:
+                    $reserve->prematch_status = -1; // 已取消
+                    break;
+            }
+        }
+
+        $rows = $blackHats->merge($reserves);
 
         return $rows;
     }
@@ -46,13 +64,30 @@ class ReserveService
     public function getMemberReserve(int $memberId, int $calldriverTaskMpaId)
     {
         $calldriverTaskMap = $this->calldriverTaskMapRepository->findMemberTaskMap($calldriverTaskMpaId, $memberId);
+
         if (empty($calldriverTaskMap)) {
             return null;
         }
+
         // call_type = 5 黑帽客
-        if ($calldriverTaskMap->call_type = 5) {
+        if ($calldriverTaskMap->call_type == 5) {
             $row = $this->blackHatDetailRepository->getMemberReserve($memberId, $calldriverTaskMpaId);
             $row->cancel_status = (new CallType5())->getCancelStatus($row->start_date);
+            if ($row->prematch_status == -1) {
+                $row->cancel_status = 3;// 不顯示按鈕
+            }
+        }
+        if ($calldriverTaskMap->call_type == 2) {
+            $row = $calldriverTaskMap;
+            $row->cancel_status = 0;
+            if ($row->is_cancel == 1) {
+                $row->prematch_status = -1;
+            } else if (!empty($row->call_driver_id)) {
+                $row->prematch_status = 1;
+            } else {
+                $row->prematch_status = 2;
+            }
+
         }
 
         return $row ?? null;
@@ -74,6 +109,7 @@ class ReserveService
             'start_addr_id' => $startAddress->id,
             'end_addr_id' => $endAddress->id,
             'reserve_datetime' => $data['reserve_datetime'],
+            'pay_type' => $data['pay_type'],
         ];
         $this->reserveDemandRepository->store($insertData);
 
