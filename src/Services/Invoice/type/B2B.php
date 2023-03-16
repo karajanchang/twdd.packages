@@ -109,6 +109,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
             'relate_number' => $data['callback']['RelateNumber'],
             'invoice_number' =>  $data['callback']['InvoiceNo'],
             'invoice_type' => 2,
+            'invoice_amount' => $this->params['fee'],
             'enterprise_bill_id' => $this->bill["id"] ?? null
         ];
 

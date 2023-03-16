@@ -86,6 +86,7 @@ class B2C extends AbstractSetting implements InvoiceInterface
             'relate_number' => $data['callback']['RelateNumber'],
             'invoice_number' =>  $data['callback']['InvoiceNo'],
             'invoice_type' => 1,
+            'invoice_amount' => $this->params['fee'],
             'calldriver_task_map_id' => $this->calldriverTaskMap->id
         ];
 

@@ -13,6 +13,7 @@ class EcpayInvoice extends Model
     protected $fillable = [
         'relate_number',
         'invoice_number',
+        'invoice_amount',
         'invoice_type',
         'calldriver_task_map_id',
         'task_id',
