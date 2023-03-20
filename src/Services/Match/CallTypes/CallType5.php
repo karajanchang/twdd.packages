@@ -50,7 +50,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     use TraitCheckHaveBindCreditCard;
 
     protected $call_type = 5;
-    public $title = '黑帽客預約';
+    public $title = '鐘點代駕預約';
 
 
     protected $check_lists = [
@@ -274,17 +274,16 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         // 有退款的情境
         if ($cancelStatus == 1 && $blackhatDetail->pay_status == 1) {
-            $memberBody = sprintf('黑帽客任務%s訂金已成功退款，敬請您留意，謝謝！', $calldriverTaskMap->id);
-            $pushService->push([$calldriverTaskMap->member_id], '黑帽客預約成功退款通知', $memberBody, 'reserves');
+            $memberBody = sprintf('鐘點代駕任務%s訂金已成功退款，敬請您留意，謝謝！', $calldriverTaskMap->id);
+            $pushService->push([$calldriverTaskMap->member_id], '鐘點代駕預約成功退款通知', $memberBody, 'reserves');
         } else {
-            $memberBody = sprintf('黑帽客任務%s取消成功，很可惜無法為您服務，如有需求請重新預約。', $calldriverTaskMap->id);
-            $pushService->push([$calldriverTaskMap->member_id], '黑帽客預約取消通知', $memberBody, 'reserves');
+            $memberBody = sprintf('鐘點代駕任務%s取消成功，很可惜無法為您服務，如有需求請重新預約。', $calldriverTaskMap->id);
+            $pushService->push([$calldriverTaskMap->member_id], '鐘點代駕預約取消通知', $memberBody, 'reserves');
         }
 
         $this->sendingCancelMail($calldriverTaskMap, $blackhatDetail);
-
-        $driverBody = sprintf('黑帽客任務%s已取消，敬請留意，辛苦了！', $calldriverTaskMap->id);
-        $pushService->push2Driver([$calldriverTaskMap->call_driver_id], '黑帽客預約取消通知', $driverBody);
+        $driverBody = sprintf('鐘點代駕任務%s已取消，敬請留意，辛苦了！', $calldriverTaskMap->id);
+        $pushService->push2Driver([$calldriverTaskMap->call_driver_id], '鐘點代駕預約取消通知', $driverBody);
 
         return $this->success('取消成功');
     }
@@ -344,7 +343,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             "type"=>"B2C",
             "model"=> $calldriverTaskMap
         ]))->onConnection('sync')->onQueue('default');
-        
+
         return true;
         /*
         // 由於藍新測試機Query 後給予的 CloseStatus = 0，但取消授權失敗，不準確，所以改以取消授權失敗後打退款
@@ -429,15 +428,15 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     {
         return [
             1 => [
-                'match_title' => '5小時 鐘點代駕（尊榮黑帽客）', // 媒合方案startpage使用
-                'title' => '尊榮黑帽客(5小時)',
-                'price' => 1980,
+                'match_title' => '5小時 鐘點代駕', // 媒合方案startpage使用
+                'title' => '鐘點代駕(5小時)',
+                'price' => 2300,
                 'hour' => 5,
             ],
             2 => [
-                'match_title' => '8小時 鐘點代駕（尊榮黑帽客）', // 媒合方案startpage使用
-                'title' => '尊榮黑帽客(8小時)',
-                'price' => 2680,
+                'match_title' => '8小時 鐘點代駕', // 媒合方案startpage使用
+                'title' => '鐘點代駕(8小時)',
+                'price' => 3100,
                 'hour' => 8,
             ]
         ];
