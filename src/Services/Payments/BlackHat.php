@@ -55,7 +55,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
             $payment = new SpGatewayService();
             $payment->setOrderNo($orderNo);
-            $payment->setProDesc('黑帽客' . $proPaySuffix);
+            $payment->setProDesc('鐘點代駕' . $proPaySuffix);
             $res = $payment->pay($money, $memberCreditCard, $driverMerchant);
 
             if (isset($res['Status']) && $res['Status'] === 'SUCCESS') {
