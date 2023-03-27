@@ -71,7 +71,7 @@
         <div>
           <div style="margin-bottom:10px">
             <span>服務時長</span>
-            <span style="float: right; text-align: right;">{{$calldriverTaskMap->blackhat_detail->type == 1 ? '5小時 鐘點代駕 (尊榮黑帽客)' : '8小時 鐘點代駕 (尊榮黑帽客)'}}</span>
+            <span style="float: right; text-align: right;">{{$calldriverTaskMap->blackhat_detail->type == 1 ? '5小時 鐘點代駕' : '8小時 鐘點代駕'}}</span>
           </div>
           <div style="margin-bottom:10px">
             <span>出發時間</span>

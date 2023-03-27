@@ -38,15 +38,15 @@ class BlackhatReserveMail extends Mailable
     {
         switch ($this->status) {
             case 1:
-                $subject = "黑帽客預約成功通知";
+                $subject = "鐘點代駕預約成功通知";
                 $view = 'twdd::emails.blackhat.success';
                 break;
             case 2:
-                $subject = "黑帽客預約取消通知";
+                $subject = "鐘點代駕預約取消通知";
                 $view = 'twdd::emails.blackhat.cancel';
                 break;
             case 3:
-                $subject = "黑帽客預約失敗通知";
+                $subject = "鐘點代駕預約失敗通知";
                 $view = 'twdd::emails.blackhat.fail';
                 break;
         }

@@ -189,6 +189,13 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             $blackHatDetail->deposit = $payParams['money'];
             $blackHatDetail->save();
 
+            dispatch(new BlackhatReserveMailJob([
+                'status' => 1,
+                'driver' => $calldriverTaskMap->driver_id,
+                'calldriverTaskMap' => $calldriverTaskMap,
+                'email' => $this->member->UserEmail,
+            ]))->onConnection('sync')->onQueue('default');
+
             return $this->success('付款成功', $calldriverTaskMap);
         }
     }

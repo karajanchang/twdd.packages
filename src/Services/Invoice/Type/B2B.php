@@ -84,7 +84,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
         $callData = [
             "InvoiceNumber" => $params['model']->ecpay_invoice->invoice_number,
             "InvoiceDate"=> $params['model']->ecpay_invoice->created_at->format('Y-m-d'),
-            "Reason"=> "黑帽客取消服務"
+            "Reason"=> "鐘點代駕取消服務"
         ];
 
         $result = $this->call($url,$callData,'PUT');
