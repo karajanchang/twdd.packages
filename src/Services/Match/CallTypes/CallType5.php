@@ -355,6 +355,10 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
     private function createViolationTask($map, $fee)
     {
         try {
+            if (!empty($map->calldriver->zip)) {
+                $cityDistricts = LatLonService::locationFromZip($map->calldriver->zip);
+                $cityDistrict = $cityDistricts->first() ?? null;
+            }
             DB::beginTransaction();
             $calldriver = $map->calldriver;
             $parmas = [
@@ -373,6 +377,8 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 'TaskCancelTS' => Carbon::now()->timestamp,
                 'TaskStartLat' => $calldriver->lat,
                 'TaskStartLon' => $calldriver->lon,
+                'start_city_id' => $cityDistrict->city_id ?? null,
+                'start_district_id' => $cityDistrict->district_id ?? null,
                 'start_zip' => $calldriver->zip,
                 'TaskEndLat' => $calldriver->lat_det,
                 'TaskEndLon' => $calldriver->lon_det,
