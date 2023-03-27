@@ -77,7 +77,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
                 }
 
                 //開立B2C發票
-                dispatch(new InvoiceIssueJob($b2cInvoice))->onConnection('sync')->onQueue('default');
+                dispatch(new InvoiceIssueJob($b2cInvoice));
 
 
                 return $this->returnSuccess('刷卡成功', $res, true);

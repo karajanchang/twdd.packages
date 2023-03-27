@@ -44,9 +44,9 @@ class InvoiceInvalidJob extends Job
                 dispatch(new InvoiceMailJob([
                     "status" => $result['status'],
                     "msg" => sprintf('發票作廢成功, 發票編號: %s; 自訂編號為: %s', $this->params["model"]->ecpay_invoice->invoice_number, $this->params["model"]->ecpay_invoice->relate_number)
-                ]))->onConnection('sync')->onQueue('default');
+                ]));
             } else {
-                dispatch(new InvoiceMailJob($result))->onConnection('sync')->onQueue('default');
+                dispatch(new InvoiceMailJob($result));
             }
         } catch (\Throwable $e) {
 

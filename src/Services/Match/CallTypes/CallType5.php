@@ -149,7 +149,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 'driver' => $driverId,
                 'calldriverTaskMap' => $blackHatDetail->calldriver_task_map,
                 'email' => $this->member->UserEmail,
-            ]))->onConnection('sync')->onQueue('default');
+            ]));
             return $this->success('預約成功', $blackHatDetail->calldriver_task_map_id);
         }
 
@@ -194,7 +194,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 'driver' => $calldriverTaskMap->driver_id,
                 'calldriverTaskMap' => $calldriverTaskMap,
                 'email' => $this->member->UserEmail,
-            ]))->onConnection('sync')->onQueue('default');
+            ]));
 
             return $this->success('付款成功', $calldriverTaskMap);
         }
@@ -349,7 +349,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         dispatch(new InvoiceInvalidJob([
             "type"=>"B2C",
             "model"=> $calldriverTaskMap
-        ]))->onConnection('sync')->onQueue('default');
+        ]));
 
         return true;
         /*
@@ -754,7 +754,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             'driver' => $calldriverTaskMap->call_driver_id,
             'calldriverTaskMap' => $calldriverTaskMap,
             'email' => $calldriverTaskMap->member->UserEmail,
-        ]))->onConnection('sync')->onQueue('default');
+        ]));
 
     }
 }
