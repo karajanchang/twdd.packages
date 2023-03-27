@@ -6,6 +6,7 @@ namespace Twdd\Services\Match\CancelBy;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Twdd\Facades\LatLonService;
 use Twdd\Models\CalldriverTaskMap;
 use Twdd\Repositories\CalldriverTaskMapRepository;
 use Twdd\Repositories\CouponRepository;
@@ -232,6 +233,10 @@ trait TraitCancelBy
         $map = $this->calldriverTaskMap;
         if($this->fees['TaskFee'] == 0) return $task;
         if($this->do_not_charge_cancel_fee===false && $this->fees['task_id']==0) {
+            if (!empty($map->calldriver->zip)) {
+                $cityDistricts = LatLonService::locationFromZip($map->calldriver->zip);
+                $cityDistrict = $cityDistricts->first() ?? null;
+            }
             $parmas = [
                 'type' => $map->calldriver->type,
                 'call_type' => $map->calldriver->call_type,
@@ -260,6 +265,8 @@ trait TraitCancelBy
                 'TaskCancelTS' => Carbon::now()->timestamp,
                 'TaskStartLat' => $map->calldriver->lat,
                 'TaskStartLon' => $map->calldriver->lon,
+                'start_city_id' => $cityDistrict->city_id ?? null,
+                'start_district_id' => $cityDistrict->district_id ?? null,
                 'start_zip' => $map->calldriver->zip,
                 'TaskEndLat' => $map->calldriver->lat_det,
                 'TaskEndLon' => $map->calldriver->lon_det,
