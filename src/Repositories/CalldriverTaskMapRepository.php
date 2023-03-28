@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Twdd\Criterias\Calldriver\JoinCalldriver;
 use Twdd\Criterias\Calldriver\OrderByMapId;
+use Twdd\Criterias\Calldriver\WhereCallTypeNot2;
 use Twdd\Criterias\Calldriver\WhereCallTypeNot5;
 use Twdd\Criterias\Calldriver\WhereIsCancelOrIsMatchFail;
 use Twdd\Criterias\Calldriver\WhereMember;
@@ -41,6 +42,7 @@ class CalldriverTaskMapRepository extends Repository
         $wherePayTypeNot4 = new WherePayTypeNot4();
         $WhereTypeNot10 = new WhereTypeNot10();
         $WhereCallTypeNot5 = new WhereCallTypeNot5();
+        $WhereCallTypeNot2 = new WhereCallTypeNot2();
 
         $this->pushCriteria($joinCalldriver);
         $this->pushCriteria($whereMember);
@@ -49,6 +51,7 @@ class CalldriverTaskMapRepository extends Repository
         $this->pushCriteria($wherePayTypeNot4);
         $this->pushCriteria($WhereTypeNot10);
         $this->pushCriteria($WhereCallTypeNot5);
+        $this->pushCriteria($WhereCallTypeNot2);
 
         $count = $this->count();
 
