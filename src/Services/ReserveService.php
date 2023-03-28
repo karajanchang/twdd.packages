@@ -76,6 +76,9 @@ class ReserveService
             if ($row->prematch_status == -1) {
                 $row->cancel_status = 3;// 不顯示按鈕
             }
+            if (!empty($row->task_id)) {
+                $row->cancel_status = 3;// 不顯示按鈕
+            }
         }
         if ($calldriverTaskMap->call_type == 2) {
             $row = $calldriverTaskMap;
