@@ -35,23 +35,24 @@ class InvoiceMail extends Mailable
      */
     public function build()
     {
-
+        $finder = new \Illuminate\View\FileViewFinder(app()['files'], array(base_path().'/vendor/twdd/packages/src/resources/views'));
+        View::setFinder($finder);
         switch ($this->status) {
             case 1:
                 $subject = "Twdd發票開立成功通知";
-                $view = 'twdd::emails.invoice.success';
+                $view = 'emails.invoice.success';
                 break;
             case 2:
                 $subject = "Twdd發票開立失敗通知";
-                $view = 'twdd::emails.invoice.fail';
+                $view = 'emails.invoice.fail';
                 break;
             case 3:
                 $subject = "Twdd發票作廢成功通知";
-                $view = 'twdd::emails.invoice.success';
+                $view = 'emails.invoice.success';
                 break;
             case 4:
                 $subject = "Twdd發票作廢失敗通知";
-                $view = 'twdd::emails.invoice.fail';
+                $view = 'emails.invoice.fail';
                 break;
         }
 
