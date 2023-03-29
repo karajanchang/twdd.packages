@@ -10,6 +10,10 @@ namespace Twdd;
 
 use Illuminate\Support\ServiceProvider;
 use Twdd\Services\Task\TaskNo;
+use Twdd\Helpers\InvoiceFactory;
+use Twdd\Jobs\Invoice\InvoiceMailJob;
+use Twdd\Mail\Invoice\InvoiceMail;
+use Twdd\Mail\Blackhat\BlackhatReserveMail;
 
 
 class TwddServiceProvider extends ServiceProvider
@@ -23,6 +27,11 @@ class TwddServiceProvider extends ServiceProvider
         $this->app->bind('Bank', function()
         {
             return app()->make(\Twdd\Helpers\Bank::class);
+        });
+
+        $this->app->bind(BlackhatReserveMail::class, function($app,$params)
+        {
+            return new BlackhatReserveMail($params);
         });
 
         $this->app->bind('CancelService', function()
@@ -70,9 +79,19 @@ class TwddServiceProvider extends ServiceProvider
             return app()->make(\Twdd\Helpers\Infobip::class);
         });
 
-        $this->app->bind('InvoiceFactory', function()
+        $this->app->bind(InvoiceMail::class, function($app,$params)
         {
-            return app()->make(\Twdd\Helpers\InvoiceFactory::class);
+            return new InvoiceMail($params);
+        });
+
+        $this->app->bind(InvoiceMailJob::class, function($app,$params)
+        {
+            return new InvoiceMailJob($params);
+        });
+
+        $this->app->bind(InvoiceFactory::class, function($app,$params)
+        {
+            return new InvoiceFactory($params);
         });
 
         $this->app->bind('InvoiceService', function()

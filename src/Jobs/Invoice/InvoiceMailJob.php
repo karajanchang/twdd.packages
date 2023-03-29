@@ -23,10 +23,12 @@ class InvoiceMailJob extends Job
     public function __construct($params)
     {
         $this->params = $params;
-        $this->targetEmail = env('APP_TYPE', 'development')=='production' ? 'finance.twdd@gmaiil.com' : 'ian@twdd.com.tw';
+        $this->targetEmail = env('APP_TYPE', 'development')=='production' ? 'finance.twdd@gmaiil.com' : env('INVOICE_API_MAIL', 'ian@twdd.com.tw');
     }
 
     public function handle(){
-        Mail::to($this->targetEmail)->send(new InvoiceMail($this->params));
+        $mail = app()->make(InvoiceMail::class,$this->params);
+
+        Mail::to($this->targetEmail)->send($mail);
     }
 }

@@ -41,13 +41,16 @@ class InvoiceInvalidJob extends Job
             $result = $this->service->invalid();
 
             if (!isset($result['err'])) {
-                dispatch(new InvoiceMailJob([
+                $mail = app()->make(InvoiceMailJob::class,[
                     "status" => $result['status'],
                     "msg" => sprintf('發票作廢成功, 發票編號: %s; 自訂編號為: %s', $this->params["model"]->ecpay_invoice->invoice_number, $this->params["model"]->ecpay_invoice->relate_number)
-                ]));
+                ]);
+
             } else {
-                dispatch(new InvoiceMailJob($result));
+                $mail = app()->make(InvoiceMailJob::class,$result);
             }
+
+            dispatch($mail);
         } catch (\Throwable $e) {
 
             $msg = sprintf('作廢發票API error, id: $s ', $this->params["model"]->ecpay_invoice->id);
@@ -57,7 +60,8 @@ class InvoiceInvalidJob extends Job
 
     private function bindType()
     {
-        InvoiceFactory::bind($this->params["type"]);
+        $factory = app()->make(\Twdd\Helpers\InvoiceFactory::class);
+        $factory->bind($this->params["type"]);
 
         $this->service = InvoiceService::calldriverTaskMap($this->params["model"]);
     }
