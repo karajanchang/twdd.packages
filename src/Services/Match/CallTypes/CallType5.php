@@ -191,7 +191,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
             dispatch(new BlackhatReserveMailJob([
                 'status' => 1,
-                'driver' => $calldriverTaskMap->driver_id,
+                'driver' => $calldriverTaskMap->call_driver_id,
                 'calldriverTaskMap' => $calldriverTaskMap,
                 'email' => $this->member->UserEmail,
             ]));
