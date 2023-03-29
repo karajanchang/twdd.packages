@@ -36,7 +36,8 @@ class BlackhatReserveMailJob extends Job
         }
 
         if ($this->params['status'] == 1) {
-            $this->params['driver']['stars'] = round(DriverTaskExperience::where('driver_id', $this->params['driver']['id'])->avg('ExperienceRating'), 2);
+            $star = DriverTaskExperience::where('driver_id', $this->params['driver']['id'])->avg('ExperienceRating');
+            $this->params['driver']['stars'] = $star ? round($star, 2) : 0;
         }
         Mail::to($this->params['email'])->send(new BlackhatReserveMail($this->params['driver'], $this->params['calldriverTaskMap'], $this->params['status']));
     }
