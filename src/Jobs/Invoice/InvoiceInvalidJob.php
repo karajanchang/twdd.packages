@@ -2,7 +2,7 @@
 
 namespace Twdd\Jobs\Invoice;
 
-use App\Jobs\Job;
+use Twdd\Jobs\Job;
 use Twdd\Facades\InvoiceFactory;
 use Twdd\Facades\InvoiceService;
 use Illuminate\Support\Facades\Log;

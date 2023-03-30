@@ -1,7 +1,7 @@
 <?php
 namespace Twdd\Jobs\Invoice;
 
-use App\Jobs\Job;
+use Twdd\Jobs\Job;
 
 use Twdd\Mail\Invoice\InvoiceMail;
 use Illuminate\Support\Facades\Mail;

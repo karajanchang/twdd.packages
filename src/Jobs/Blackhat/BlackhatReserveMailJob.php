@@ -2,7 +2,7 @@
 
 namespace Twdd\Jobs\Blackhat;
 
-use App\Jobs\Job;
+use Twdd\Jobs\Job;
 
 use Twdd\Mail\Blackhat\BlackhatReserveMail;
 use Illuminate\Support\Facades\Mail;
