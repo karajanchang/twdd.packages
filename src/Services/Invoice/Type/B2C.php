@@ -76,7 +76,7 @@ class B2C extends AbstractSetting implements InvoiceInterface
             ];
         }
 
-        $this->delete($result);
+        $this->delete($params['model']->ecpay_invoice->id);
         return ['status'=>3];
     }
 
