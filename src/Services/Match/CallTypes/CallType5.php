@@ -148,7 +148,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 'status' => 1,
                 'driver' => $driverId,
                 'calldriverTaskMap' => $blackHatDetail->calldriver_task_map,
-                'email' => $this->member->UserEmail,
+                'email' => $calldriverTaskMap->member->UserEmail,
             ]));
             return $this->success('預約成功', $blackHatDetail->calldriver_task_map_id);
         }
@@ -193,7 +193,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 'status' => 1,
                 'driver' => $calldriverTaskMap->call_driver_id,
                 'calldriverTaskMap' => $calldriverTaskMap,
-                'email' => $this->member->UserEmail,
+                'email' => $calldriverTaskMap->member->UserEmail,
             ]));
 
             return $this->success('付款成功', $calldriverTaskMap);
