@@ -43,4 +43,8 @@ class CalldriverTaskMap extends Model
 
         return $this->hasMany(TaskPayLog::class, 'calldriver_task_map_id', 'id');
     }
+
+    public function ecpay_invoice(){
+        return $this->belongsTo(EcpayInvoice::class, 'id', 'calldriver_task_map_id');
+    }
 }

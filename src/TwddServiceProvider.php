@@ -10,6 +10,10 @@ namespace Twdd;
 
 use Illuminate\Support\ServiceProvider;
 use Twdd\Services\Task\TaskNo;
+use Twdd\Helpers\InvoiceFactory;
+use Twdd\Jobs\Invoice\InvoiceMailJob;
+use Twdd\Mail\Invoice\InvoiceMail;
+use Twdd\Mail\Blackhat\BlackhatReserveMail;
 
 
 class TwddServiceProvider extends ServiceProvider
@@ -23,6 +27,11 @@ class TwddServiceProvider extends ServiceProvider
         $this->app->bind('Bank', function()
         {
             return app()->make(\Twdd\Helpers\Bank::class);
+        });
+
+        $this->app->bind(BlackhatReserveMail::class, function($app,$params)
+        {
+            return new BlackhatReserveMail($params);
         });
 
         $this->app->bind('CancelService', function()
@@ -68,6 +77,26 @@ class TwddServiceProvider extends ServiceProvider
         $this->app->bind('Infobip', function()
         {
             return app()->make(\Twdd\Helpers\Infobip::class);
+        });
+
+        $this->app->bind(InvoiceMail::class, function($app,$params)
+        {
+            return new InvoiceMail($params);
+        });
+
+        $this->app->bind(InvoiceMailJob::class, function($app,$params)
+        {
+            return new InvoiceMailJob($params);
+        });
+
+        $this->app->bind(InvoiceFactory::class, function($app,$params)
+        {
+            return new InvoiceFactory($params);
+        });
+
+        $this->app->bind('InvoiceService', function()
+        {
+            return app()->make(\Twdd\Services\Invoice\InvoiceService::class);
         });
 
         $this->app->bind('LastCall', function()
@@ -209,6 +238,8 @@ class TwddServiceProvider extends ServiceProvider
 
         $this->loadTranslationsFrom(__DIR__ . '/lang', 'twdd');
 
+        $this->loadViewsFrom(__DIR__.'/resources/views', 'twdd');
+
         $this->publishes([
             __DIR__.'/resources/views' => resource_path('views'),
         ]);
@@ -252,6 +283,8 @@ class TwddServiceProvider extends ServiceProvider
             $loader->alias('DriverGlodenService', \Twdd\Facades\DriverGoldenService::class);
             $loader->alias('GoogleMap', \Twdd\Facades\GoogleMap::class);
             $loader->alias('Infobip', \Twdd\Facades\Infobip::class);
+            $loader->alias('InvoiceFactory', \Twdd\Facades\InvoiceFactory::class);
+            $loader->alias('InvoiceService', \Twdd\Facades\InvoiceService::class);
             $loader->alias('LastCall', \Twdd\Facades\LastCall::class);
             $loader->alias('LatLonService', \Twdd\Facades\LatLonService::class);
             $loader->alias('MatchFactory', \Twdd\Facades\MatchFactory::class);

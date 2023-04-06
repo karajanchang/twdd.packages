@@ -24,9 +24,9 @@ class SpGatewayService
     {
         $merchant = new DriverMerchant([
             'driver_id' => 0,
-            'MerchantID' => env('COMPANY_SPGATEWAY_MERCHANT_ID', ''),
-            'MerchantHashKey' => env('COMPANY_SPGATEWAY_HASH_KEY', ''),
-            'MerchantIvKey' => env('COMPANY_SPGATEWAY_IV_KEY', ''),
+            'MerchantID' => env('BIND_SPGATEWAY_MERCHANT_ID', ''),
+            'MerchantHashKey' => env('BIND_SPGATEWAY_HASH_KEY', ''),
+            'MerchantIvKey' => env('BIND_SPGATEWAY_IV_KEY', ''),
         ]);
 
         $agreedAmount = 1;

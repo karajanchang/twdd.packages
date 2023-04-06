@@ -284,6 +284,8 @@ class CalldriverService extends ServiceAbstract
             'tax_id_title' => $params['tax_id_title'] ?? "",
             'created_at' => $nowDt,
             'updated_at' => $nowDt,
+            'pay_status' => $params['pay_status'] ?? "",
+            'prematch_status' => $params['prematch_status'] ?? "",
         ];
         Log::info('create detail data', $data);
         return $this->blackhatDetailRepository->create($data);

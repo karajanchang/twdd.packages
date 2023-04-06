@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Twdd\Criterias\Calldriver\JoinCalldriver;
 use Twdd\Criterias\Calldriver\OrderByMapId;
+use Twdd\Criterias\Calldriver\WhereCallTypeNot2;
 use Twdd\Criterias\Calldriver\WhereCallTypeNot5;
 use Twdd\Criterias\Calldriver\WhereIsCancelOrIsMatchFail;
 use Twdd\Criterias\Calldriver\WhereMember;
@@ -41,6 +42,7 @@ class CalldriverTaskMapRepository extends Repository
         $wherePayTypeNot4 = new WherePayTypeNot4();
         $WhereTypeNot10 = new WhereTypeNot10();
         $WhereCallTypeNot5 = new WhereCallTypeNot5();
+        $WhereCallTypeNot2 = new WhereCallTypeNot2();
 
         $this->pushCriteria($joinCalldriver);
         $this->pushCriteria($whereMember);
@@ -49,6 +51,7 @@ class CalldriverTaskMapRepository extends Repository
         $this->pushCriteria($wherePayTypeNot4);
         $this->pushCriteria($WhereTypeNot10);
         $this->pushCriteria($WhereCallTypeNot5);
+        $this->pushCriteria($WhereCallTypeNot2);
 
         $count = $this->count();
 
@@ -135,6 +138,7 @@ class CalldriverTaskMapRepository extends Repository
     public function findMemberTaskMap(int $calldriverTaskMapId, int $memberId)
     {
         return $this->join('calldriver', 'calldriver_task_map.calldriver_id', '=', 'calldriver.id')
+            ->select('*', 'calldriver_task_map.id AS calldriver_task_map_id')
             ->where('calldriver_task_map.id', $calldriverTaskMapId)
             ->where('calldriver_task_map.member_id', $memberId)
             ->first();

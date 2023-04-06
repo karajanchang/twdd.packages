@@ -4,6 +4,7 @@ namespace Twdd\Repositories;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Twdd\Models\BlackhatDetail;
 use Zhyu\Repositories\Eloquents\Repository;
 
@@ -18,10 +19,9 @@ class BlackHatDetailRepository extends Repository
     {
         $startOfTodayDt = Carbon::now()->startOfDay();
         return $this->getReserves()
-            ->select('blackhat_detail.*', 'blackhat_detail.type AS black_hat_type', 'calldriver.type', 'calldriver.call_type', 'calldriver.pay_type', 'calldriver.addr', 'calldriver.addrKey')
+            ->select(DB::raw('"1" AS reserve_type'), 'blackhat_detail.*', 'blackhat_detail.type AS black_hat_type', 'calldriver.TS' ,'calldriver.type', 'calldriver.call_type', 'calldriver.pay_type', 'calldriver.addr', 'calldriver.addrKey')
             ->where('calldriver_task_map.member_id', $memberId)
             ->whereNotNull('calldriver_task_map.call_driver_id')
-            ->whereNull('calldriver_task_map.task_id')
             ->where('blackhat_detail.start_date', '>=', $startOfTodayDt)
             ->get();
     }
@@ -29,6 +29,9 @@ class BlackHatDetailRepository extends Repository
     public function getMemberReserve(int $memberId, int $calldriverTaskMapId)
     {
         return $this->getReserves()
+            ->select(DB::raw('"1" AS reserve_type'), 'blackhat_detail.*', 'blackhat_detail.type AS black_hat_type',
+                'calldriver.TS' ,'calldriver.type', 'calldriver.call_type', 'calldriver.pay_type', 'calldriver.addr',
+                'calldriver.addrKey', 'calldriver_task_map.call_driver_id')
             ->where('calldriver_task_map.member_id', $memberId)
             ->where('calldriver_task_map.id', $calldriverTaskMapId)
             ->first();
