@@ -40,15 +40,15 @@ class BlackhatReserveMail extends Mailable
         View::setFinder($finder);
         switch ($this->status) {
             case 1:
-                $subject = "鐘點代駕預約成功通知";
+                $subject = "預約成功通知";
                 $view = 'emails.blackhat.success';
                 break;
             case 2:
-                $subject = "鐘點代駕預約取消通知";
+                $subject = "預約取消通知";
                 $view = 'emails.blackhat.cancel';
                 break;
             case 3:
-                $subject = "鐘點代駕預約失敗通知";
+                $subject = "預約失敗通知";
                 $view = 'emails.blackhat.fail';
                 break;
         }
