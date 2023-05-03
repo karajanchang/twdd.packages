@@ -8,10 +8,10 @@ use Twdd\Repositories\EcpayInvoiceRepository;
 
 class B2B extends AbstractSetting implements InvoiceInterface
 {
-    public $bill;
-    public function setBill($bill)
+    public $payment;
+    public function setPayment($payment)
     {
-        $this->bill = $bill;
+        $this->payment = $payment;
     }
     
     public function issue()
@@ -23,7 +23,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
         $result = $this->maintain();
 
         if (!$result['code']) {
-            $id = $this->bill["id"] ?? 'unknown';
+            $id = $this->payment["id"] ?? 'unknown';
             return [
                 'status' => 2,
                 'err'=>$result["error"],
@@ -51,7 +51,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
 
         if (!$result['code']) {
 
-            $id = $this->bill["id"] ?? 'unknown';
+            $id = $this->payment["id"] ?? 'unknown';
             return [
                 'status' => 2,
                 'err'=>$result["error"],
@@ -91,7 +91,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
 
         if (!$result['code']) {
 
-            $id = $this->bill["id"] ?? 'unknown';
+            $id = $this->payment["id"] ?? 'unknown';
             return [
                 'status' => 4,
                 'err'=>$result["error"],
@@ -111,7 +111,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
             'invoice_number' =>  $data['callback']['InvoiceNo'],
             'invoice_type' => 2,
             'invoice_amount' => $params['fee'],
-            'enterprise_bill_id' => $this->bill["id"] ?? null
+            'enterprise_payment_id' => $this->payment["id"] ?? null
         ];
 
         return app(EcpayInvoiceRepository::class)->create($invoiceData);

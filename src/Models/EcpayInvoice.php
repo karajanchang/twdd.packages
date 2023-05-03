@@ -17,7 +17,7 @@ class EcpayInvoice extends Model
         'invoice_type',
         'calldriver_task_map_id',
         'task_id',
-        'enterprise_bill_id',
+        'enterprise_payment_id',
         'created_at',
         'updated_at',
         'deleted_at'

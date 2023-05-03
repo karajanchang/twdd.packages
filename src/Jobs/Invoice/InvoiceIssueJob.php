@@ -23,7 +23,7 @@ class InvoiceIssueJob extends Job
      * type B2B or B2C
      * fee 費用
      * target model of the enterprise or member
-     * belong one of those model: task, calldriver_task_map, enterprise_bill
+     * belong one of those model: task, calldriver_task_map, enterprise_payment
      * 
      */
     public function __construct($params)
@@ -68,6 +68,7 @@ class InvoiceIssueJob extends Job
         
         if ($this->params["type"] == "B2B") {
             $this->service = InvoiceService::enterprise($this->params["target"]);
+            $this->service->payment($this->params['belong']);
         } else {
 
             $this->service = InvoiceService::member($this->params["target"]);
