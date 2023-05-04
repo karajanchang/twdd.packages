@@ -29,6 +29,7 @@ class InvoiceInvalidJob extends Job
         $this->params = $params;
     }
 
+    //B2B作廢發票目前會由財務手動去綠界進行操作, 故此處不考慮B2B的情形
     public function handle()
     {
 

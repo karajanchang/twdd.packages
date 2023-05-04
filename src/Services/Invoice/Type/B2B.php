@@ -8,10 +8,10 @@ use Twdd\Repositories\EcpayInvoiceRepository;
 
 class B2B extends AbstractSetting implements InvoiceInterface
 {
-    public $bill;
-    public function setBill($bill)
+    public $payment;
+    public function setPayment($payment)
     {
-        $this->bill = $bill;
+        $this->payment = $payment;
     }
     
     public function issue()
@@ -23,7 +23,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
         $result = $this->maintain();
 
         if (!$result['code']) {
-            $id = $this->bill["id"] ?? 'unknown';
+            $id = $this->payment["id"] ?? 'unknown';
             return [
                 'status' => 2,
                 'err'=>$result["error"],
@@ -51,7 +51,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
 
         if (!$result['code']) {
 
-            $id = $this->bill["id"] ?? 'unknown';
+            $id = $this->payment["id"] ?? 'unknown';
             return [
                 'status' => 2,
                 'err'=>$result["error"],
@@ -76,6 +76,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
         return $this->call($url,$setting);
     }
 
+    //B2B作廢發票目前會由財務手動去綠界進行操作, 旦此處先保留
     public function invalid()
     {
         $url = $this->url . "/invalid/B2BInvoice";
@@ -91,7 +92,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
 
         if (!$result['code']) {
 
-            $id = $this->bill["id"] ?? 'unknown';
+            $id = $this->payment["id"] ?? 'unknown';
             return [
                 'status' => 4,
                 'err'=>$result["error"],
@@ -111,7 +112,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
             'invoice_number' =>  $data['callback']['InvoiceNo'],
             'invoice_type' => 2,
             'invoice_amount' => $params['fee'],
-            'enterprise_bill_id' => $this->bill["id"] ?? null
+            'enterprise_payment_id' => $this->payment["id"] ?? null
         ];
 
         return app(EcpayInvoiceRepository::class)->create($invoiceData);

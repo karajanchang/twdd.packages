@@ -14,6 +14,8 @@ use Twdd\Helpers\InvoiceFactory;
 use Twdd\Jobs\Invoice\InvoiceMailJob;
 use Twdd\Mail\Invoice\InvoiceMail;
 use Twdd\Mail\Blackhat\BlackhatReserveMail;
+use Twdd\Jobs\Invoice\InvoiceIssueJob;
+use Twdd\Jobs\Invoice\InvoiceInvalidJob;
 
 
 class TwddServiceProvider extends ServiceProvider
@@ -77,6 +79,16 @@ class TwddServiceProvider extends ServiceProvider
         $this->app->bind('Infobip', function()
         {
             return app()->make(\Twdd\Helpers\Infobip::class);
+        });
+
+        $this->app->bind(InvoiceIssueJob::class, function($app,$params)
+        {
+            return new InvoiceIssueJob($params);
+        });
+
+        $this->app->bind(InvoiceInvalidJob::class, function($app,$params)
+        {
+            return new InvoiceInvalidJob($params);
         });
 
         $this->app->bind(InvoiceMail::class, function($app,$params)

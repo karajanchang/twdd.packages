@@ -8,12 +8,7 @@ use Twdd\Repositories\EcpayInvoiceRepository;
 
 class B2C extends AbstractSetting implements InvoiceInterface
 {
-    public $bill;
-    public function setBill($bill)
-    {
-        $this->bill = $bill;
-    }
-    
+
     public function issue()
     {
         $url = $this->url . "/issue/B2CInvoice";

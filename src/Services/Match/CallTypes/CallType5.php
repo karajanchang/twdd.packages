@@ -122,6 +122,8 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
             $this->member = Member::find($this->member->id);
 
+            //企業後台的鐘點代駕會預設為1, 沒有匹配駕駛時需要修改為0
+            $params['prematch_status'] = 0;
             $blackHatDetail = $this->getCalldriverServiceInstance()->setCallDriver($callDriver)->create($params);
             $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
             $calldriverTaskMap->isMatchFail = 1;

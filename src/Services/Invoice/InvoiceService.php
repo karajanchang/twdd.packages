@@ -29,6 +29,7 @@ class InvoiceService
      */
     public function enterprise(Model $enterprise): InvoiceService
     {
+        $enterprise->load(['mainContact','accountContact']);
         $this->type->setEnterprise($enterprise);
 
         return $this;
@@ -66,6 +67,13 @@ class InvoiceService
         $this->type->setTask($task);
         $task->load('calldriver_task_map');
         $this->type->setCalldriverTaskMap($task->calldriver_task_map);
+
+        return $this;
+    }
+
+    public function payment(Model $payment): InvoiceService
+    {
+        $this->type->setPayment($payment);
 
         return $this;
     }
