@@ -76,6 +76,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
         return $this->call($url,$setting);
     }
 
+    //B2B作廢發票目前會由財務手動去綠界進行操作, 旦此處先保留
     public function invalid()
     {
         $url = $this->url . "/invalid/B2BInvoice";

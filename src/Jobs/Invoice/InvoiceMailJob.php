@@ -23,7 +23,7 @@ class InvoiceMailJob extends Job
     public function __construct($params)
     {
         $this->params = $params;
-        $this->targetEmail = env('APP_TYPE', 'development')=='production' ? 'finance.twdd@gmaiil.com' : env('INVOICE_API_MAIL', 'ian@twdd.com.tw');
+        $this->targetEmail = env('APP_TYPE', 'development')=='production' ? env('INVOICE_API_MAIL', 'finance@twdd.com.tw') : env('INVOICE_API_MAIL', 'ian@twdd.com.tw');
     }
 
     public function handle(){
