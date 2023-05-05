@@ -5,6 +5,7 @@ namespace Twdd\Services\Match\CallTypes;
 
 
 use Illuminate\Support\Facades\Log;
+use Twdd\Repositories\EnterpriseStaffRepository;
 use Twdd\Services\Match\CallTypes\Traits\TraitAlwaysBlackList;
 use Twdd\Services\Match\CallTypes\Traits\TraitAppVer;
 use Twdd\Services\Match\CallTypes\Traits\TraitCallNoDuplicate;
@@ -49,6 +50,15 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
      */
     public function check(array $params, array $remove_lists = []){
         $check = parent::check($params, $remove_lists);
+        // 如果是企業簽單
+        if ($params['pay_type'] == 3) {
+            $repository = app(EnterpriseStaffRepository::class);
+            $enterprise = $repository->getStaff($this->member->UserPhone);
+            if (empty($enterprise)) {
+                return $this->error('查無對應企業，無法使用企業簽單付款');
+            }
+            $params['enterprise_id'] = $enterprise->id;
+        }
         if($check===true) {
             $this->setParams($params);
 
