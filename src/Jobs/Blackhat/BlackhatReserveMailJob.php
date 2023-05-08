@@ -32,7 +32,7 @@ class BlackhatReserveMailJob extends Job
     {
 
         if (is_numeric($this->params['driver'])) {
-            $this->params['driver'] = Driver::find($this->params['driver'], ['id', 'DriverName']);
+            $this->params['driver'] = Driver::find($this->params['driver'], ['id', 'DriverName','DriverGender']);
         }
 
         if ($this->params['status'] == 1) {
