@@ -14,6 +14,8 @@ class B2C extends AbstractSetting implements InvoiceInterface
         $url = $this->url . "/issue/B2CInvoice";
         $params = $this->getParams();
 
+        $taskId = $this->task ? $this->task->id : $this->calldriverTaskMap->id;
+        
         $callData = [
             "phone" => $this->member->UserPhone,
             "email" => $this->member->UserEmail,
@@ -24,7 +26,9 @@ class B2C extends AbstractSetting implements InvoiceInterface
                 "itemWord"=> "次",
                 "itemPrice"=> $params['fee'],
                 "itemAmount"=> $params['fee']
-            ]
+            ],
+            "customer" => $this->member->UserName,
+            "remark" => 'bh_'.$taskId //方便財務確認藍星來源的訊息
         ];
 
 
