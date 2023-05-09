@@ -54,7 +54,7 @@ class BlackhatReserveMail extends Mailable
         }
 
         //TWDD-777 隱藏駕駛姓名
-        $this->driver->DriverName = sprintf('%s%s',mb_substr($this->driver->DriverName,0,1),$this->driver->DriverGender == 1 ? '先生' : '小姐')
+        $this->driver->DriverName = sprintf('%s%s',mb_substr($this->driver->DriverName,0,1),$this->driver->DriverGender == 1 ? '先生' : '小姐');
 
         return $this->subject($subject)
             ->view($view)
