@@ -6,7 +6,6 @@ use Twdd\Jobs\Job;
 
 use Twdd\Mail\Blackhat\BlackhatReserveMail;
 use Illuminate\Support\Facades\Mail;
-use Twdd\Models\DriverTaskExperience;
 use Twdd\Models\Driver;
 
 class BlackhatReserveMailJob extends Job
@@ -32,12 +31,11 @@ class BlackhatReserveMailJob extends Job
     {
 
         if (is_numeric($this->params['driver'])) {
-            $this->params['driver'] = Driver::find($this->params['driver'], ['id', 'DriverName','DriverGender']);
+            $this->params['driver'] = Driver::find($this->params['driver'], ['id', 'DriverName','DriverGender', 'DriverRating']);
         }
 
         if ($this->params['status'] == 1) {
-            $star = DriverTaskExperience::where('driver_id', $this->params['driver']['id'])->avg('ExperienceRating');
-            $this->params['driver']['stars'] = $star ? round($star, 2) : 0;
+            $this->params['driver']['stars'] = round($this->params['driver']['DriverRating'], 2);
         }
         Mail::to($this->params['email'])->send(new BlackhatReserveMail($this->params['driver'], $this->params['calldriverTaskMap'], $this->params['status']));
     }
