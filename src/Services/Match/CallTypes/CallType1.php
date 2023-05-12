@@ -57,7 +57,7 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
             if (empty($enterprise)) {
                 return $this->error('查無對應企業，無法使用企業簽單付款');
             }
-            $params['enterprise_id'] = $enterprise->id;
+            $params['enterprise_id'] = $enterprise->enterprise_id;
         }
         if($check===true) {
             $this->setParams($params);
