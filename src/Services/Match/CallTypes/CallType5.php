@@ -79,6 +79,8 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             if (empty($enterprise)) {
                 return $this->error('查無對應企業，無法使用企業簽單付款');
             }
+            //企業簽單不需要支付訂金(會統一在月結時收), 因此需要將prematch_status和pay_status帶1
+            $params['prematch_status'] = $params['pay_status'] = 1;
             $params['enterprise_id'] = $enterprise->enterprise_id;
         }
         if ($check === true) {
