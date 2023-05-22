@@ -67,12 +67,17 @@ class B2B extends AbstractSetting implements InvoiceInterface
     {
         $url = $this->url . "/set";
         //因為帳務聯絡人不一定有, 所以需要預設值
-        $accountMail = $this->enterprise->accountContact->email ?? '';
+        if (isset($this->enterprise->accountContact->email)){
+            $email = sprintf("%s;%s",$this->enterprise->mainContact->email,$this->enterprise->accountContact->email);
+        }else{
+            $email = $this->enterprise->mainContact->email;
+        }
+
         $setting = [
             "Identifier" =>$this->enterprise->GUI_number,
             "CustomerNumber"=>$this->enterprise->GUI_number,
             "CompanyName"=>$this->enterprise->title,
-            "EmailAddress"=> sprintf("%s;%s",$this->enterprise->mainContact->email,$accountMail)
+            "EmailAddress"=> $email
         ];
 
         return $this->call($url,$setting);
