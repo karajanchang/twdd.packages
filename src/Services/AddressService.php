@@ -49,6 +49,7 @@ class AddressService {
             'city_id' => $location['city_id'],
             'district_id' => $location['district_id'],
             'zip' => $location['zip'],
+            'addr' => $location['addr'],
             'latlon' => DB::raw(sprintf($geoText, $location['lat'], $location['lon'])),
             'address' => $address,
         ];
