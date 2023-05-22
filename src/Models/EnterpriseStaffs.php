@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EnterpriseStaffs extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'enterprise_staffs';
 
     protected $guarded = ['id'];
