@@ -416,7 +416,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 'TaskState' => 7,
                 'user_violation_id' => 1,
                 'createtime' => Carbon::now(),
-
+                'enterprise_id' => $calldriver->enterprise_id,
                 'TaskRideTS' => $map->TS,
                 'TaskCancelTS' => Carbon::now()->timestamp,
                 'TaskStartLat' => $calldriver->lat,
