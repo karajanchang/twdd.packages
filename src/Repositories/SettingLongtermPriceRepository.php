@@ -16,6 +16,6 @@ class SettingLongtermPriceRepository extends Repository
 
     public function allByCityId(int $city_id = 1){
 
-        return $this->all();
+        return $this->where('city_id', $city_id)->get();
     }
 }

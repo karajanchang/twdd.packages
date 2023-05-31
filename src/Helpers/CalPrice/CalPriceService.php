@@ -59,8 +59,16 @@ class CalPriceService
     }
 
     private function calPrice(float $distance, float $duration, $location){
-        $call_type = $this->setCallTypeByDistance($distance);
-        $settingPrice = $this->getSettingPrice($call_type, $location, $this->TS);
+        $nowHour = Carbon::createFromTimestamp($this->TS)->hour;
+        $settingLongPrice = $this->getSettingPrice(4, $location, $this->TS);
+
+        if (!empty($settingLongPrice) && $distance >= $settingLongPrice->base_mile && $nowHour >= $settingLongPrice->hour_start && $nowHour <= $settingLongPrice->hour_end) {
+            $settingPrice = $settingLongPrice;
+            $call_type = 4;
+        } else {
+            $settingPrice = $this->getSettingPrice(1, $location, $this->TS);
+            $call_type = 1;
+        }
 
         $className = $this->getCalPriceClass($call_type);
         $prices = app($className, [ 'settingPrice' => $settingPrice, 'distance' => $distance, 'duration' => $duration ])->cal();
@@ -70,11 +78,10 @@ class CalPriceService
 
     private function getCalPriceClass(int $call_type) : string{
         $lut = [
-            1 => \Twdd\Helpers\CalPrice\CalPriceCommon::class,
-            2 => \Twdd\Helpers\CalPrice\CalPriceCommon::class,
-            3 => \Twdd\Helpers\CalPrice\CalPriceCommon::class,
-            4 => \Twdd\Helpers\CalPrice\CalPriceLongterm::class,
-            //5 => \Twdd\Helpers\CalPrice\CalPriceClock::class,
+            1 => CalPriceCommon::class,
+            2 => CalPriceCommon::class,
+            3 => CalPriceCommon::class,
+            4 => CalPriceLongterm::class,
         ];
 
         return Collection::make($lut)->get($call_type, 1);
@@ -100,35 +107,6 @@ class CalPriceService
     public function setPrice($price): void
     {
         $this->price = $price;
-    }
-
-    /*
-     * 檢查此時段是否沒有長途代駕
-     */
-    private function isNoLongTerm() : bool
-    {
-        $dt = Carbon::createFromTimestamp($this->TS);
-        $hour = $dt->format('G');
-        if($hour>=19 && $hour<=23){
-
-            return true;
-        }
-        if($hour>=0 && $hour<=7){
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function setCallTypeByDistance(float $distance)
-    {
-        $call_type = ($distance > self::longterm_start_mile) && $this->isNoLongTerm()===false  ? 4 : 1;
-
-        return $call_type;
     }
 
     /**

@@ -32,7 +32,7 @@ class CouponServiceHelper
         }
         Log::info('CouponServiceHelper ('.$this->task->id.'): setUsed', [$this->task->UserCreditCode]);
 
-        $coupon = CouponValid::task($this->task)->check($this->task->UserCreditCode);
+        $coupon = app(CouponRepository::class)->fetch($this->task->UserCreditCode);
 
         Log::info('CouponServiceHelper ('.$this->task->id.'): setUsed', [$coupon]);
         if($coupon instanceof Coupon){
