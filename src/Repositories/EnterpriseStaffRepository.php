@@ -26,4 +26,16 @@ class EnterpriseStaffRepository extends Repository
             })
             ->first();
     }
+
+    public function checkMemberIsStaff($phone)
+    {
+        $model = $this->getModel();
+
+        return $model->where('mobile', $phone)
+            ->where('enable', 1)
+            ->whereHas('enterprise', function ($q) {
+                $q->where('enable', '=', 1);
+            })
+            ->first();
+    }
 }
