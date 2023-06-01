@@ -437,6 +437,10 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 'DestAddressKey' => $calldriver->addrKey_det,
             ];
 
+            if (isset($calldriver->enterprise_id) && $calldriver->enterprise_id){
+                $parmas['enterprise_id'] = $calldriver->enterprise_id;
+            }
+
             $task = app(TaskRepository::class)->create($parmas);
             CalldriverTaskMap::query()->where('id', $map->id)->update(['task_id' => $task->id,]);
             TaskPayLog::query()->where('calldriver_task_map_id', $map->id)->update(['task_id' => $task->id]);
