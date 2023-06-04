@@ -268,7 +268,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             case 1:
                 //企業簽單無收取訂金, 直接修改狀態
                 if ($calldriverTaskMap->calldriver->pay_type == 3){
-                    $detailParams['pay_status'] = 2;
+                    $detailParams['pay_status'] = 0;
                     break;
                 }
 
