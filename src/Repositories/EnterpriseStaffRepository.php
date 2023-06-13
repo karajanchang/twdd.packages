@@ -38,4 +38,16 @@ class EnterpriseStaffRepository extends Repository
             })
             ->first();
     }
+
+    public function checkMemberIsStaffByID($id)
+    {
+        $model = $this->getModel();
+
+        return $model->where('member_id', $id)
+            ->where('enable', 1)
+            ->whereHas('enterprise', function ($q) {
+                $q->where('enable', '=', 1);
+            })
+            ->first();
+    }
 }

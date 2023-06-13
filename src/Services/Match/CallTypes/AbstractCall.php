@@ -198,7 +198,7 @@ class AbstractCall extends ServiceAbstract
         $params['call_driver_id'] = !empty($this->callDriver->id) ? $this->callDriver->id : null;
         $params['use_jcoin'] = !empty($params['use_jcoin']) ? (int)(bool)$params['use_jcoin'] : 0;
 
-        $checkIsEntepriseStaff = self::checkMemberIsEnterpriseStaff($this->member->UserPhone);
+        $checkIsEntepriseStaff = self::checkMemberIsEnterpriseStaff($this->member->id);
 
         //怕calldriver的enterprise_id還沒更新上去, 所以不用三元運算的寫法
         if($checkIsEntepriseStaff){
@@ -460,12 +460,12 @@ class AbstractCall extends ServiceAbstract
         return static::$calldriverService;
     }
 
-    private function checkMemberIsEnterpriseStaff($phone)
+    private function checkMemberIsEnterpriseStaff($id)
     {
         //只要該會員是合作企業的員工, 多塞enterprise_id給calldriver
         if (Schema::hasColumns('enterprise_staffs', ['enable'])){
             $repo = app(EnterpriseStaffRepository::class);
-            return $repo->checkMemberIsStaff($phone);
+            return $repo->checkMemberIsStaffByID($id);
         }
 
         return false;

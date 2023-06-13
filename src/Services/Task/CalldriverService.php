@@ -25,6 +25,7 @@ use Twdd\Services\ServiceAbstract;
 use Twdd\Traits\AttributesArrayTrait;
 use Twdd\Models\Calldriver;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Twdd\Repositories\EnterpriseStaffRepository;
 
 class CalldriverService extends ServiceAbstract
 {
@@ -37,13 +38,15 @@ class CalldriverService extends ServiceAbstract
     private $taskHabitRepository;
     private $blackhatDetailRepository;
     private $user = null;
+    private $enterpriseStaffRepository;
 
     public function __construct(
         TaskErrors $taskErrors,
         CalldriverRepository $repository,
         CalldriverTaskMapRepository $mapRepository,
         BlackHatDetailRepository $blackhatDetailRepository,
-        TaskHabitRepository $taskHabitRepository
+        TaskHabitRepository $taskHabitRepository,
+        EnterpriseStaffRepository $enterpriseStaffRepository
     )
     {
         $this->repository = $repository;
@@ -51,6 +54,7 @@ class CalldriverService extends ServiceAbstract
         $this->mapRepository = $mapRepository;
         $this->taskHabitRepository = $taskHabitRepository;
         $this->blackhatDetailRepository = $blackhatDetailRepository;
+        $this->enterpriseStaffRepository = $enterpriseStaffRepository;
     }
 
     public function checkIfDuplicate()
@@ -175,6 +179,12 @@ class CalldriverService extends ServiceAbstract
         if ($error !== true) {
 
             return $error;
+        }
+
+        // 檢查會員是否為企業員工
+        $staff = $this->enterpriseStaffRepository->checkMemberIsStaffByID($this->call_member->id);
+        if($staff && $staff->enterprise_id){
+            $params['enterprise_id'] = $staff->enterprise_id;
         }
 
         //---lat lon 代0時要 地址轉latlon
