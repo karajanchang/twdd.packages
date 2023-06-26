@@ -282,7 +282,7 @@ class CouponService extends ServiceAbstract
         $params['createtime'] = date('Y-m-d H:i:s');
         $params['isUsed'] = 0;
         $params['is_click'] = 0;
-        $params['type'] = 1;
+        $params['type'] = $params['type'] ?? 1;
         $params['isOnlyForThisMember'] = isset($params['is_only_for_this_member']) ? $params['is_only_for_this_member'] : 0;
         UNSET($params['is_only_for_this_member']);
 
