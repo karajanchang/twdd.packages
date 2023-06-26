@@ -133,8 +133,12 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
             $this->member = Member::find($this->member->id);
 
-            //企業後台的鐘點代駕會預設為1, 沒有匹配駕駛時需要修改為0
-            $params['prematch_status'] = 0;
+            //企業簽單的鐘點代駕pay&prematch會預設為1, 沒有匹配駕駛時需要修改為0
+            if ($params['pay_type'] == 3){
+                $params['prematch_status'] = 0;
+                $params['pay_status'] = 0;
+            }
+            
             $blackHatDetail = $this->getCalldriverServiceInstance()->setCallDriver($callDriver)->create($params);
             $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
             $calldriverTaskMap->isMatchFail = 1;
@@ -268,7 +272,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             case 1:
                 //企業簽單無收取訂金, 直接修改狀態
                 if ($calldriverTaskMap->calldriver->pay_type == 3){
-                    $detailParams['pay_status'] = 2;
+                    $detailParams['pay_status'] = 0;
                     break;
                 }
 
@@ -436,6 +440,10 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 'DestAddress' => $calldriver->addr_det,
                 'DestAddressKey' => $calldriver->addrKey_det,
             ];
+
+            if (isset($calldriver->enterprise_id) && $calldriver->enterprise_id){
+                $parmas['enterprise_id'] = $calldriver->enterprise_id;
+            }
 
             $task = app(TaskRepository::class)->create($parmas);
             CalldriverTaskMap::query()->where('id', $map->id)->update(['task_id' => $task->id,]);
