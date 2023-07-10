@@ -82,7 +82,11 @@ class ErrorAbstract extends Error implements ArrayAccess
     public function offsetGet($offset){
         $tmp = $this->name($offset);
         $this->code = $offset;
-        $this->message = $this->$tmp();
+        if (method_exists($this, $tmp)) {
+            $this->message = $this->$tmp();
+        } else {
+            $this->message = '';
+        }
 
         return $this;
     }
