@@ -28,6 +28,7 @@ class TaskDoneAbstract
     protected $task;
     protected $TaskFee = 0;
     protected $twddFee = 0;
+    protected $taxFee = 0;
     protected $price_share = 0.8;
     protected $taskRepository;
     protected $member_creditcard_id = null;
@@ -155,15 +156,17 @@ class TaskDoneAbstract
 
     private function updateTaskDone(){
 
-        return $this->taskRepository->isPay($this->task, $this->TaskFee, $this->twddFee, $this->is_first_use, $this->member_creditcard_id);
+        return $this->taskRepository->isPay($this->task, $this->TaskFee, $this->twddFee, $this->is_first_use, $this->member_creditcard_id, $this->taxFee);
     }
 
     private function doCalucate(){
         $this->getPriceShare();
         $this->calucateTaskFee();
+        $this->calculateTaxFee();
         $this->calucateTwddFee();
 
         $this->task->TaskFee = $this->TaskFee;
+        $this->task->taxFee = $this->taxFee;
         $this->task->twddFee = $this->twddFee;
     }
 
@@ -179,7 +182,16 @@ class TaskDoneAbstract
     //--系統費
     private function calucateTwddFee(){
         if($this->chargeTwddFee()===true){
-            $this->twddFee = round($this->TaskFee * (1 - $this->price_share));
+            $this->twddFee = round(($this->TaskFee - $this->taxFee) * (1 - $this->price_share));
+        }
+    }
+
+    // 還原成未稅金額
+    private function calculateTaxFee()
+    {
+        // TWDD-882
+        if ($this->task->pay_type == 3 && $this->task->type != 10 && $this->task->call_type != 5) {
+            $this->taxFee = $this->TaskFee - round($this->TaskFee / 1.05);
         }
     }
 

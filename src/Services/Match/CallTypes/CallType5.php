@@ -21,6 +21,7 @@ use Twdd\Models\TaskPayLog;
 use Twdd\Repositories\DriverRepository;
 use Twdd\Repositories\EnterpriseStaffRepository;
 use Twdd\Repositories\TaskRepository;
+use Twdd\Services\Credit\DriverCreditService;
 use Twdd\Services\Match\CallTypes\Traits\TraitAlwaysBlackList;
 use Twdd\Services\Match\CallTypes\Traits\TraitAppVer;
 use Twdd\Services\Match\CallTypes\Traits\TraitCallNoDuplicate;
@@ -138,7 +139,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 $params['prematch_status'] = 0;
                 $params['pay_status'] = 0;
             }
-            
+
             $blackHatDetail = $this->getCalldriverServiceInstance()->setCallDriver($callDriver)->create($params);
             $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
             $calldriverTaskMap->isMatchFail = 1;
@@ -287,10 +288,13 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 break;
             case 2:
                 $fee = $blackhatDetail->deposit ?: $blackhatDetail->type_price / 2;
-                $res = $this->createViolationTask($calldriverTaskMap, $fee);
-                if (!$res) {
+                $twddFee = round($fee * 0.2);
+                $task = $this->createViolationTask($calldriverTaskMap, $fee, $twddFee);
+                if (empty($task)) {
                     return $this->error('取消失敗');
                 }
+
+                app(DriverCreditService::class)->charge($task, 1, (-1)*$twddFee);
                 $detailParams['pay_status'] = 4;
                 break;
         }
@@ -400,13 +404,14 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         */
     }
 
-    private function createViolationTask($map, $fee)
+    private function createViolationTask($map, $fee, $twddFee)
     {
         try {
             if (!empty($map->calldriver->zip)) {
                 $cityDistricts = LatLonService::locationFromZip($map->calldriver->zip);
                 $cityDistrict = $cityDistricts->first() ?? null;
             }
+
             DB::beginTransaction();
             $calldriver = $map->calldriver;
             $parmas = [
@@ -414,7 +419,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 'call_type' => $calldriver->call_type,
                 'pay_type' => $calldriver->pay_type,
                 'TaskFee' => $fee,
-                'twddFee' => round($fee * 0.2),
+                'twddFee' => $twddFee,
                 'member_id' => $map->member_id,
                 'driver_id' => $map->call_driver_id,
                 'TaskState' => 7,
@@ -450,10 +455,10 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             TaskPayLog::query()->where('calldriver_task_map_id', $map->id)->update(['task_id' => $task->id]);
 
             DB::commit();
-            return true;
+            return $task;
         } catch (\Exception $e) {
             DB::rollBack();
-            return false;
+            return null;
         }
     }
 

@@ -81,12 +81,13 @@ class TaskRepository extends Repository
         return $qb->count();
     }
 
-    public function isPay($task, int $TaskFee, int $twddFee, int $is_first_use = 0, int $member_creditcard_id = 0){
+    public function isPay($task, int $TaskFee, int $twddFee, int $is_first_use = 0, int $member_creditcard_id = 0, int $taxFee = 0){
         $params = [
             'is_pay' => 1,
             'is_first_use' => $is_first_use,
             'twddFee' => $twddFee,
             'TaskFee' => $TaskFee,
+            'tax_fee' => $taxFee,
             'member_creditcard_id' => $member_creditcard_id,
         ];
 
