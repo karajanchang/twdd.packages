@@ -293,8 +293,10 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 if (empty($task)) {
                     return $this->error('取消失敗');
                 }
+                if (IsTaskChargeTwddFee($task)) {
+                    app(DriverCreditService::class)->charge($task, 1, (-1)*$twddFee);
+                }
 
-                app(DriverCreditService::class)->charge($task, 1, (-1)*$twddFee);
                 $detailParams['pay_status'] = 4;
                 break;
         }

@@ -39,8 +39,8 @@ if (!function_exists('IsTaskChargeTwddFee')) {
             $NO_CHARGE_TWDD_FEEs = explode(',', $NO_CHARGE_TWDD_FEE);
         }
         if(count($NO_CHARGE_TWDD_FEEs)==2){
-            $now = time();
-            if($now >= $NO_CHARGE_TWDD_FEEs[0] && $now <= $NO_CHARGE_TWDD_FEEs[1]){
+            $rideTs = $task->TaskRideTS ?? time();
+            if($rideTs >= $NO_CHARGE_TWDD_FEEs[0] && $rideTs <= $NO_CHARGE_TWDD_FEEs[1]){
 
                 return false;
             }
