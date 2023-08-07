@@ -60,9 +60,13 @@ class CalPriceService
 
     private function calPrice(float $distance, float $duration, $location){
         $nowHour = Carbon::createFromTimestamp($this->TS)->hour;
+        $nowMinute = Carbon::createFromTimestamp($this->TS)->minute;
         $settingLongPrice = $this->getSettingPrice(4, $location, $this->TS);
 
-        if (!empty($settingLongPrice) && $distance >= $settingLongPrice->base_mile && $nowHour >= $settingLongPrice->hour_start && $nowHour <= $settingLongPrice->hour_end) {
+        // 須符合 example: 08:00 ~ 19:00 非 18:59
+        if (!empty($settingLongPrice) && $distance >= $settingLongPrice->base_mile
+            && $nowHour >= $settingLongPrice->hour_start
+            && ($nowHour < $settingLongPrice->hour_end || ($nowHour == $settingLongPrice->hour_end && $nowMinute == 0))) {
             $settingPrice = $settingLongPrice;
             $call_type = 4;
         } else {
