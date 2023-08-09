@@ -64,9 +64,7 @@ class CalPriceService
         $settingLongPrice = $this->getSettingPrice(4, $location, $this->TS);
 
         // 須符合 example: 08:00 ~ 19:00 非 18:59
-        if (!empty($settingLongPrice) && $distance >= $settingLongPrice->base_mile
-            && $nowHour >= $settingLongPrice->hour_start
-            && ($nowHour < $settingLongPrice->hour_end || ($nowHour == $settingLongPrice->hour_end && $nowMinute == 0))) {
+        if (!empty($settingLongPrice) && $distance >= $settingLongPrice->base_mile && $nowHour >= $settingLongPrice->hour_start && $nowHour < $settingLongPrice->hour_end) {
             $settingPrice = $settingLongPrice;
             $call_type = 4;
         } else {
