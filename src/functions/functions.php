@@ -32,6 +32,13 @@ if (!function_exists('IsTaskChargeTwddFee')) {
             return false;
         }
 
+        $ts = $task->TaskRideTS ?? time();
+        return IsTimestampChargeTwddFee($ts);
+    }
+}
+
+if (!function_exists('IsTimestampChargeTwddFee')) {
+    function IsTimestampChargeTwddFee($ts){
         //--不收的時段
         $NO_CHARGE_TWDD_FEEs = [];
         $NO_CHARGE_TWDD_FEE = env('NO_CHARGE_TWDD_FEE');
@@ -39,8 +46,7 @@ if (!function_exists('IsTaskChargeTwddFee')) {
             $NO_CHARGE_TWDD_FEEs = explode(',', $NO_CHARGE_TWDD_FEE);
         }
         if(count($NO_CHARGE_TWDD_FEEs)==2){
-            $rideTs = $task->TaskRideTS ?? time();
-            if($rideTs >= $NO_CHARGE_TWDD_FEEs[0] && $rideTs <= $NO_CHARGE_TWDD_FEEs[1]){
+            if($ts >= $NO_CHARGE_TWDD_FEEs[0] && $ts <= $NO_CHARGE_TWDD_FEEs[1]){
 
                 return false;
             }

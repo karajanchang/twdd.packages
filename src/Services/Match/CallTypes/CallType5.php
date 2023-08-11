@@ -288,14 +288,15 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 break;
             case 2:
                 $fee = $blackhatDetail->deposit ?: $blackhatDetail->type_price / 2;
-                $twddFee = round($fee * 0.2);
+                $twddFee = 0;
+                if (IsTimestampChargeTwddFee($calldriverTaskMap->TS)) {
+                    $twddFee = round($fee * 0.2);
+                }
                 $task = $this->createViolationTask($calldriverTaskMap, $fee, $twddFee);
                 if (empty($task)) {
                     return $this->error('取消失敗');
                 }
-                if (IsTaskChargeTwddFee($task)) {
-                    app(DriverCreditService::class)->charge($task, 1, (-1)*$twddFee);
-                }
+                app(DriverCreditService::class)->charge($task, 1, (-1)*$twddFee);
 
                 $detailParams['pay_status'] = 4;
                 break;
