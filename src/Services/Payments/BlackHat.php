@@ -10,6 +10,7 @@ use Twdd\Repositories\MemberCreditcardRepository;
 use Twdd\Services\Payments\Traits\SpgatewayTrait;
 use Twdd\Services\Payment_v2\SpGateway\SpGatewayService;
 use Twdd\Jobs\Invoice\InvoiceIssueJob;
+use Twdd\Models\Enterprise;
 
 class BlackHat extends PaymentAbstract implements PaymentInterface
 {
@@ -36,8 +37,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
         }
 
         // 刷尾款
-        if ($this->task)
-        {
+        if ($this->task) {
             $member = $this->task->member;
             $orderNo = 'bh_' . str_pad($this->task->id, 8, "0", STR_PAD_LEFT);
             $blackHatDetail = $this->task->calldriver_task_map->blackhat_detail;
@@ -61,18 +61,32 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
             if (isset($res['Status']) && $res['Status'] === 'SUCCESS') {
 
-                $b2cInvoice = [
-                    "type"=>"B2C",
-                    "fee"=>$money,
-                    "target"=>$member,
-                ];
+                if ($blackHatDetail->tax_id_number && $blackHatDetail->tax_id_title) {
+
+
+                    $enterprise = new Enterprise();
+                    $enterprise->fill(["GUI_number" => $blackHatDetail->tax_id_number, "title" => $blackHatDetail->tax_id_title]);
+                    $enterprise->UserEmail = $member->invoice_email ?? $member->UserEmail;
+
+                    $b2cInvoice = [
+                        "type" => "B2B",
+                        "fee" => $money,
+                        "target" => $enterprise,
+                    ];
+                } else {
+                    $b2cInvoice = [
+                        "type" => "B2C",
+                        "fee" => $money,
+                        "target" => $member,
+                    ];
+                }
 
                 if ($this->task) {
                     $blackHatDetail->pay_status = 6; // 任務尾款付款成功
                     $blackHatDetail->save();
 
                     $b2cInvoice['belong'] = $this->task;
-                }else {
+                } else {
                     $b2cInvoice['belong'] = $this->calldriverTaskMap;
                 }
 
@@ -97,17 +111,16 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
                 return $this->returnError(2003, '刷卡失敗', ($res) ? $res : null, true);
             }
-
         } catch (\Exception $e) {
             $msg = '';
             if ($this->calldriverTaskMap) {
-                $msg = '刷卡異常 (預約單號：'.$this->calldriverTaskMap->id.'): '.$e->getMessage();
+                $msg = '刷卡異常 (預約單號：' . $this->calldriverTaskMap->id . '): ' . $e->getMessage();
             }
             if ($this->task) {
                 $blackHatDetail = $this->task->calldriver_task_map->blackhat_detail;
                 $blackHatDetail->pay_status = 5; // 任務尾款付款失敗
                 $blackHatDetail->save();
-                $msg = '刷卡異常 (任務單號：'.$this->task->id.'): '.$e->getMessage();
+                $msg = '刷卡異常 (任務單號：' . $this->task->id . '): ' . $e->getMessage();
             }
 
             return $this->notifyExceptionAndLog($e, 2005, $msg, 0);
@@ -137,20 +150,17 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
             if (isset($res['Status']) && $res['Status'] === 'SUCCESS') {
 
                 return $this->returnSuccess('取消授權成功', $res, true);
-
             } else if (isset($res['Message']) && $res['Message']) {
 
                 return $this->returnError(2003, '取消授權失敗', $res, true);
-
             } else {
 
                 return $this->returnError(2003, '取消授權失敗', ($res) ? $res : null, true);
             }
+        } catch (\Exception $e) {
 
-        } catch(\Exception $e) {
-
-            $msg = '取消授權異常 商店訂單編號(：'.$orderNo.'): '.$e->getMessage();
-            Log::info(__CLASS__.'::'.__METHOD__.' exception: ', [$msg, $e]);
+            $msg = '取消授權異常 商店訂單編號(：' . $orderNo . '): ' . $e->getMessage();
+            Log::info(__CLASS__ . '::' . __METHOD__ . ' exception: ', [$msg, $e]);
 
             return $this->returnError(3004, '操作失敗，請稍後再試', $res, true);
         }
@@ -179,20 +189,17 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
             if (isset($res['Status']) && $res['Status'] === 'SUCCESS') {
 
                 return $this->returnSuccess('退刷成功', $res, true);
-
             } else if (isset($res['Message']) && $res['Message']) {
 
                 return $this->returnError(2003, '退刷失敗', $res, true);
-
             } else {
 
                 return $this->returnError(2003, '退刷失敗', ($res) ? $res : null, true);
             }
+        } catch (\Exception $e) {
 
-        } catch(\Exception $e) {
-
-            $msg = '退刷異常 (單號：'.$this->calldriverTaskMap->id.'): '.$e->getMessage();
-            Log::info(__CLASS__.'::'.__METHOD__.' exception: ', [$msg, $e]);
+            $msg = '退刷異常 (單號：' . $this->calldriverTaskMap->id . '): ' . $e->getMessage();
+            Log::info(__CLASS__ . '::' . __METHOD__ . ' exception: ', [$msg, $e]);
 
             return $this->returnError(3004, '操作失敗，請稍後再試', $res, true);
         }
@@ -223,17 +230,13 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
             if (isset($res['Status']) && $res['Status'] === 'SUCCESS') {
 
                 return $this->returnSuccess('智付通查詢: 狀態成功', $res);
-
             } else if (isset($res['Message']) && $res['Message']) {
 
                 return $this->returnError(3002, '智付通查詢失敗', $res);
-
             } else {
 
                 return $this->returnError(3002, '智付通查詢失敗', ($res) ? $res : null);
             }
-
-
         } catch (\Exception $e) {
 
             $msg = '查詢智付通異常 (單號：' . $this->calldriverTaskMap->id . '): ' . $e->getMessage();

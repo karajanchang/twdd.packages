@@ -43,7 +43,8 @@ trait TraitCancelBy
 
 
 
-    public function cancelWithCheck(array $params = null, bool $is_force_cancel = false){
+    public function cancelWithCheck(array $params = null, bool $is_force_cancel = false)
+    {
 
         return $this->cancel($params, $is_force_cancel);
     }
@@ -52,13 +53,14 @@ trait TraitCancelBy
      * @param $params 參數
      * $param $is_force_cancel 強制取消
      */
-    public function cancel(array $params = null, bool $is_force_cancel = false, bool $is_with_check = false){
+    public function cancel(array $params = null, bool $is_force_cancel = false, bool $is_with_check = false)
+    {
         //--map和task的檢查
         $this->initMapAndTask();
 
         //--檢查是否可以取消
         $res = $this->check();
-        if($res === false){
+        if ($res === false) {
 
             return $res;
         }
@@ -74,7 +76,13 @@ trait TraitCancelBy
             $this->cancelCalldriverTaskMap($params);
 
             //---有任務才去做以下動作
-            if(!is_null($this->task)) {
+            if (!is_null($this->task)) {
+
+                //企業簽單因為是統一付款, 當下不會付錢, 因此取消就不用付費
+                if ($this->task->pay_type == 3 && $this->task->type != 10) {
+                    $this->setDoNotChargeCancelFee(true);
+                }
+
                 $this->cancelTask($params);
 
 
@@ -89,8 +97,8 @@ trait TraitCancelBy
             DB::commit();
 
             return true;
-        }catch (\Exception $e){
-            Log::error(__CLASS__.'::'.__METHOD__.' error: ', [$e]);
+        } catch (\Exception $e) {
+            Log::error(__CLASS__ . '::' . __METHOD__ . ' error: ', [$e]);
             DB::rollBack();
 
             return false;
@@ -137,12 +145,13 @@ trait TraitCancelBy
      * map和task的檢查
      *
      */
-    private function initMapAndTask(){
-        if(is_null($this->calldriverTaskMap) && !is_null($this->task)){
+    private function initMapAndTask()
+    {
+        if (is_null($this->calldriverTaskMap) && !is_null($this->task)) {
             $this->calldriverTaskMap = app(CalldriverTaskMapRepository::class)->firstFromTaskId($this->task->id);
         }
 
-        if(is_null($this->calldriverTaskMap)){
+        if (is_null($this->calldriverTaskMap)) {
 
             throw new \Exception('沒有代入calldriverTaskMap');
         }
@@ -151,8 +160,9 @@ trait TraitCancelBy
     /*
      * 預約要返回coupon
      */
-    private function unUsedCoupon(){
-        if(!is_null($this->task->UserCreditCode) && $this->task->UserCreditCode != '') {
+    private function unUsedCoupon()
+    {
+        if (!is_null($this->task->UserCreditCode) && $this->task->UserCreditCode != '') {
             app(CouponRepository::class)->setUnUsed($this->task->member_id, $this->task->UserCreditCode);
         }
     }
@@ -160,8 +170,9 @@ trait TraitCancelBy
     /*
      * 塞入 task_cancel_logs
      */
-    private function writeLog(array $params = null){
-        Log::info(__CLASS__.'::'.__METHOD__.' params: ', $params);
+    private function writeLog(array $params = null)
+    {
+        Log::info(__CLASS__ . '::' . __METHOD__ . ' params: ', $params);
 
         return app(TaskCancelLogRepository::class)->create($params);
     }
@@ -171,7 +182,8 @@ trait TraitCancelBy
      * $cancel_type 1一般預約  2 還未建立任務  3已建立任務
      * @return array|false
      */
-    public function shouldTakeCancelFee(){
+    public function shouldTakeCancelFee()
+    {
         $ts_long = env('VIOLATION_HOUR_LONG', 12) * 3600;
         $ts_short = env('VIOLATION_HOUR_SHORT', 1) * 3600;
         $diff = $this->calldriverTaskMap->TS - Carbon::now()->timestamp;
@@ -181,14 +193,15 @@ trait TraitCancelBy
         $calldriverTaskMap = CalldriverTaskMap::find($this->calldriverTaskMap->id, ['id', 'task_id']);
 
         //--企業簽單
-        if($calldriver->pay_type==3) {
-            if ($diff < $ts_long) {
-//                服務前12小時內 取消收取$150預約臨時取消費，並收取20%系統費，不收保險費
+        if ($calldriver->pay_type == 3) {
+            //因為有些車廠也會是pay_type 3, 所以多判斷type
+            if ($diff < $ts_long && $calldriver->type = 10) {
+                //                服務前12小時內 取消收取$150預約臨時取消費，並收取20%系統費，不收保險費
                 $fee = env('VIOLATION_FEE_LONG', 150);
                 $user_violation_id = env('VIOLATION_FEE_LONG_ID', 1);
 
                 //--駕駛啟動任務(taskstate >1)後取消收取$300預約臨時取消費，並收取20%系統費，不收保險費
-                if (isset($calldriverTaskMap->task_id) && !empty($calldriverTaskMap->task_id) && $diff < $ts_short){
+                if (isset($calldriverTaskMap->task_id) && !empty($calldriverTaskMap->task_id) && $diff < $ts_short) {
                     $fee = env('VIOLATION_FEE_SHORT', 300);
                     $user_violation_id = env('VIOLATION_FEE_SHORT_ID', 2);
                 }
@@ -200,9 +213,9 @@ trait TraitCancelBy
                     'task_id' => $calldriverTaskMap->task_id ?? 0,
                 ];
             }
-        }else{
+        } else {
             //--預約代駕
-            if($calldriver->call_type==2 && $diff < $ts_short){
+            if ($calldriver->call_type == 2 && $diff < $ts_short) {
                 $fee = env('VIOLATION_PREMATCH_FEE_LONG', 100);
                 $user_violation_id = env('VIOLATION_PREMATCH_FEE_LONG_id', 3);
 
@@ -228,11 +241,12 @@ trait TraitCancelBy
      * @param CalldriverTaskMap $map
      * @return null
      */
-    private function if_need_create_task(){
+    private function if_need_create_task()
+    {
         $task = null;
         $map = $this->calldriverTaskMap;
-        if($this->fees['TaskFee'] == 0) return $task;
-        if($this->do_not_charge_cancel_fee===false && $this->fees['task_id']==0) {
+        if ($this->fees['TaskFee'] == 0) return $task;
+        if ($this->do_not_charge_cancel_fee === false && $this->fees['task_id'] == 0) {
             if (!empty($map->calldriver->zip)) {
                 $cityDistricts = LatLonService::locationFromZip($map->calldriver->zip);
                 $cityDistrict = $cityDistricts->first() ?? null;
@@ -290,7 +304,7 @@ trait TraitCancelBy
             app(CalldriverTaskMap::class)->where('id', $this->calldriverTaskMap->id)->update([
                 'task_id' => $task->id,
             ]);
-        }else if ($this->do_not_charge_cancel_fee===false && $this->fees['task_id'] > 0){
+        } else if ($this->do_not_charge_cancel_fee === false && $this->fees['task_id'] > 0) {
             $task = app(TaskRepository::class)->find($this->fees['task_id']);
             $this->task = $task;
         }
@@ -298,10 +312,11 @@ trait TraitCancelBy
         return $task;
     }
 
-    private function cancelOtherMap(int $cancel_reason_id = null){
+    private function cancelOtherMap(int $cancel_reason_id = null)
+    {
         $calldriver = $this->calldriverTaskMap->calldriver;
         //--如果是車廠，把有關連的map也取消
-        if($calldriver->type==10){
+        if ($calldriver->type == 10) {
             app(CalldriverTaskMapRepository::class)->cancelOtherSameCalldriverId($calldriver->id, $this->calldriverTaskMap->id, $this->cancel_by, $cancel_reason_id);
         }
     }

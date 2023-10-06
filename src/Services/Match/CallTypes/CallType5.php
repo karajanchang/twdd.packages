@@ -36,6 +36,7 @@ use Twdd\Services\Match\CallTypes\Traits\TraitServiceArea;
 use Twdd\Services\PushNotificationService;
 use Twdd\Jobs\Invoice\InvoiceInvalidJob;
 use Twdd\Jobs\Blackhat\BlackhatReserveMailJob;
+use Twdd\Facades\Infobip;
 
 class CallType5 extends AbstractCall implements InterfaceMatchCallType
 {
@@ -135,7 +136,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             $this->member = Member::find($this->member->id);
 
             //企業簽單的鐘點代駕pay&prematch會預設為1, 沒有匹配駕駛時需要修改為0
-            if ($params['pay_type'] == 3){
+            if ($params['pay_type'] == 3) {
                 $params['prematch_status'] = 0;
                 $params['pay_status'] = 0;
             }
@@ -144,6 +145,8 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             $calldriverTaskMap = $blackHatDetail->calldriver_task_map;
             $calldriverTaskMap->isMatchFail = 1;
             $calldriverTaskMap->save();
+
+            $this->sendingNoDriverSMS($blackHatDetail);
             return $this->error('目前無駕駛承接', null, 2001);
         }
 
@@ -272,7 +275,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         switch ($cancelStatus) {
             case 1:
                 //企業簽單無收取訂金, 直接修改狀態
-                if ($calldriverTaskMap->calldriver->pay_type == 3){
+                if ($calldriverTaskMap->calldriver->pay_type == 3) {
                     $detailParams['pay_status'] = 0;
                     break;
                 }
@@ -296,7 +299,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 if (empty($task)) {
                     return $this->error('取消失敗');
                 }
-                app(DriverCreditService::class)->charge($task, 1, (-1)*$twddFee);
+                app(DriverCreditService::class)->charge($task, 1, (-1) * $twddFee);
 
                 $detailParams['pay_status'] = 4;
                 break;
@@ -370,10 +373,21 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         }
 
         //刷退成功需要作廢發票
-        dispatch(new InvoiceInvalidJob([
-            "type"=>"B2C",
-            "model"=> $calldriverTaskMap
-        ]));
+        //刷退要判斷當初有沒有打統編, 有統編是b to b 
+        $blackhatDetail = $calldriverTaskMap->blackhat_detail;
+
+        if ($blackhatDetail->tax_id_number && $blackhatDetail->tax_id_title) {
+            dispatch(new InvoiceInvalidJob([
+                "type" => "B2B",
+                "model" => $calldriverTaskMap
+            ]));
+        } else {
+            dispatch(new InvoiceInvalidJob([
+                "type" => "B2C",
+                "model" => $calldriverTaskMap
+            ]));
+        }
+
 
         return true;
         /*
@@ -449,7 +463,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
                 'DestAddressKey' => $calldriver->addrKey_det,
             ];
 
-            if (isset($calldriver->enterprise_id) && $calldriver->enterprise_id){
+            if (isset($calldriver->enterprise_id) && $calldriver->enterprise_id) {
                 $parmas['enterprise_id'] = $calldriver->enterprise_id;
             }
 
@@ -783,6 +797,23 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             'calldriverTaskMap' => $calldriverTaskMap,
             'email' => $calldriverTaskMap->member->UserEmail,
         ]));
+    }
 
+    private function sendingNoDriverSMS($blackhatDetail): void
+    {
+
+        $type = $this->params['type'];
+
+        //一般任務 & 企業後台
+        if ($type == 1 || $type == 12) {
+            $startDate = $blackhatDetail->start_date;
+            $serviceType = $blackhatDetail->type == 1 ? "5小時" : "8小時";
+            $member = $this->member->UserName;
+            $memberPhone = $this->member->UserPhone;
+
+            $body = sprintf("%s 鐘點代駕%s %s %s，請協助乘客指派駕駛！", $startDate, $serviceType, $member, $memberPhone);
+
+            Infobip::sms()->send("0976140982", $body);
+        }
     }
 }
