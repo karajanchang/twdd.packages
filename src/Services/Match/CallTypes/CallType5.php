@@ -146,7 +146,6 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             $calldriverTaskMap->isMatchFail = 1;
             $calldriverTaskMap->save();
 
-            $this->sendingNoDriverSMS($blackHatDetail);
             return $this->error('目前無駕駛承接', null, 2001);
         }
 
@@ -797,25 +796,5 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             'calldriverTaskMap' => $calldriverTaskMap,
             'email' => $calldriverTaskMap->member->UserEmail,
         ]));
-    }
-
-    private function sendingNoDriverSMS($blackhatDetail): void
-    {
-
-        $type = $this->params['type'];
-
-        $phone = env('SEND_NO_DRIVER_SMS', '0970720200');
-
-        //一般任務 & 企業後台
-        if ($type == 1 || $type == 12) {
-            $startDate = $blackhatDetail->start_date;
-            $serviceType = $blackhatDetail->type == 1 ? "5小時" : "8小時";
-            $member = $this->member->UserName;
-            $memberPhone = $this->member->UserPhone;
-
-            $body = sprintf("%s 鐘點代駕%s %s %s，請協助乘客指派駕駛！", $startDate, $serviceType, $member, $memberPhone);
-
-            Infobip::sms()->send($phone, $body);
-        }
     }
 }
