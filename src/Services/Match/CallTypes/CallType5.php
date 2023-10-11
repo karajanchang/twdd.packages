@@ -804,6 +804,8 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
         $type = $this->params['type'];
 
+        $phone = env('SEND_NO_DRIVER_SMS', '0970720200');
+
         //一般任務 & 企業後台
         if ($type == 1 || $type == 12) {
             $startDate = $blackhatDetail->start_date;
@@ -813,7 +815,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
 
             $body = sprintf("%s 鐘點代駕%s %s %s，請協助乘客指派駕駛！", $startDate, $serviceType, $member, $memberPhone);
 
-            Infobip::sms()->send("0976140982", $body);
+            Infobip::sms()->send($phone, $body);
         }
     }
 }
