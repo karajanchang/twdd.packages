@@ -72,7 +72,7 @@ class B2B extends AbstractSetting implements InvoiceInterface
         if (isset($this->enterprise->accountContact->email)) {
             $email = sprintf("%s;%s", $this->enterprise->mainContact->email, $this->enterprise->accountContact->email);
         } else {
-            $email = $this->enterprise->mainContact->email;
+            $email = $this->enterprise->mainContact->email ?? $this->enterprise->UserEmail;
         }
 
         $setting = [
