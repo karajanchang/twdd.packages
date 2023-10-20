@@ -7,6 +7,7 @@ use Twdd\Services\Invoice\InvoiceInterface;
 use Twdd\Repositories\EcpayInvoiceRepository;
 use Twdd\Models\Enterprise;
 use Twdd\Models\CalldriverTaskMap;
+use Twdd\Models\Task;
 
 class B2B extends AbstractSetting implements InvoiceInterface
 {
@@ -129,6 +130,10 @@ class B2B extends AbstractSetting implements InvoiceInterface
             if ($this->task) {
                 $invoiceData['task_id'] = $this->task->id;
             }
+        } else if ($this->payment instanceof Task){
+            $invoiceData['task_id'] =  $this->payment["id"] ?? null;
+            $calldriver = $this->payment->load('calldriver_task_map');
+            $invoiceData['calldriver_task_map_id'] = $this->payment->calldriver_task_map->id ?? null;
         } else {
             $invoiceData['enterprise_payment_id'] = $this->payment["id"] ?? null;
         }
