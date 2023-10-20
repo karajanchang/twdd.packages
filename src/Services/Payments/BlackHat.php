@@ -66,7 +66,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
                     $enterprise = new Enterprise();
                     $enterprise->fill(["GUI_number" => $blackHatDetail->tax_id_number, "title" => $blackHatDetail->tax_id_title]);
-                    $enterprise->UserEmail = $member->invoice_email ?? $member->UserEmail;
+                    $enterprise->UserEmail = $blackHatDetail->tax_id_email ?? $member->UserEmail;
 
                     $b2cInvoice = [
                         "type" => "B2B",
