@@ -292,6 +292,7 @@ class CalldriverService extends ServiceAbstract
             'maybe_over_time' => $params['maybe_over_time'],
             'tax_id_number' => $params['tax_id_number'] ?? "",
             'tax_id_title' => $params['tax_id_title'] ?? "",
+            'tax_id_email' => $params['tax_id_email'] ?? "",
             'created_at' => $nowDt,
             'updated_at' => $nowDt,
             'pay_status' => $params['pay_status'] ?? "",

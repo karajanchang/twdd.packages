@@ -23,6 +23,7 @@ class BlackhatDetail extends Model
         'prematch_status',
         'tax_id_number',
         'tax_id_title',
+        'tax_id_email',
         'pay_status',
         'created_at',
         'updated_at',
