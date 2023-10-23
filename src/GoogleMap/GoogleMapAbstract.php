@@ -38,8 +38,8 @@ class GoogleMapAbstract implements ArrayAccess
     const location_maps = [
         'country' => 'country',
         'administrative_area_level_1' => 'city',
-        'administrative_area_level_2' => 'city',
-        'administrative_area_level_3' => 'district',
+        'administrative_area_level_2' => 'district',
+        'administrative_area_level_3' => 'village',
         'postal_code' => 'zip',
         'route' => 'route',
         'street_number' => 'street_number',
