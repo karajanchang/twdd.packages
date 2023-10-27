@@ -156,7 +156,7 @@ class CarFactory extends PaymentAbstract implements PaymentInterface
     }
 
     public function pay(array $params = [], bool $is_notify_member = true){
-        if($this->task->car_factory_pay_type==1) {
+        if($this->task->car_factory_pay_type==1 || $this->task->car_factory_pay_type==3) {
             $msg = '車廠現金付款成功 (單號：' . $this->task->id . ')';
             Log::info($msg);
 

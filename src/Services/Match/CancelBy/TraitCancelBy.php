@@ -193,7 +193,7 @@ trait TraitCancelBy
         $calldriverTaskMap = CalldriverTaskMap::find($this->calldriverTaskMap->id, ['id', 'task_id']);
 
         //--企業簽單
-        if ($calldriver->pay_type == 3) {
+        if ($calldriver->pay_type == 4) {
             //因為有些車廠也會是pay_type 3, 所以多判斷type
             if ($diff < $ts_long && $calldriver->type = 10) {
                 //                服務前12小時內 取消收取$150預約臨時取消費，並收取20%系統費，不收保險費
