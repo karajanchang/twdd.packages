@@ -5,7 +5,7 @@ return [
     'no_driver_password' => '沒有輪入密碼',
     'no_driver_push_token' => '沒有token',
     'no_driver_phone' => '沒有輸入電話',
-    'driver_can_not_online' => '此帳號已被停權，無法上線',
+    'driver_can_not_online' => '此帳號已被停權，無法登入',
     'driver_is_out' => '此帳號已退出，無法上線',
     'driver_credit_is_under_300' => '你的儲值餘額不足300元，無法上線',
     'driver_is_not_driver' => '你尚未具有正式夥伴身份',
