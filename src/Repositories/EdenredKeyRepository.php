@@ -19,8 +19,9 @@ class EdenredKeyRepository extends Repository
      * @param string $date (Y-m-d)
      * @return \Twdd\Models\EdenredKey
      */
-    public function getWorkKeyByDate($date=date('Y-m-d'))
+    public function getWorkKeyByDate($date = null)
     {
+        if ($date === null) $date = date('Y-m-d');
         return $this->model->whereDate('created_at', $date)->first();
     }
 }

@@ -19,8 +19,9 @@ class EdenredCouponRepository extends Repository
      * @param string $date (Y-m-d)
      * @return \Twdd\Models\EdenredCoupon
      */
-    public function getMaxSsnByDate($date=date('Y-m-d'))
+    public function getMaxSsnByDate($date = null)
     {
+        if ($date === null) $date = date('Y-m-d');
         $max = $this->model->whereDate('created_at', $date)->max('order_no') ?? 0;
         return $max + 1;
     }
