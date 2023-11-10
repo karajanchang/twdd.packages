@@ -7,4 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class EdenredCoupon extends Model
 {
     public $table="edenred_coupon";
+    protected $guarded = [];
 }
