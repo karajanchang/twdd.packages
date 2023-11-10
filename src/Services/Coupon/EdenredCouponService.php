@@ -3,6 +3,8 @@ namespace Twdd\Services\Coupon;
 
 use DB;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
+
 use Illuminate\Support\Facades\Http;
 use Twdd\Services\Coupon\CouponCode;
 use Twdd\Repositories\CouponRepository;
@@ -235,13 +237,17 @@ class EdenredCouponService
                 $edenred_coupon_data = [];
                 $checksum = md5($result['ResponseCode'] . '=' . $result['TranCode'] . '=' . $result['ExternalProductCode'] . '=' . $result['ProductName'] . '=' . $WorkKey . '=' . $TerminalSSN);
                 if ($result['ResponseCode'] == "0000") {
+                    $money = [];
+                    preg_match('/\d+/', $result['ExternalProductCode'] ?? $result['ProductName'], $money);
                     // 建立coupon
                     $coupon = $this->CouponRepository->create([
                         'code' => $this->CouponCode->init(),
-                        'money' => '6969',
+                        'money' => (int)$money[0],
                         'title' => $result['ProductName'],
                         'createtime' => Carbon::now(),
-                        'member_id' => $member_id
+                        'member_id' => $member_id,
+                        'startTS' => Carbon::now(),
+                        'endTS' => Carbon::now()->addYear()->setTime(23, 59, 59),
                     ]);
                 }
                 $edenred_coupon_data = [
