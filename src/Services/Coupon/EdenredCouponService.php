@@ -31,86 +31,89 @@ class EdenredCouponService
      */
     public function getWorkKey()
     {
-        $edenred_key = null;
-
         try {
             DB::beginTransaction();
-            // 參數設定
-            $Channel = env('EDENRED_CHANNEL', 'Test'); // 正式機：POS，測試機：Test
-            $MerchantCode = env('EDENRED_MERCHANT_CODE', '000000000000038'); // 宜睿提供
-            $ProgramCode = env('EDENRED_PROGRAM_CODR', '00001'); // 宜睿提供
-            $ShopCode = env('EDENRED_SHOP_CODE', '0000001028'); // 宜睿提供
-            $ManageTerminalDateTime = date('YmdHis'); // 格式：yyyyMMddHHmmss
-            $TerminalSSN = $ManageTerminalDateTime . '000001'; // ex:20151015105959 + 000001(流水碼) 
-            $ManageType = '101'; // 固定值
-            $SecurityKey = env('EDENRED_SECURITY_KEY', 'BF14C03588F8B095033694D785C87416'); // 宜睿提供
-            $url = env('EDENRED_URL', 'https://stage-posapi2.tixpress.tw/POSProxyService.svc'); // 正式機：https://posapi2.ticketxpress.com.tw/POSProxyService.svc，測試機：https://stage-posapi2.tixpress.tw/POSProxyService.svc
+            $edenred_key = $this->EdenredKeyRepository->getWorkKeyByDate();
 
-            $Checksum = md5($Channel . '=' . $MerchantCode . '=' . $ProgramCode . '=' . $ShopCode . '==' . $TerminalSSN . '=' . $ManageTerminalDateTime . '=' . $ManageType . '=' . $SecurityKey); // 格式：Channel=MerchantCode=ProgramCode=ShopCode==TerminalSSN=ManageTerminalDateTime=ManageType=SecurityKey
-            $data = [
-                '{Checksum}' => $Checksum,
-                '{Channel}' => $Channel,
-                '{MerchantCode}' => $MerchantCode,
-                '{ProgramCode}' => $ProgramCode,
-                '{ShopCode}' => $ShopCode,
-                '{TerminalSSN}' => $TerminalSSN,
-                '{ManageTerminalDateTime}' => $ManageTerminalDateTime,
-                '{ManageType}' => $ManageType,
-            ];
-            $xmlTemplate = '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" 
-                xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" 
-                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-                xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-                xmlns:m0="http://schemas.datacontract.org/2004/07/eVoucher.Authorization.Common">
-                    <SOAP-ENV:Body>
-                        <m:ManageTerminal xmlns:m="http://ticketxpress.com.tw/">
-                            <m:manageTerminalRequest>
-                                <m0:Channel>{Channel}</m0:Channel>
-                                <m0:Checksum>{Checksum}</m0:Checksum>
-                                <m0:ManageTerminalDateTime>{ManageTerminalDateTime}</m0:ManageTerminalDateTime>
-                                <m0:ManageType>{ManageType}</m0:ManageType>
-                                <m0:MerchantCode>{MerchantCode}</m0:MerchantCode>
-                                <m0:ProgramCode>{ProgramCode}</m0:ProgramCode>
-                                <m0:ShopCode>{ShopCode}</m0:ShopCode>
-                                <m0:TerminalCode></m0:TerminalCode>
-                                <m0:TerminalSSN>{TerminalSSN}</m0:TerminalSSN>
-                            </m:manageTerminalRequest>
-                        </m:ManageTerminal>
-                    </SOAP-ENV:Body>
-                </SOAP-ENV:Envelope>';
-            $xmlRequest = strtr($xmlTemplate, $data); // 將值替換到 XML 模板中
+            if (!$edenred_key) {
+                // 參數設定
+                $Channel = env('EDENRED_CHANNEL', 'Test'); // 正式機：POS，測試機：Test
+                $MerchantCode = env('EDENRED_MERCHANT_CODE', '000000000000038'); // 宜睿提供
+                $ProgramCode = env('EDENRED_PROGRAM_CODR', '00001'); // 宜睿提供
+                $ShopCode = env('EDENRED_SHOP_CODE', '0000001028'); // 宜睿提供
+                $ManageTerminalDateTime = date('YmdHis'); // 格式：yyyyMMddHHmmss
+                $TerminalSSN = $ManageTerminalDateTime . '000001'; // ex:20151015105959 + 000001(流水碼) 
+                $ManageType = '101'; // 固定值
+                $SecurityKey = env('EDENRED_SECURITY_KEY', 'BF14C03588F8B095033694D785C87416'); // 宜睿提供
+                $url = env('EDENRED_URL', 'https://stage-posapi2.tixpress.tw/POSProxyService.svc'); // 正式機：https://posapi2.ticketxpress.com.tw/POSProxyService.svc，測試機：https://stage-posapi2.tixpress.tw/POSProxyService.svc
 
-            $response = Http::withHeaders([
-                'Content-Type' => 'text/xml',
-                'SOAPAction' => 'http://ticketxpress.com.tw/IPOSProxy/ManageTerminal' // 固定值
-            ])->send('POST', $url, ['body' => $xmlRequest]);
-
-            if ($response->status() == 200) {
-                $xmlString = $response->body();
-                preg_match_all('/<a:Checksum>(.*?)<\/a:Checksum>/', $xmlString, $checksum);
-                preg_match_all('/<a:Message>(.*?)<\/a:Message>/', $xmlString, $message);
-                preg_match_all('/<a:ResponseCode>(.*?)<\/a:ResponseCode>/', $xmlString, $responseCode);
-                preg_match_all('/<a:ServerDate>(.*?)<\/a:ServerDate>/', $xmlString, $serverDate);
-                preg_match_all('/<a:ServerTime>(.*?)<\/a:ServerTime>/', $xmlString, $serverTime);
-                preg_match_all('/<a:WorkKey>(.*?)<\/a:WorkKey>/', $xmlString, $workKey);
-                $result = [
-                    'Checksum' => $checksum[1][0],
-                    'Message' => $message[1][0],
-                    'ResponseCode' => $responseCode[1][0],
-                    'ServerDate' => $serverDate[1][0],
-                    'ServerTime' => $serverTime[1][0],
-                    'WorkKey' => $workKey[1][0],
+                $Checksum = md5($Channel . '=' . $MerchantCode . '=' . $ProgramCode . '=' . $ShopCode . '==' . $TerminalSSN . '=' . $ManageTerminalDateTime . '=' . $ManageType . '=' . $SecurityKey); // 格式：Channel=MerchantCode=ProgramCode=ShopCode==TerminalSSN=ManageTerminalDateTime=ManageType=SecurityKey
+                $data = [
+                    '{Checksum}' => $Checksum,
+                    '{Channel}' => $Channel,
+                    '{MerchantCode}' => $MerchantCode,
+                    '{ProgramCode}' => $ProgramCode,
+                    '{ShopCode}' => $ShopCode,
+                    '{TerminalSSN}' => $TerminalSSN,
+                    '{ManageTerminalDateTime}' => $ManageTerminalDateTime,
+                    '{ManageType}' => $ManageType,
                 ];
+                $xmlTemplate = '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" 
+                    xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" 
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+                    xmlns:m0="http://schemas.datacontract.org/2004/07/eVoucher.Authorization.Common">
+                        <SOAP-ENV:Body>
+                            <m:ManageTerminal xmlns:m="http://ticketxpress.com.tw/">
+                                <m:manageTerminalRequest>
+                                    <m0:Channel>{Channel}</m0:Channel>
+                                    <m0:Checksum>{Checksum}</m0:Checksum>
+                                    <m0:ManageTerminalDateTime>{ManageTerminalDateTime}</m0:ManageTerminalDateTime>
+                                    <m0:ManageType>{ManageType}</m0:ManageType>
+                                    <m0:MerchantCode>{MerchantCode}</m0:MerchantCode>
+                                    <m0:ProgramCode>{ProgramCode}</m0:ProgramCode>
+                                    <m0:ShopCode>{ShopCode}</m0:ShopCode>
+                                    <m0:TerminalCode></m0:TerminalCode>
+                                    <m0:TerminalSSN>{TerminalSSN}</m0:TerminalSSN>
+                                </m:manageTerminalRequest>
+                            </m:ManageTerminal>
+                        </SOAP-ENV:Body>
+                    </SOAP-ENV:Envelope>';
+                $xmlRequest = strtr($xmlTemplate, $data); // 將值替換到 XML 模板中
 
-                $WorkKey = self::decodeDES($result['WorkKey'], $SecurityKey); // Sign In 取得的 WorkKey 需使用 SecurityKey 解密
+                $response = Http::withHeaders([
+                    'Content-Type' => 'text/xml',
+                    'SOAPAction' => 'http://ticketxpress.com.tw/IPOSProxy/ManageTerminal' // 固定值
+                ])->send('POST', $url, ['body' => $xmlRequest]);
 
-                // 將 work key 存入資料庫 edenred_key 中
-                $edenred_key = $this->EdenredKeyRepository->create([
-                    'key' => $WorkKey,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                if ($response->status() == 200) {
+                    $xmlString = $response->body();
+                    preg_match_all('/<a:Checksum>(.*?)<\/a:Checksum>/', $xmlString, $checksum);
+                    preg_match_all('/<a:Message>(.*?)<\/a:Message>/', $xmlString, $message);
+                    preg_match_all('/<a:ResponseCode>(.*?)<\/a:ResponseCode>/', $xmlString, $responseCode);
+                    preg_match_all('/<a:ServerDate>(.*?)<\/a:ServerDate>/', $xmlString, $serverDate);
+                    preg_match_all('/<a:ServerTime>(.*?)<\/a:ServerTime>/', $xmlString, $serverTime);
+                    preg_match_all('/<a:WorkKey>(.*?)<\/a:WorkKey>/', $xmlString, $workKey);
+                    $result = [
+                        'Checksum' => $checksum[1][0],
+                        'Message' => $message[1][0],
+                        'ResponseCode' => $responseCode[1][0],
+                        'ServerDate' => $serverDate[1][0],
+                        'ServerTime' => $serverTime[1][0],
+                        'WorkKey' => $workKey[1][0],
+                    ];
+
+                    $WorkKey = self::decodeDES($result['WorkKey'], $SecurityKey); // Sign In 取得的 WorkKey 需使用 SecurityKey 解密
+
+                    // 將 work key 存入資料庫 edenred_key 中
+                    $edenred_key = $this->EdenredKeyRepository->create([
+                        'key' => $WorkKey,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
+
             DB::commit();
         } catch (\Throwable $th) {
             \Log::error('EdenredCouponService getWorkKey error' . $th->getMessage());
@@ -138,7 +141,8 @@ class EdenredCouponService
         try {
             DB::beginTransaction();
             // 取得今天的work key
-            $WorkKey = $this->EdenredKeyRepository->getWorkKeyByDate();
+            $edenred_key = $this->getWorkKey();
+            $WorkKey = $edenred_key->key;
             // 取得今天edenred coupon的最大序號
             $max_ssn = $this->EdenredCouponRepository->getMaxSsnByDate();
             // 預設先建立edenred coupon
