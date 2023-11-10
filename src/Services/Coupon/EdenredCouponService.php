@@ -246,8 +246,8 @@ class EdenredCouponService
                         'title' => $result['ProductName'],
                         'createtime' => Carbon::now(),
                         'member_id' => $member_id,
-                        'startTS' => Carbon::now(),
-                        'endTS' => Carbon::now()->addYear()->setTime(23, 59, 59),
+                        'startTS' => Carbon::now()->timestamp,
+                        'endTS' => Carbon::now()->addYear()->setTime(23, 59, 59)->timestamp,
                     ]);
                 }
                 $edenred_coupon_data = [
