@@ -110,8 +110,6 @@ class EdenredCouponService
                     // 將 work key 存入資料庫 edenred_key 中
                     $edenred_key = $this->EdenredKeyRepository->create([
                         'key' => $WorkKey,
-                        'created_at' => now(),
-                        'updated_at' => now(),
                     ]);
                 }
             }
