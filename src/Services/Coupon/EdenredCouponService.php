@@ -97,12 +97,12 @@ class EdenredCouponService
                     preg_match_all('/<a:ServerTime>(.*?)<\/a:ServerTime>/', $xmlString, $serverTime);
                     preg_match_all('/<a:WorkKey>(.*?)<\/a:WorkKey>/', $xmlString, $workKey);
                     $result = [
-                        'Checksum' => $checksum[1][0],
-                        'Message' => $message[1][0],
-                        'ResponseCode' => $responseCode[1][0],
-                        'ServerDate' => $serverDate[1][0],
-                        'ServerTime' => $serverTime[1][0],
-                        'WorkKey' => $workKey[1][0],
+                        'Checksum' => $checksum[1][0] ?? null,
+                        'Message' => $message[1][0] ?? null,
+                        'ResponseCode' => $responseCode[1][0] ?? null,
+                        'ServerDate' => $serverDate[1][0] ?? null,
+                        'ServerTime' => $serverTime[1][0] ?? null,
+                        'WorkKey' => $workKey[1][0] ?? null,
                     ];
 
                     $WorkKey = self::decodeDES($result['WorkKey'], $SecurityKey); // Sign In 取得的 WorkKey 需使用 SecurityKey 解密
@@ -222,14 +222,14 @@ class EdenredCouponService
                 preg_match_all('/<a:ServerTime>(.*?)<\/a:ServerTime>/', $xmlString, $serverTime);
                 preg_match_all('/<a:TranCode>(.*?)<\/a:TranCode>/', $xmlString, $TranCode);
                 $result = [
-                    'Checksum' => $Checksum[1][0],
+                    'Checksum' => $Checksum[1][0] ?? null,
                     'ExpireDateTime' => $ExpireDateTime[1][0] ?? null,
                     'ExternalProductCode' => $ExternalProductCode[1][0] ?? null,
-                    'Message' => $Message[1][0],
+                    'Message' => $Message[1][0] ?? null,
                     'ProductName' => $ProductName[1][0] ?? null,
-                    'ResponseCode' => $responseCode[1][0],
-                    'ServerDate' => $serverDate[1][0],
-                    'ServerTime' => $serverTime[1][0],
+                    'ResponseCode' => $responseCode[1][0] ?? null,
+                    'ServerDate' => $serverDate[1][0] ?? null,
+                    'ServerTime' => $serverTime[1][0] ?? null,
                     'TranCode' => $TranCode[1][0] ?? null,
                 ];
 
