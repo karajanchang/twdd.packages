@@ -69,7 +69,7 @@ class DriverToken extends TokenAbstract implements InterfaceToken
             return $this->error->_('1011');
         }
 
-        if($identity->is_online!=1){
+        if($identity->is_online!=1 || $identity->tmpOfflines()->where('startTS', '<=', time())->where('endTS', '>=', time())->count() > 0){
 
             return $this->error->_('1005');
         }
