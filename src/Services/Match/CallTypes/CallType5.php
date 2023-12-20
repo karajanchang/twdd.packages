@@ -372,7 +372,7 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
         }
 
         //刷退成功需要作廢發票
-        //刷退要判斷當初有沒有打統編, 有統編是b to b 
+        //刷退要判斷當初有沒有打統編, 有統編是b to b
         $blackhatDetail = $calldriverTaskMap->blackhat_detail;
 
         if ($blackhatDetail->tax_id_number && $blackhatDetail->tax_id_title) {
@@ -484,13 +484,13 @@ class CallType5 extends AbstractCall implements InterfaceMatchCallType
             1 => [
                 'match_title' => '5小時 鐘點代駕', // 媒合方案startpage使用
                 'title' => '鐘點代駕(5小時)',
-                'price' => 2300,
+                'price' => 2680,
                 'hour' => 5,
             ],
             2 => [
                 'match_title' => '8小時 鐘點代駕', // 媒合方案startpage使用
                 'title' => '鐘點代駕(8小時)',
-                'price' => 3100,
+                'price' => 3980,
                 'hour' => 8,
             ]
         ];
