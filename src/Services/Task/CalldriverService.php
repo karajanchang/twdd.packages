@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: david
@@ -47,8 +48,7 @@ class CalldriverService extends ServiceAbstract
         BlackHatDetailRepository $blackhatDetailRepository,
         TaskHabitRepository $taskHabitRepository,
         EnterpriseStaffRepository $enterpriseStaffRepository
-    )
-    {
+    ) {
         $this->repository = $repository;
         $this->error = $taskErrors;
         $this->mapRepository = $mapRepository;
@@ -183,7 +183,7 @@ class CalldriverService extends ServiceAbstract
 
         // 檢查會員是否為企業員工
         $staff = $this->enterpriseStaffRepository->checkMemberIsStaffByID($this->call_member->id);
-        if($staff && $staff->enterprise_id){
+        if ($staff && $staff->enterprise_id) {
             $params['enterprise_id'] = $staff->enterprise_id;
         }
 
@@ -242,7 +242,6 @@ class CalldriverService extends ServiceAbstract
 
             return $this->error->_('500');
         }
-
     }
 
     /*
@@ -303,18 +302,19 @@ class CalldriverService extends ServiceAbstract
     }
 
 
-    private function filter(array $params){
+    private function filter(array $params)
+    {
         $call_member_id = $this->determineCallMemberId();
         $members = $this->getMembers();
-        if(!is_null($call_member_id)){
+        if (!is_null($call_member_id)) {
             $params['call_type'] = 3;
         }
         $params['call_member_id'] = $call_member_id;
 
         $params['call_driver_id'] = null;
-        if(isset($this->call_driver->id) && !empty($this->call_driver->id)){
+        if (isset($this->call_driver->id) && !empty($this->call_driver->id)) {
             $params['call_driver_id'] = $this->call_driver->id;
-        }else{
+        } else {
             $params['call_driver_id'] = !empty($params['call_driver_id']) ? $params['call_driver_id'] : null;
         }
 
@@ -330,9 +330,9 @@ class CalldriverService extends ServiceAbstract
         $params['extra_price'] = isset($params['extra_price']) ? (int) $params['extra_price'] : 0;
         $params['is_push'] = 0;
         $params['is_receive_money_first'] = isset($params['is_receive_money_first']) ? (int) $params['is_receive_money_first'] : 0;
-        if(isset($this->user->id) && !empty($this->user->id)){
+        if (isset($this->user->id) && !empty($this->user->id)) {
             $params['user_id'] = $this->user->id;
-        }else{
+        } else {
             $params['user_id'] = !empty($params['user_id']) ? $params['user_id'] : null;
         }
         $params['DeviceTypeMember'] = isset($params['DeviceType']) ? $params['DeviceType'] : null;
@@ -340,16 +340,17 @@ class CalldriverService extends ServiceAbstract
         $params['OSVerMember'] = isset($params['OSVer']) ? $params['OSVer'] : null;
         $params['DeviceModelMember'] = isset($params['DeviceModel']) ? $params['DeviceModel'] : null;
 
-        Log::info(__CLASS__.'::'.__METHOD__.': ', $params);
+        Log::info(__CLASS__ . '::' . __METHOD__ . ': ', $params);
 
         return $params;
     }
 
-    private function filterMap(Calldriver $calldriver, array $params){
+    private function filterMap(Calldriver $calldriver, array $params)
+    {
         $paras = [];
         $members = $this->getMembers();
         $call_member_id = isset($params['call_member_id']) ? $params['call_member_id'] : 0;
-        foreach($members as $member) {
+        foreach ($members as $member) {
             $pp = [
                 'member_id' => $member->id,
                 'call_member_id' => $call_member_id,
@@ -363,6 +364,7 @@ class CalldriverService extends ServiceAbstract
                 'is_push' => 0,
                 'call_driver_id' => $params['call_driver_id'],
                 'is_match_female_driver' => $params['match_female_driver'] ?? 0,
+                'is_volunteer_extra_price' => $params['is_volunteer_extra_price'] ?? 0,
                 'call_by_driver_id' => $params['call_by_driver_id'] ?? null,
             ];
             array_push($paras, $pp);
@@ -374,7 +376,7 @@ class CalldriverService extends ServiceAbstract
     private function insertTaskHabits(int $calldriverTaskMapId, array $params)
     {
         if (!isset($params['habit_ids']) || empty($params['habit_ids'])) {
-            return ;
+            return;
         }
         $dtNow = Carbon::now();
         $insertParams = [];
@@ -407,9 +409,10 @@ class CalldriverService extends ServiceAbstract
         $this->members = $members;
     }
 
-    private function ifMmemberIsNullThenEqalCallMember():void{
+    private function ifMmemberIsNullThenEqalCallMember(): void
+    {
         $members = $this->getMembers();
-        if(count($members)==0){
+        if (count($members) == 0) {
             $this->addMember($this->getCallMember());
         }
     }
@@ -419,7 +422,7 @@ class CalldriverService extends ServiceAbstract
      */
     public function addMember(Member $member): CalldriverService
     {
-        if(!array_key_exists($member->id, $this->members)) {
+        if (!array_key_exists($member->id, $this->members)) {
             $this->members[$member->id] = $member;
         }
 
@@ -427,7 +430,8 @@ class CalldriverService extends ServiceAbstract
     }
 
 
-    public function user($user = null){
+    public function user($user = null)
+    {
         $this->user = $user;
 
         return $this;
@@ -453,7 +457,8 @@ class CalldriverService extends ServiceAbstract
 
 
 
-    public function rules(){
+    public function rules()
+    {
 
         return [
             'lat' => 'required',
