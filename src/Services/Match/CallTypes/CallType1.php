@@ -14,6 +14,8 @@ use Twdd\Services\Match\CallTypes\Traits\TraitHavePrematch;
 use Twdd\Services\Match\CallTypes\Traits\TraitMemberCanMatch;
 use Twdd\Services\Match\CallTypes\Traits\TraitMemberCanNotCall;
 use Twdd\Services\Match\CallTypes\Traits\TraitServiceArea;
+use Twdd\Models\Driver;
+use Twdd\Services\PushNotificationService;
 
 class CallType1 extends AbstractCall implements InterfaceMatchCallType
 {
@@ -48,7 +50,8 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
     /*
      * 參數檢查
      */
-    public function check(array $params, array $remove_lists = []){
+    public function check(array $params, array $remove_lists = [])
+    {
         $check = parent::check($params, $remove_lists);
         // 如果是企業簽單
         if ($params['pay_type'] == 3) {
@@ -59,7 +62,7 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
             }
             $params['enterprise_id'] = $enterprise->enterprise_id;
         }
-        if($check===true) {
+        if ($check === true) {
             $this->setParams($params);
 
             return true;
@@ -68,19 +71,21 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
         return $check;
     }
 
-    public function match(array $other_params = []){
+    public function match(array $other_params = [])
+    {
+
         //--檢查有沒有重覆呼叫
         $res = $this->noCheckList('CallNoDuplicate');
-        if($res!==false && $this->CallNoDuplicate()!==true){
+        if ($res !== false && $this->CallNoDuplicate() !== true) {
 
             return $this->{$res}('重覆呼叫，請等候上一呼叫結束');
         }
 
         //---檢查有沒有進行中任務
         $res = $this->noCheckList('HaveNoRuningTask');
-        if($res!==false && $this->HaveNoRuningTask()!==true){
+        if ($res !== false && $this->HaveNoRuningTask() !== true) {
 
-            if($res=='error') {
+            if ($res == 'error') {
 
                 return $this->error('你有一進行中的任務，無法呼叫');
             }
@@ -90,7 +95,7 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
 
         //---擋下在1.5小時內有預約呼叫的人
         $res = $this->noCheckList('HavePrematch');
-        if($res!==false && $this->HavePrematch()===true){
+        if ($res !== false && $this->HavePrematch() === true) {
             $msg = trans('messages.you_can_not_call_match_before_15_hour', ['hour' => env('MATCH_CANNOT_ACCEPT_WHEN_IN_PREMATH_HOUR', 1.5)]);
 
             return $this->error($msg);
@@ -98,24 +103,28 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
 
         $params = $this->processParams($this->params, $other_params);
         $calldriver = $this->getCalldriverServiceInstance()->setCallDriver($this->callDriver)->create($params);
-        if(isset($calldriver['error'])){
+        if (isset($calldriver['error'])) {
             $msg = !is_null($calldriver['msg']) ? $calldriver['msg']->first() : '系統發生錯誤';
-            Log::info(__CLASS__.'::'.__METHOD__.'error: ', [$calldriver]);
+            Log::info(__CLASS__ . '::' . __METHOD__ . 'error: ', [$calldriver]);
 
             return $this->error($msg, $calldriver);
         }
 
+        if (isset($params['is_volunteer_extra_price']) && $params['is_volunteer_extra_price'] > 0) {
+            $this->markupNotification($params);
+        }
         return $this->success('呼叫成功', $calldriver);
     }
 
     /*
      * 處理 params
      */
-    public function processParams(array $params, array $other_params = []) : array{
+    public function processParams(array $params, array $other_params = []): array
+    {
         $params = parent::processParams($params, $other_params);
 
         //--app呼叫且呼叫方式不為預約呼叫把TS改成
-        if($params['type']==1){
+        if ($params['type'] == 1) {
             $params['TS'] = time();
         }
 
@@ -123,7 +132,8 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
     }
 
 
-    public function rules() : array{
+    public function rules(): array
+    {
 
         return [
             'TS'                        =>  'required|integer',
@@ -147,4 +157,48 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
         ];
     }
 
+    private function markupNotification($params)
+    {
+
+        $location = app(\Twdd\Helpers\LatLonService::class)->citydistrictFromLatlonOrZip($params['lat'], $params['lon']);
+        $group = $this->cityToDriverGroup($location['city_id']);
+
+        $driverList = Driver::where("DriverState", "<>", "2")
+            ->where("is_online", 1)
+            ->where("is_out", 0)
+            ->where('driver_group_id', $group)
+            ->pluck('id')->toArray();
+
+        $pushService = new PushNotificationService();
+        $body = '乘客加價任務！【' . $params['district'] . '】有乘客加價100元，請附近夥伴上線接單。';
+        $pushService->push2Driver($driverList, '乘客加價任務', $body);
+    }
+
+    private function cityToDriverGroup(int $cityId)
+    {
+        switch ($cityId) {
+            case 1:
+            case 3:
+                return 1;
+            case 2:
+                return 9;
+            case 6:
+            case 7:
+                return 4;
+            case 8:
+                return 3;
+            case 10:
+                return 5;
+            case 11:
+                return 8;
+            case 16:
+                return 6;
+            case 17:
+                return 7;
+            case 20:
+                return 10;
+            default:
+                return 0;
+        }
+    }
 }
