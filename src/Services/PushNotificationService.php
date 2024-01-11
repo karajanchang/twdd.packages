@@ -25,39 +25,48 @@ class PushNotificationService
     {
         if (count($tokens['ios']) > 0) {
             $tokens['ios'] = collect($tokens['ios']);
-            $tokens['ios'] = $tokens['ios']->chunk(50)->toArray();
+            $tokens['ios'] = $tokens['ios']->unique()->chunk(50)->toArray();
             foreach ($tokens['ios'] as $token) {
-                PushNotification::user('ios')->tokens($token)->action($action)->title($title)->body($body)->send();
+                foreach ($token as $t) {
+                    PushNotification::user('ios')->tokens($t)->action($action)->title($title)->body($body)->send();
+                }
             }
         }
         if (count($tokens['android']) > 0) {
             $tokens['android'] = collect($tokens['android']);
-            $tokens['android'] = $tokens['android']->chunk(50)->toArray();
+            $tokens['android'] = $tokens['android']->unique()->chunk(50)->toArray();
             foreach ($tokens['android'] as $token) {
-                PushNotification::user('android')->tokens($token)->action($action)->title($title)->body($body)->send();
+                foreach ($token as $t) {
+                    PushNotification::user('android')->tokens($t)->action($action)->title($title)->body($body)->send();
+                }
             }
         }
     }
 
     private function send2Driver(array $tokens, string $title, string $body, string $action = 'PushMsg')
     {
+
         if (count($tokens['ios']) > 0) {
             $tokens['ios'] = collect($tokens['ios']);
-            $tokens['ios'] = $tokens['ios']->chunk(50)->toArray();
+            $tokens['ios'] = $tokens['ios']->unique()->chunk(50)->toArray();
             foreach ($tokens['ios'] as $token) {
-                PushNotification::driver('ios')->tokens($token)->action($action)->title($title)->body($body)->send();
+                foreach ($token as $t) {
+                    PushNotification::driver('ios')->tokens($t)->action($action)->title($title)->body($body)->send();
+                }
             }
         }
         if (count($tokens['android']) > 0) {
             $tokens['android'] = collect($tokens['android']);
-            $tokens['android'] = $tokens['android']->chunk(50)->toArray();
+            $tokens['android'] = $tokens['android']->unique()->chunk(50)->toArray();
             foreach ($tokens['android'] as $token) {
-                PushNotification::driver('android')->tokens($token)->action($action)->title($title)->body($body)->send();
+                foreach ($token as $t) {
+                    PushNotification::driver('android')->tokens($t)->action($action)->title($title)->body($body)->send();
+                }
             }
         }
     }
 
-    private function getMemberPushTokens(array $memberIds) : array
+    private function getMemberPushTokens(array $memberIds): array
     {
         $tokens = [
             'ios' => [],
@@ -75,7 +84,7 @@ class PushNotificationService
         return $tokens;
     }
 
-    private function getDriverPushTokens(array $driverIds) : array
+    private function getDriverPushTokens(array $driverIds): array
     {
         $tokens = [
             'ios' => [],
