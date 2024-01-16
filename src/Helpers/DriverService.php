@@ -195,7 +195,11 @@ class DriverService extends ServiceAbstract
             }
 
             if ($this->driver->isPayForAccidentInsurance($this->driver->id) !== true) {
-
+                if (time() > strtotime($this->driver->self_buy_accident_insurance_start_date) && time() < strtotime($this->driver->self_buy_accident_insurance_end_date)) {
+                    \Log::info($this->driver->DriverID . ' 已自行投保意外險，期限為：' . $this->driver->self_buy_accident_insurance_start_date . '至' . $this->driver->self_buy_accident_insurance_end_date);
+                } else {
+                    return $this->error->_('4004');
+                }
                 return $this->error->_('4004');
             }
 
