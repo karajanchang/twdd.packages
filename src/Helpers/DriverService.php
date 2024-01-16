@@ -200,7 +200,6 @@ class DriverService extends ServiceAbstract
                 } else {
                     return $this->error->_('4004');
                 }
-                return $this->error->_('4004');
             }
 
             //---有在進行中的任務，無法上線
