@@ -16,6 +16,7 @@ use Twdd\Services\Match\CallTypes\Traits\TraitMemberCanNotCall;
 use Twdd\Services\Match\CallTypes\Traits\TraitServiceArea;
 use Twdd\Models\Driver;
 use Twdd\Services\PushNotificationService;
+use Twdd\Facades\PushNotification;
 
 class CallType1 extends AbstractCall implements InterfaceMatchCallType
 {
@@ -161,44 +162,102 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
     {
 
         $location = app(\Twdd\Helpers\LatLonService::class)->citydistrictFromLatlonOrZip($params['lat'], $params['lon']);
-        $group = $this->cityToDriverGroup($location['city_id']);
 
-        $driverList = Driver::where("DriverState", "<>", "2")
+        $group = $this->locationToDriverGroup($location);
+
+        $driverList = Driver::leftjoin('driver_push', 'driver_push.driver_id', 'driver.id')
+            ->where("DriverState", "<>", "2")
             ->where("is_online", 1)
             ->where("is_out", 0)
-            ->where('driver_group_id', $group)
-            ->pluck('id')->toArray();
+            ->whereIn('driver_group_id', $group)
+            ->get(['driver.id', 'DriverState', 'driver_group_id', 'DeviceType', 'PushToken'])->toArray();
 
-        $pushService = new PushNotificationService();
-        $body = '乘客加價任務！【' . $params['district'] . '】有乘客加價100元，請附近夥伴上線接單。';
-        $pushService->push2Driver($driverList, '乘客加價任務', $body);
+
+        foreach ($driverList as $driver) {
+
+            //基隆本地接到雙北推播要額外顯示縣市訊息
+            if (($location['city_id'] == 1 || $location['city_id'] == 3) && $driver['driver_group_id'] == 9) {
+                $body = $location['city'] . '【' . $params['district'] . '】';
+            } else {
+                $body = '【' . $params['district'] . '】';
+            }
+
+            if ($driver['DriverState'] == 0) {
+                $body .= '有乘客加價100元，請附近夥伴上線接單。';
+            } else {
+                $body .= '區域內有乘客加價100元，請夥伴移動接單。';
+            }
+
+            if ($driver['DeviceType'] == 'iPhone') {
+                PushNotification::driver('ios')->tokens($driver['PushToken'])->action('PushMsg')->title('乘客加價任務💰')->body($body)->send();
+            } else {
+                PushNotification::driver('android')->tokens($driver['PushToken'])->action('PushMsg')->title('乘客加價任務💰')->body($body)->send();
+            }
+        }
     }
 
-    private function cityToDriverGroup(int $cityId)
+    private function locationToDriverGroup($location)
     {
-        switch ($cityId) {
+        $group = [];
+        switch ($location['city_id']) {
             case 1:
             case 3:
-                return 1;
+                array_push($group, 1);
+                array_push($group, 9); //雙北要多推給基隆
+                break;
             case 2:
-                return 9;
+                array_push($group, 9);
+                break;
             case 6:
             case 7:
-                return 4;
+                array_push($group, 4);
+                break;
             case 8:
-                return 3;
+                array_push($group, 3);
+                break;
             case 10:
-                return 5;
+                array_push($group, 5);
+                break;
             case 11:
-                return 8;
+                array_push($group, 8);
+                break;
             case 16:
-                return 6;
+                array_push($group, 6);
+                break;
             case 17:
-                return 7;
+                array_push($group, 7);
+                break;
             case 20:
-                return 10;
+                array_push($group, 10);
+                break;
             default:
-                return 0;
+                break;
         }
+
+        switch ($location['district_id']) {
+
+            case 87:
+                //龜山在桃園, 多推給雙北基隆
+                array_push($group, 1);
+                array_push($group, 9);
+                break;
+            case 36:
+            case 37:
+            case 38:
+            case 42:
+                //林口、鶯歌、三峽、樹林是新北, 多給桃園
+                array_push($group, 3);
+            case 270:
+            case 272:
+            case 278:
+            case 292:
+                //高雄的湖內、茄錠、路竹、阿連 -> 多給台南
+                array_push($group, 6);
+                break;
+            default:
+                break;
+        }
+
+        return $group;
     }
 }
