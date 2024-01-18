@@ -63,10 +63,9 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
 
                 if ($blackHatDetail->tax_id_number && $blackHatDetail->tax_id_title) {
 
-
                     $enterprise = new Enterprise();
                     $enterprise->fill(["GUI_number" => $blackHatDetail->tax_id_number, "title" => $blackHatDetail->tax_id_title]);
-                    $enterprise->UserEmail = $blackHatDetail->tax_id_email ?? $member->UserEmail;
+                    $enterprise->UserEmail = $blackHatDetail->tax_id_email ?: $member->UserEmail;
 
                     $b2cInvoice = [
                         "type" => "B2B",
@@ -74,6 +73,7 @@ class BlackHat extends PaymentAbstract implements PaymentInterface
                         "target" => $enterprise,
                     ];
                 } else {
+                    $member->UserEmail = $blackHatDetail->tax_id_email ?: $member->UserEmail;
                     $b2cInvoice = [
                         "type" => "B2C",
                         "fee" => $money,
