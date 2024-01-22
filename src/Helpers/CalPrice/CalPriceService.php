@@ -52,7 +52,6 @@ class CalPriceService
         }
 
         if(empty($location['city_id'])){
-
             return [
                 'normal' => 0,
                 'plus' => 0,
