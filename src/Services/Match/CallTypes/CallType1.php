@@ -177,7 +177,7 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
 
             //基隆本地接到雙北桃園推播要額外顯示縣市訊息
             if (($location['city_id'] == 1 || $location['city_id'] == 3 || $location['city_id'] == 8) && $driver['driver_group_id'] == 9) {
-                $city = mb_substr('台北市', 0, 2, 'utf-8');
+                $city = mb_substr($location['city'], 0, 2, 'utf-8');
                 $body = $city . '【' . $params['district'] . '】';
             } else {
                 $body = '【' . $params['district'] . '】';
