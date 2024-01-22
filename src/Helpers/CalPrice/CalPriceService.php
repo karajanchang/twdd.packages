@@ -5,6 +5,7 @@ namespace Twdd\Helpers\CalPrice;
 
 
 use Carbon\Carbon;
+use Twdd\Models\District;
 use Illuminate\Support\Collection;
 use Jyun\Mapsapi\TwddMap\Geocoding;
 use Twdd\Facades\SettingExtraPriceService;
@@ -39,6 +40,16 @@ class CalPriceService
 
     public function trial() : array{
         $location = Geocoding::geocode($this->startAddr)['data'] ?? [];
+
+        if (empty($location['city_id']) && $location['zip']) {
+            $data = District::select('city.id as city_id', 'district.id as district_id', 'zip')
+                ->join('city', 'district.city_id', '=', 'city.id')
+                ->where('zip', substr($location['zip'], 0, 3))
+                ->first();
+            $location['zip'] = ($data['zip']) ?: ($location['zip'] ?? null);
+            $location['city_id'] = $data['city_id'] ?: ($location['city_id'] ?? null);
+            $location['district_id'] = $data['district_id'] ?: ($location['district_id'] ?? null);
+        }
 
         if(empty($location['city_id'])){
 
