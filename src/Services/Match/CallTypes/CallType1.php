@@ -172,7 +172,7 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
             ->whereIn('driver_group_id', $group)
             ->get(['driver.id', 'DriverState', 'driver_group_id', 'DeviceType', 'PushToken'])->toArray();
 
-
+        $price = $params['is_volunteer_extra_price_value'] ?? 0;
         foreach ($driverList as $driver) {
 
             //基隆本地接到雙北桃園推播要額外顯示縣市訊息
@@ -184,9 +184,9 @@ class CallType1 extends AbstractCall implements InterfaceMatchCallType
             }
 
             if ($driver['DriverState'] == 0) {
-                $body .= '有乘客加價100元，請附近夥伴上線接單。';
+                $body .= '有乘客加價' . $price . '元，請附近夥伴上線接單。';
             } else {
-                $body .= '區域內有乘客加價100元，請夥伴移動接單。';
+                $body .= '區域內有乘客加價' . $price . '元，請夥伴移動接單。';
             }
 
             if ($driver['DeviceType'] == 'iPhone') {
