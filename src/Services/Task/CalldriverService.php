@@ -364,7 +364,8 @@ class CalldriverService extends ServiceAbstract
                 'is_push' => 0,
                 'call_driver_id' => $params['call_driver_id'],
                 'is_match_female_driver' => $params['match_female_driver'] ?? 0,
-                'is_volunteer_extra_price' => $params['is_volunteer_extra_price_value'] ?? 0,
+                'is_volunteer_extra_price' => $params['is_volunteer_extra_price'] ?? 0,
+                'is_volunteer_extra_price_value' => $params['is_volunteer_extra_price_value'] ?? 0,
                 'call_by_driver_id' => $params['call_by_driver_id'] ?? null,
             ];
             array_push($paras, $pp);
