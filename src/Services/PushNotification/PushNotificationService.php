@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: david
  * Date: 2019-05-20
  * Time: 16:09
  */
+
 namespace Twdd\Services\PushNotification;
 
 use Illuminate\Database\Eloquent\Collection;
@@ -23,85 +25,95 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     protected $sound = 'default';
     protected $is_send_test = false;
 
-    public function isAppleClip(){
+    public function isAppleClip()
+    {
         $this->port = env('GORUSH_CLIP_PORT', 7792);
         $this->port_dev = env('GORUSH_CLIP_PORT_DEV', 7793);
         $this->topic = env('IOS_USER_CLIP_TOPIC', 'com.rich.app.DesignedDrivingClient.Clip');
 
-        if((bool) env('APP_DEBUG')===true){
+        if ((bool) env('APP_DEBUG') === true) {
             $this->port = $this->port_dev;
         }
     }
 
-    public function platform(string $type = 'ios'){
-        if(strtolower($type)=='ios' || strtolower($type)=='iphone'){
+    public function platform(string $type = 'ios')
+    {
+        if (strtolower($type) == 'ios' || strtolower($type) == 'iphone') {
             $this->platform = 1;
-        }else{
+        } else {
             $this->platform = 2;
         }
 
         return $this;
     }
 
-    public function ios(){
+    public function ios()
+    {
 
         return $this->platform('ios');
     }
 
-    public function android(){
+    public function android()
+    {
 
         return $this->platform('android');
     }
 
-    public function tokens($tokens){
-        if(!is_array($tokens)){
+    public function tokens($tokens)
+    {
+        if (!is_array($tokens)) {
             $this->tokens = [$tokens];
-        }else {
-            $tokens = array_values($tokens);
-            $this->tokens = array_unique($tokens);
+        } else {
+            $tokens = array_unique($tokens);
+            $this->tokens = array_values($tokens);
         }
 
         return $this;
     }
 
 
-    public function title(string $title){
+    public function title(string $title)
+    {
         $this->alert->title = $title;
         $this->title = $title;
         return $this;
     }
 
-    public function body(string $body){
+    public function body(string $body)
+    {
         $this->alert->body = $body;
         $this->msg = $body;
 
         return $this;
     }
 
-    public function sound($sound){
-        if(is_int($sound)){
+    public function sound($sound)
+    {
+        if (is_int($sound)) {
             $sounds = include __DIR__ . '/sound.php';
             $this->sound = Collection::make($sounds)->get($sound, 0);
-            Log::info(__CLASS__.' sound (int): '.$sound, [$this->sound]);
+            Log::info(__CLASS__ . ' sound (int): ' . $sound, [$this->sound]);
 
             return $this;
         }
-        if(is_string($sound)){
+        if (is_string($sound)) {
             $this->sound = $sound;
-            Log::info(__CLASS__.' sound (string): '.$sound, [$this->sound]);
+            Log::info(__CLASS__ . ' sound (string): ' . $sound, [$this->sound]);
 
             return $this;
         }
     }
 
-    public function data($data){
+    public function data($data)
+    {
         $this->data = $data;
 
         return $this;
     }
 
-    private function makeNotification(){
-        if($this->platform==1){
+    private function makeNotification()
+    {
+        if ($this->platform == 1) {
 
             return $this->iosNotificaiton();
         }
@@ -109,7 +121,8 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         return $this->androidNotification();
     }
 
-    private function iosNotificaiton(){
+    private function iosNotificaiton()
+    {
         $notification = $this->toArray();
         $notification['alert'] = $this->alert;
         $notification['data']['data'] = $this->data;
@@ -122,23 +135,25 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         return $notification;
     }
 
-    private function androidNotification(){
+    private function androidNotification()
+    {
         $notification = $this->toArray();
         $notification['data']['data'] = $this->data;
-        UNSET($notification['title']);
-        UNSET($notification['msg']);
-        UNSET($notification['action']);
-        UNSET($notification['port_dev']);
-        UNSET($notification['topic']);
-        UNSET($notification['badge']);
-        UNSET($notification['port_dev']);
+        unset($notification['title']);
+        unset($notification['msg']);
+        unset($notification['action']);
+        unset($notification['port_dev']);
+        unset($notification['topic']);
+        unset($notification['badge']);
+        unset($notification['port_dev']);
 
         Log::info('$notification android ==============$notification', $notification);
 
         return $notification;
     }
 
-    private function getSend() : \stdClass{
+    private function getSend(): \stdClass
+    {
         $send = new \stdClass();
         $send->notifications[] = $this->makeNotification();
 
@@ -146,17 +161,18 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
     }
 
 
-    private function testers(string $type='ios') : array{
+    private function testers(string $type = 'ios'): array
+    {
         $this->is_send_test = true;
         $this->platform($type);
 
         $name = strtolower($type);
-        $rows = app($this->testRepository())->with($name.'Push')->where('receive_push_notification', 1)->get();
+        $rows = app($this->testRepository())->with($name . 'Push')->where('receive_push_notification', 1)->get();
         $testers = new Collection();
-        if( isset($rows) && count($rows)>0 ) {
+        if (isset($rows) && count($rows) > 0) {
             foreach ($rows as $row) {
-                if (isset($row->{$name.'Push'}->PushToken)) {
-                    $testers->push($row->{$name.'Push'}->PushToken);
+                if (isset($row->{$name . 'Push'}->PushToken)) {
+                    $testers->push($row->{$name . 'Push'}->PushToken);
                 }
             }
         }
@@ -164,27 +180,30 @@ class PushNotificationService extends \Twdd\Services\ServiceAbstract
         return $testers->toArray();
     }
 
-    public function iosTesters() : array{
+    public function iosTesters(): array
+    {
 
         return $this->testers('ios');
     }
 
-    public function androidTesters() : array{
+    public function androidTesters(): array
+    {
 
         return $this->testers('android');
     }
 
-    public function send(){
+    public function send()
+    {
         $send = $this->getSend();
 
-        $url = $this->host.':'.$this->port.'/api/push';
+        $url = $this->host . ':' . $this->port . '/api/push';
         //dump($url);
         //dd('send ... send... send ...', $send);
         //--正式機才發推播
         //if(env('APP_ENV')=='production') {
         $res = ZhyuCurl::url($url)->json($send, true);
 
-            /*
+        /*
         }else{
             $res = [
                 'counts' => 0,
