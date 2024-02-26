@@ -54,6 +54,10 @@ class MongoDriverLatLonRepository
         $params['type'] = 3;
         //--以駕駛目前的狀況為driver_state
         $params['driver_state'] = $driver->DriverState;
+        // 駐點狀態，當作上線紀錄
+        if ($params['driver_state'] == 3) {
+            $params['driver_state'] = 1;
+        }
         $this->driver = $driver;
         $this->params = $params;
         $this->msg = '更新位置';
